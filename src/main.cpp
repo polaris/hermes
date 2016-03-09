@@ -4,7 +4,7 @@
 
 int main() {
     try {
-        Game game("test", 640, 480);
+        Game game("Handle Latency", 640, 480);
         game.run();
         return 0;
     } catch (const std::exception &ex) {
