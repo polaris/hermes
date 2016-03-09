@@ -1,5 +1,6 @@
 #include "Game.h"
-#include <boost/format.hpp>
+
+#include <stdexcept>
 
 Game::Game(const char *title, unsigned int width, unsigned int height)
 : window_(nullptr)
@@ -25,14 +26,14 @@ void Game::setUp(const char *title, unsigned int width, unsigned int height) {
             renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
             if (renderer_ == nullptr) {
                 tearDown();
-                throw std::runtime_error(boost::str(boost::format("failed to create SDL window: %1%") % SDL_GetError()));
+                throw std::runtime_error(SDL_GetError());
             }
         } else {
             tearDown();
-            throw std::runtime_error(boost::str(boost::format("failed to create SDL window: %1%") % SDL_GetError()));
+            throw std::runtime_error(SDL_GetError());
         }
     } else {
-        throw std::runtime_error(boost::str(boost::format("failed to initialize SDL: %1%") % SDL_GetError()));
+        throw std::runtime_error(SDL_GetError());
     }
 }
 
