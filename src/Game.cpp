@@ -47,13 +47,13 @@ void Game::tearDown() {
 }
 
 void Game::run() {
-    bool running = true;
-    while (running) {
+    running_ = true;
+    while (running_) {
         SDL_Event event;
         if (SDL_PollEvent(&event)) {
             switch (event.type) {
             case SDL_QUIT:
-                running = false;
+                running_ = false;
                 break;
             default:
             break;
