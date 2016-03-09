@@ -5,13 +5,29 @@
 
 class Game {
 public:
+    /** Constructor
+     *
+     *  \param title the title of the window.
+     *  \param width the width of the window.
+     *  \param height the height of the window.
+     */
     Game(const char *title, unsigned int width, unsigned int height);
+
+    /** Destructor
+     */
     virtual ~Game();
 
+    /** Runs the game.
+     */
     void run();
 
 private:
+    /** Setup SDL.
+     */
     void setUp(const char *title, unsigned int width, unsigned int height);
+
+    /** Tear down SDL.
+     */
     void tearDown();
 
     SDL_Window* window_;
