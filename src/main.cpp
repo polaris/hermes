@@ -1,7 +1,14 @@
 #include "Game.h"
 
+#include <iostream>
+
 int main() {
-    Game game("test", 640, 480);
-    game.run();    
-    return 0;
+    try {
+        Game game("test", 640, 480);
+        game.run();
+        return 0;
+    } catch (const std::exception &ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+        return 1;
+    }
 }
