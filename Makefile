@@ -1,6 +1,12 @@
 CXX := clang
 
-CXXFLAGS := -Wall -Wextra -pedantic -std=c++14 -O3
+CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
+            -Wdisabled-optimization -Wformat=2 -Winit-self \
+            -Wmissing-declarations -Wmissing-include-dirs \
+            -Wold-style-cast -Woverloaded-virtual -Wredundant-decls \
+            -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 \
+            -Wswitch-default -Wundef -Werror -Wno-unused -Wconversion \
+            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O3
 LDFLAGS := -lstdc++ -lm -lsdl2
 INC :=
 
