@@ -7,17 +7,26 @@ CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
             -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 \
             -Wswitch-default -Wundef -Werror -Wno-unused -Wconversion \
             -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O3
-LDFLAGS := -lstdc++ -lm -lsdl2
+LDFLAGS := -lstdc++ -lm -lsdl2 -lboost_system
 INC :=
 
-SRC := $(wildcard src/*.cpp)
+MAIN := src/client.cpp src/server.cpp
+SRC := $(filter-out $(addsuffix %,$(MAIN)),$(wildcard src/*.cpp))
 OBJ := $(addprefix obj/,$(notdir $(SRC:.cpp=.o)))
 
-all: bin/client
+all: bin/server bin/client
 
-bin/client: $(OBJ)
+bin/server: $(OBJ) obj/server.o
 	@mkdir -p bin
 	$(CXX) $(LDFLAGS) $^ -o $@
+
+bin/client: $(OBJ) obj/client.o
+	@mkdir -p bin
+	$(CXX) $(LDFLAGS) $^ -o $@
+
+obj/server.o: src/server.cpp
+	@mkdir -p obj
+	$(CXX) $(CXXFLAGS) $(INC) $^ -c -o $@
 
 obj/client.o: src/client.cpp
 	@mkdir -p obj
