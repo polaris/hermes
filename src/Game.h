@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL.h>
 
+class Sprite;
+
 /** Represents a game.
  */
 class Game {
@@ -21,7 +23,13 @@ public:
 
     /** Runs the game.
      */
-    void run();
+    void run(const Sprite &sprite);
+
+    /** Returns a pointer to the SDL renderer.
+     */
+    SDL_Renderer* renderer() const {
+        return renderer_;
+    }
 
 private:
     /** Setup SDL.

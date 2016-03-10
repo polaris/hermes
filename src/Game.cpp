@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Sprite.h"
 
 #include <stdexcept>
 
@@ -47,7 +48,7 @@ void Game::tearDown() {
     SDL_Quit();
 }
 
-void Game::run() {
+void Game::run(const Sprite &sprite) {
     running_ = true;
     while (running_) {
         SDL_Event event;
@@ -62,10 +63,13 @@ void Game::run() {
         }
         
         // update
-        
+
         // Render
         SDL_SetRenderDrawColor(renderer_, 128, 0, 0, 255);
         SDL_RenderClear(renderer_);
+        
+        sprite.draw(0, 0, 56, 80, *this);
+        
         SDL_RenderPresent(renderer_);
     }
 }
