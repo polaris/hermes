@@ -13,13 +13,13 @@ INC :=
 SRC := $(wildcard src/*.cpp)
 OBJ := $(addprefix obj/,$(notdir $(SRC:.cpp=.o)))
 
-all: bin/demo
+all: bin/client
 
-bin/demo: $(OBJ)
+bin/client: $(OBJ)
 	@mkdir -p bin
 	$(CXX) $(LDFLAGS) $^ -o $@
 
-obj/main.o: src/main.cpp
+obj/client.o: src/client.cpp
 	@mkdir -p obj
 	$(CXX) $(CXXFLAGS) $(INC) $^ -c -o $@
 
