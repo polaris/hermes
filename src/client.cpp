@@ -11,7 +11,7 @@ int main() {
 
         Game game("Handle Latency", 640, 480);
 
-        Sprite sprite("data/ninja.png", game.renderer());
+        Sprite sprite("data/ninja.png", game.getRenderer());
 
         game.run(sprite);
     

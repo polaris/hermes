@@ -25,7 +25,7 @@ void Game::run(const Sprite &sprite) {
         
         // update
 
-        renderer_.setDrawColor();
+        renderer_.setDrawColor(0, 0, 1, 1);
         renderer_.clear();
         
         sprite.draw(0, 0, 56, 80, renderer_);

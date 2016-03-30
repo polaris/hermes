@@ -22,8 +22,9 @@ void Renderer::clear() {
     SDL_RenderClear(renderer_);
 }
 
-void Renderer::setDrawColor() {
-    SDL_SetRenderDrawColor(renderer_, 128, 0, 0, 255);
+void Renderer::setDrawColor(float r, float g, float b, float a) {
+    SDL_SetRenderDrawColor(renderer_, static_cast<Uint8>(r * 255), static_cast<Uint8>(g * 255),
+        static_cast<Uint8>(b * 255), static_cast<Uint8>(a * 255));
 }
 
 void Renderer::present() {

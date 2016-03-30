@@ -13,7 +13,7 @@ public:
 
     void clear();
 
-    void setDrawColor();
+    void setDrawColor(float r, float g, float b, float a);
 
     void present();
 

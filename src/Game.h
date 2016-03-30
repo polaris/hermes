@@ -12,7 +12,7 @@ public:
 
     void run(const Sprite &sprite);
 
-    const Renderer &renderer() const {
+    const Renderer &getRenderer() const {
         return renderer_;
     }
 
