@@ -3,10 +3,12 @@
 
 #include <SDL2/SDL_Image.h>
 
-Sprite::Sprite(const std::string &filename, const Renderer &renderer)
+#include <stdexcept>
+
+Sprite::Sprite(const char *filename, const Renderer &renderer)
 : texture(nullptr) {
 
-    SDL_Surface *surface = IMG_Load(filename.c_str());    
+    SDL_Surface *surface = IMG_Load(filename);
     if (surface == nullptr) {
         throw std::runtime_error(IMG_GetError());
     }
