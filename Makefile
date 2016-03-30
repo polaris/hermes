@@ -6,7 +6,7 @@ CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
             -Wold-style-cast -Woverloaded-virtual -Wredundant-decls \
             -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 \
             -Wswitch-default -Wundef -Werror -Wno-unused -Wconversion \
-            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O3
+            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O0 -g
 LDFLAGS := -lstdc++ -lm -lsdl2 -lsdl2_image -lboost_system
 INC :=
 

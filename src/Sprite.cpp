@@ -1,9 +1,9 @@
 #include "Sprite.h"
-#include "Game.h"
+#include "Renderer.h"
 
 #include <SDL2/SDL_Image.h>
 
-Sprite::Sprite(const std::string &filename, const Game &game)
+Sprite::Sprite(const std::string &filename, const Renderer &renderer)
 : texture(nullptr) {
 
     SDL_Surface *surface = IMG_Load(filename.c_str());    
@@ -11,7 +11,7 @@ Sprite::Sprite(const std::string &filename, const Game &game)
         throw std::runtime_error(IMG_GetError());
     }
     
-    texture = SDL_CreateTextureFromSurface(game.renderer(), surface);
+    texture = SDL_CreateTextureFromSurface(renderer.getSDLRenderer(), surface);
 
     SDL_FreeSurface(surface);
 
@@ -20,7 +20,7 @@ Sprite::Sprite(const std::string &filename, const Game &game)
     }
 }
 
-void Sprite::draw(unsigned int x, unsigned int y, unsigned int width, unsigned int height, const Game &game) const {
+void Sprite::draw(unsigned int x, unsigned int y, unsigned int width, unsigned int height, const Renderer &renderer) const {
     SDL_Rect src;
     SDL_Rect dst;
     
@@ -31,5 +31,5 @@ void Sprite::draw(unsigned int x, unsigned int y, unsigned int width, unsigned i
     dst.x = static_cast<int>(x);
     dst.y = static_cast<int>(y);
     
-    SDL_RenderCopyEx(game.renderer(), texture, &src, &dst, 0, 0, SDL_FLIP_NONE);
+    SDL_RenderCopyEx(renderer.getSDLRenderer(), texture, &src, &dst, 0, 0, SDL_FLIP_NONE);
 }

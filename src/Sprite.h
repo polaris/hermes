@@ -5,13 +5,13 @@
 
 #include <string>
 
-class Game;
+class Renderer;
 
 class Sprite {
 public:
-    Sprite(const std::string &filename, const Game &game);
+    Sprite(const std::string &filename, const Renderer &renderer);
 
-    void draw(unsigned int x, unsigned int y, unsigned int width, unsigned int height, const Game &game) const;
+    void draw(unsigned int x, unsigned int y, unsigned int width, unsigned int height, const Renderer &renderer) const;
 
 private:
     SDL_Texture *texture;

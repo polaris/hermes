@@ -1,59 +1,26 @@
 #ifndef _Game_H
 #define _Game_H
 
-#include <SDL2/SDL.h>
+#include "Window.h"
+#include "Renderer.h"
 
 class Sprite;
 
-/** Represents a game.
- */
 class Game {
 public:
-    /** Constructor
-     *
-     *  \param title the title of the window.
-     *  \param width the width of the window.
-     *  \param height the height of the window.
-     */
     Game(const char *title, unsigned int width, unsigned int height);
 
-    /** Destructor
-     */
-    virtual ~Game();
-
-    /** Runs the game.
-     */
     void run(const Sprite &sprite);
 
-    /** Returns a pointer to the SDL renderer.
-     */
-    SDL_Renderer* renderer() const {
+    const Renderer &renderer() const {
         return renderer_;
     }
 
 private:
-    /** Setup SDL.
-     *
-     *  \param title the title of the window.
-     *  \param width the width of the window.
-     *  \param height the height of the window.
-     */
-    void setUp(const char *title, unsigned int width, unsigned int height);
+    Window window_;
 
-    /** Tear down SDL.
-     */
-    void tearDown();
+    Renderer renderer_;
 
-    /** Pointer to the SDL window.
-     */
-    SDL_Window* window_;
-
-    /** Pointer to the SDL renderer.
-     */
-    SDL_Renderer* renderer_;
-
-    /** Flag is true while the game is running.
-     */
     bool running_;
 };
 
