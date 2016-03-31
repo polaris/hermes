@@ -1,3 +1,6 @@
+BINDIR := bin
+OBJDIR := obj
+
 CXX := clang
 
 CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
@@ -6,33 +9,44 @@ CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
             -Wold-style-cast -Woverloaded-virtual -Wredundant-decls \
             -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 \
             -Wswitch-default -Wundef -Werror -Wno-unused -Wconversion \
-            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O0 -g
+            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O3
 LDFLAGS := -lstdc++ -lm -lsdl2 -lsdl2_image -lboost_system
 INC :=
 
 MAIN := src/client.cpp src/server.cpp
 SRC := $(filter-out $(addsuffix %,$(MAIN)),$(wildcard src/*.cpp))
-OBJ := $(addprefix obj/,$(notdir $(SRC:.cpp=.o)))
+OBJ := $(addprefix $(OBJDIR)/,$(notdir $(SRC:.cpp=.o)))
 
-all: bin/server bin/client
+TEST_SRC := $(wildcard test/*.cpp)
+TEST_OBJ := $(addprefix obj/,$(notdir $(TEST_SRC:.cpp=.o)))
 
-bin/server: $(OBJ) obj/server.o
-	@mkdir -p bin
+all: $(BINDIR)/server $(BINDIR)/client $(BINDIR)/test
+
+$(BINDIR)/server: $(OBJ) $(OBJDIR)/server.o
+	@mkdir -p $(BINDIR)
 	$(CXX) $(LDFLAGS) $^ -o $@
 
-bin/client: $(OBJ) obj/client.o
-	@mkdir -p bin
+$(BINDIR)/client: $(OBJ) $(OBJDIR)/client.o
+	@mkdir -p $(BINDIR)
 	$(CXX) $(LDFLAGS) $^ -o $@
 
-obj/server.o: src/server.cpp
+$(BINDIR)/test: $(TEST_OBJ)
+	@mkdir -p $(BINDIR)
+	$(CXX) $(LDFLAGS) $^ -o $@
+
+$(OBJDIR)/server.o: src/server.cpp
 	@mkdir -p obj
 	$(CXX) $(CXXFLAGS) $(INC) $^ -c -o $@
 
-obj/client.o: src/client.cpp
+$(OBJDIR)/client.o: src/client.cpp
 	@mkdir -p obj
 	$(CXX) $(CXXFLAGS) $(INC) $^ -c -o $@
 
-obj/%.o: src/%.cpp src/%.h
+$(OBJDIR)/%.o: src/%.cpp src/%.h
+	@mkdir -p obj
+	$(CXX) $(CXXFLAGS) $(INC) $< -c -o $@
+
+$(OBJDIR)/%.o: test/%.cpp
 	@mkdir -p obj
 	$(CXX) $(CXXFLAGS) $(INC) $< -c -o $@
 
