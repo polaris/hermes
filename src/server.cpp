@@ -9,6 +9,8 @@ public:
     ~GameServer();
 
 private:
+    void receive();
+
     boost::asio::io_service io_service;
     boost::asio::io_service::work work;
     boost::asio::ip::udp::socket socket;
@@ -23,9 +25,18 @@ GameServer::GameServer(unsigned short port)
 , work(io_service)
 , socket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))
 , thread([this] () { io_service.run(); }) {
-    socket.async_receive_from(boost::asio::buffer(data, MaxLength), senderEndpoint,
-        [this] (const boost::system::error_code&, size_t) {
+    receive();
+}
 
+void GameServer::receive() {
+    socket.async_receive_from(boost::asio::buffer(data, MaxLength), senderEndpoint,
+        [this] (const boost::system::error_code &ec, std::size_t bytesReceived) {
+            if (ec) {
+                std::cerr << ec.message() << std::endl;
+            } else {
+                std::cout << bytesReceived << " bytes received" << std::endl;
+                receive();
+            }
         });
 }
 
