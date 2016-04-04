@@ -6,14 +6,15 @@
 #include <thread>
 #include <iostream>
 
-class GameClient {
+class Client {
 public:
-    GameClient(const char *address, unsigned short port);
-    ~GameClient();
-
-    void send();
+    Client(const char *address, unsigned short port);
+    ~Client();
 
 private:
+    void send();
+    void receive();
+
     boost::asio::io_service io_service;
     boost::asio::io_service::work work;
     boost::asio::ip::udp::socket socket;
@@ -23,7 +24,7 @@ private:
     char data[MaxLength];
 };
 
-GameClient::GameClient(const char *address, unsigned short port)
+Client::Client(const char *address, unsigned short port)
 : io_service()
 , work(io_service)
 , socket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 0))
@@ -32,25 +33,38 @@ GameClient::GameClient(const char *address, unsigned short port)
     send();
 }
 
-void GameClient::send() {
+void Client::send() {
     socket.async_send_to(boost::asio::buffer(data, MaxLength), endpoint,
         [this] (const boost::system::error_code &ec, std::size_t bytesTransferred) {
             if (ec) {
                 std::cerr << ec.message() << std::endl;
             } else {
                 std::cout << bytesTransferred << " bytes transferred" << std::endl;
+                receive();
             }
         });
 }
 
-GameClient::~GameClient() {
+void Client::receive() {
+    socket.async_receive_from(boost::asio::buffer(data, MaxLength), endpoint,
+        [this] (const boost::system::error_code &ec, std::size_t bytesReceived) {
+            if (ec) {
+                std::cerr << ec.message() << std::endl;
+            } else {
+                std::cout << bytesReceived << " bytes received" << std::endl;
+                send();
+            }
+        });
+}
+
+Client::~Client() {
     io_service.stop();
     thread.join();
 }
 
 int main() {
     try {
-        GameClient gameClient("127.0.0.1", 12345);
+        Client Client("127.0.0.1", 12345);
 
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
             throw std::runtime_error(SDL_GetError());
