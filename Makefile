@@ -11,7 +11,7 @@ CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
             -Wswitch-default -Wundef -Werror -Wno-unused -Wconversion \
             -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O3
 LDFLAGS := -lstdc++ -lm -lsdl2 -lsdl2_image -lboost_system
-INC :=
+INC := -Isrc
 
 MAIN := src/client.cpp src/server.cpp
 SRC := $(filter-out $(addsuffix %,$(MAIN)),$(wildcard src/*.cpp))
