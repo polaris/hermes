@@ -3,13 +3,14 @@
 #include <thread>
 #include <iostream>
 
-class GameServer {
+class Server {
 public:
-    explicit GameServer(unsigned short port);
-    ~GameServer();
+    explicit Server(unsigned short port);
+    ~Server();
 
 private:
     void receive();
+    void send(const boost::asio::ip::udp::endpoint &endpoint);
 
     boost::asio::io_service io_service;
     boost::asio::io_service::work work;
@@ -20,7 +21,7 @@ private:
     char data[MaxLength];
 };
 
-GameServer::GameServer(unsigned short port)
+Server::Server(unsigned short port)
 : io_service()
 , work(io_service)
 , socket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))
@@ -28,24 +29,36 @@ GameServer::GameServer(unsigned short port)
     receive();
 }
 
-void GameServer::receive() {
+void Server::receive() {
     socket.async_receive_from(boost::asio::buffer(data, MaxLength), senderEndpoint,
         [this] (const boost::system::error_code &ec, std::size_t bytesReceived) {
             if (ec) {
                 std::cerr << ec.message() << std::endl;
             } else {
                 std::cout << bytesReceived << " bytes received" << std::endl;
+                send(senderEndpoint);
+            }
+        });
+}
+
+void Server::send(const boost::asio::ip::udp::endpoint &endpoint) {
+    socket.async_send_to(boost::asio::buffer(data, MaxLength), endpoint,
+        [this] (const boost::system::error_code &ec, std::size_t bytesTransferred) {
+            if (ec) {
+                std::cerr << ec.message() << std::endl;
+            } else {
+                std::cout << bytesTransferred << " bytes transferred" << std::endl;
                 receive();
             }
         });
 }
 
-GameServer::~GameServer() {
+Server::~Server() {
     io_service.stop();
     thread.join();
 }
 
 int main() {
-    GameServer gameServer(12345);
+    Server Server(12345);
     std::cin.ignore();
 }
