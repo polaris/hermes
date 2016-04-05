@@ -2,43 +2,34 @@
 #define _BufferWriter_H
 
 #include "ByteSwap.h"
-
-#include <cstddef>
-#include <stdexcept>
-#include <memory>
+#include "Buffer.h"
 
 class BufferWriter {
 public:
-    BufferWriter(std::size_t capacity)
+    explicit BufferWriter(Buffer &buffer)
     : head_(0)
-    , capacity_(capacity)
-    , data_(new char [capacity_]) {
-    }
-
-    ~BufferWriter() {
-        delete [] data_;
+    , buffer_(buffer) {
     }
 
     std::size_t capacity() const {
-        return capacity_;
+        return buffer_.capacity();
     }
 
-    std::size_t size() const {
+    std::size_t position() const {
         return head_;
     }
 
     void clear() {
+        buffer_.clear();
         head_ = 0;
-    }
-
-    const char* data() const {
-        return data_;
     }
 
     template<typename T>
     void write(T data) {
+        const auto size = sizeof(T);
         const auto t = ByteSwap(data);
-        write(&t, sizeof(data));
+        buffer_.write(&t, head_, size);
+        head_ += size;
     }
 
     template<typename T>
@@ -50,18 +41,9 @@ public:
         }
     }
 
-    void write(const void *data, std::size_t size) {
-        if (head_ + size > capacity_) {
-            throw std::out_of_range("size is out of range");
-        }
-        memcpy(data_ + head_, data, size);
-        head_ += size;
-    }
-
 private:
     std::size_t head_;
-    std::size_t capacity_;
-    char *data_;
+    Buffer &buffer_;
 };
 
 #endif  // _BufferWriter_H
