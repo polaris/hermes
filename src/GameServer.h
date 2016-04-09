@@ -2,9 +2,7 @@
 #define _GameServer_H
 
 #include <boost/asio.hpp>
-
 #include <thread>
-#include <iostream>
 
 class GameServer {
 public:

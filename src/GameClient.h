@@ -5,9 +5,7 @@
 #include "Buffer.h"
 
 #include <boost/asio.hpp>
-
 #include <thread>
-#include <iostream>
 
 class GameClient {
 public:

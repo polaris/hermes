@@ -1,5 +1,7 @@
 #include "GameServer.h"
 
+#include <iostream>
+
 GameServer::GameServer(unsigned short port)
 : io_service()
 , work(io_service)

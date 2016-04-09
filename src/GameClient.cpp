@@ -1,5 +1,7 @@
 #include "GameClient.h"
 
+#include <iostream>
+
 GameClient::GameClient(const char *address, unsigned short port)
 : bufferPool(32, 32)
 , io_service()
