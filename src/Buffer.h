@@ -11,8 +11,7 @@ template<std::size_t N>
 class Buffer {
 public:
     Buffer()
-    : size_(0)
-    , data_(new char [N]) {
+    : size_(0) {
     }
 
     Buffer(const Buffer &rhs)
@@ -22,7 +21,6 @@ public:
     }
 
     ~Buffer() {
-        delete [] data_;
     }
 
     void reset() {
@@ -110,7 +108,7 @@ public:
 
 private:
     std::size_t size_;
-    char *data_;
+    char data_[N];
 };
 
 #endif  // _Buffer_H
