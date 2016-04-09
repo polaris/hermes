@@ -9,7 +9,7 @@
 template <typename T>
 class Queue {
 public:
-    Queue(unsigned int size)
+    explicit Queue(unsigned int size)
     : Queue(size, 0) {
     }
 

@@ -15,6 +15,12 @@ public:
     , data_(new char [N]) {
     }
 
+    Buffer(const Buffer &rhs)
+    : size_(rhs.size_)
+    , data_(new char [N]) {
+        memcpy(data_, rhs.data_, N);
+    }
+
     ~Buffer() {
         delete [] data_;
     }

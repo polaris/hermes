@@ -31,7 +31,7 @@ inline uint64_t ByteSwap8(uint64_t data) {
 template <typename F, typename T>
 class TypeAliaser {
 public:
-    TypeAliaser(F from)
+    explicit TypeAliaser(F from)
     : from_(from) {
     }
 

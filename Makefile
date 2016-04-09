@@ -54,3 +54,7 @@ $(OBJDIR)/%.o: test/%.cpp
 clean:
 	@rm -rf bin
 	@rm -rf obj
+
+.PHONY: check
+check:
+	@cppcheck --enable=all --std=c++11 --platform=native src
