@@ -30,6 +30,17 @@ TEST_CASE("Exception is thrown when writing out of bounds", "[Buffer]") {
     REQUIRE_THROWS_AS(buffer.write(&value, sizeof(uint32_t)), std::out_of_range);
 }
 
+TEST_CASE("Size can be set", "[Buffer]") {
+    Buffer<2> buffer;
+
+    REQUIRE(buffer.size() == 0);
+    REQUIRE_NOTHROW(buffer.size(1));
+    REQUIRE(buffer.size() == 1);
+    REQUIRE_NOTHROW(buffer.size(2));
+    REQUIRE(buffer.size() == 2);
+    REQUIRE_THROWS_AS(buffer.size(3), std::out_of_range);
+}
+
 TEST_CASE("BufferReader can be read", "[BufferReader]") {
     Buffer<32> buffer;
 
@@ -40,7 +51,7 @@ TEST_CASE("BufferReader can be read", "[BufferReader]") {
         uint8_t t{};
         buffer.read(t);
         REQUIRE(t == 0x12);
-        REQUIRE(buffer.position() == 1);
+        REQUIRE(buffer.size() == 1);
     }
 
     SECTION("Read two bytes") {
@@ -50,7 +61,7 @@ TEST_CASE("BufferReader can be read", "[BufferReader]") {
         uint16_t t{};
         buffer.read(t);
         REQUIRE(t == 0x1234);
-        REQUIRE(buffer.position() == 2);
+        REQUIRE(buffer.size() == 2);
     }
 
     SECTION("Read four bytes") {
@@ -60,7 +71,7 @@ TEST_CASE("BufferReader can be read", "[BufferReader]") {
         uint32_t t{};
         buffer.read(t);
         REQUIRE(t == 0x12345678);
-        REQUIRE(buffer.position() == 4);
+        REQUIRE(buffer.size() == 4);
     }
 
     SECTION("Read eight bytes") {
@@ -70,14 +81,14 @@ TEST_CASE("BufferReader can be read", "[BufferReader]") {
         uint64_t t{};
         buffer.read(t);
         REQUIRE(t == 0x123456789ABCDEF0);
-        REQUIRE(buffer.position() == 8);
+        REQUIRE(buffer.size() == 8);
     }
 }
 
 TEST_CASE("Buffer has correct default values 2", "[Buffer]") {
     Buffer<32> buffer;
     REQUIRE(buffer.capacity() == 32);
-    REQUIRE(buffer.position() == 0);
+    REQUIRE(buffer.size() == 0);
 }
 
 TEST_CASE("Buffer can be cleared", "[Buffer]") {
@@ -87,13 +98,13 @@ TEST_CASE("Buffer can be cleared", "[Buffer]") {
     buffer.write(value);
 
     REQUIRE(*buffer.data() == value);
-    REQUIRE(buffer.position() == 1);
+    REQUIRE(buffer.size() == 1);
 
     buffer.clear();
     buffer.reset();
 
     REQUIRE(*buffer.data() == 0x00);
-    REQUIRE(buffer.position() == 0);
+    REQUIRE(buffer.size() == 0);
 }
 
 TEST_CASE("Buffer can be written", "[Buffer]") {
@@ -102,28 +113,28 @@ TEST_CASE("Buffer can be written", "[Buffer]") {
     SECTION("Write single byte") {
         const uint8_t value = 0x12;
         buffer.write(value);
-        REQUIRE(buffer.position() == 1);
+        REQUIRE(buffer.size() == 1);
         REQUIRE(*buffer.data() == 0x12);
     }
 
     SECTION("Write two bytes") {
         const uint16_t value = 0x1234;
         buffer.write(value);
-        REQUIRE(buffer.position() == 2);
+        REQUIRE(buffer.size() == 2);
         REQUIRE(*(reinterpret_cast<const uint16_t*>(buffer.data())) == 0x3412);
     }
 
     SECTION("Write four bytes") {
         const uint32_t value = 0x12345678;
         buffer.write(value);
-        REQUIRE(buffer.position() == 4);
+        REQUIRE(buffer.size() == 4);
         REQUIRE(*(reinterpret_cast<const uint32_t*>(buffer.data())) == 0x78563412);
     }
 
     SECTION("Write eight bytes") {
         const uint64_t value = 0x123456789ABCDEF0;
         buffer.write(value);
-        REQUIRE(buffer.position() == 8);
+        REQUIRE(buffer.size() == 8);
         REQUIRE(*(reinterpret_cast<const uint64_t*>(buffer.data())) == 0xF0DEBC9A78563412);
     }
 }

@@ -30,7 +30,7 @@ Server::Server(unsigned short port)
 }
 
 void Server::receive() {
-    socket.async_receive_from(boost::asio::buffer(data, MaxLength), senderEndpoint,
+    socket.async_receive_from(boost::asio::buffer(data, MaxLength/2), senderEndpoint,
         [this] (const boost::system::error_code &ec, std::size_t bytesReceived) {
             if (ec) {
                 std::cerr << ec.message() << std::endl;

@@ -11,7 +11,7 @@ template<std::size_t N>
 class Buffer {
 public:
     Buffer()
-    : head_(0)
+    : size_(0)
     , data_(new char [N]) {
     }
 
@@ -20,7 +20,7 @@ public:
     }
 
     void reset() {
-        head_ = 0;
+        size_ = 0;
     }
 
     void clear() {
@@ -31,8 +31,19 @@ public:
         return N;
     }
 
-    std::size_t position() const {
-        return head_;
+    void size(std::size_t size) {
+        if (size > N) {
+            throw std::out_of_range("size is out of range");
+        }
+        size_ = size;
+    }
+
+    std::size_t size() const {
+        return size_;
+    }
+
+    char* data() {
+        return data_;
     }
 
     const char* data() const {
@@ -55,6 +66,14 @@ public:
         }
     }
 
+    void write(const void *data, std::size_t size) {
+        if (size_ + size > N) {
+            throw std::out_of_range("size is out of range");
+        }
+        memcpy(data_ + size_, data, size);
+        size_ += size;
+    }
+
     template<typename T>
     void read(T &data) {
         const auto size = sizeof(T);
@@ -75,24 +94,16 @@ public:
         }
     }
 
-    void write(const void *data, std::size_t size) {
-        if (head_ + size > N) {
-            throw std::out_of_range("size is out of range");
-        }
-        memcpy(data_ + head_, data, size);
-        head_ += size;
-    }
-
     void read(void *data, std::size_t size) {
-        if (head_ + size > N) {
+        if (size_ + size > N) {
             throw std::out_of_range("size is out of range");
         }
-        memcpy(data, data_ + head_, size);
-        head_ += size;
+        memcpy(data, data_ + size_, size);
+        size_ += size;
     }
 
 private:
-    std::size_t head_;
+    std::size_t size_;
     char *data_;
 };
 
