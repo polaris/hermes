@@ -22,6 +22,12 @@ Sprite::Sprite(const char *filename, const Renderer &renderer)
     }
 }
 
+Sprite::~Sprite() {
+    if (texture != nullptr) {
+        SDL_DestroyTexture(texture);
+    }
+}
+
 void Sprite::draw(unsigned int x, unsigned int y, unsigned int width, unsigned int height, const Renderer &renderer) const {
     SDL_Rect src;
     SDL_Rect dst;
