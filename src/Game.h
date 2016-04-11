@@ -4,13 +4,13 @@
 #include "Window.h"
 #include "Renderer.h"
 
-class Sprite;
+class GameObject;
 
 class Game {
 public:
     Game(const char *title, unsigned int width, unsigned int height, unsigned int frameRate);
 
-    void run(const Sprite &sprite);
+    void run(GameObject &gameObject);
 
     const Renderer &getRenderer() const {
         return renderer_;

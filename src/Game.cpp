@@ -1,5 +1,5 @@
 #include "Game.h"
-#include "Sprite.h"
+#include "GameObject.h"
 
 #include <iostream>
 #include <SDL2/SDL.h>
@@ -12,11 +12,11 @@ Game::Game(const char *title, unsigned int width, unsigned int height, unsigned 
 , running_(false) {
 }
 
-void Game::run(const Sprite &sprite) {
+void Game::run(GameObject &gameObject) {
     running_ = true;
 
     while (running_) {
-        const auto frameStartTime = SDL_GetTicks();
+        const auto frameStart = SDL_GetTicks();
 
         SDL_Event event;
         if (SDL_PollEvent(&event)) {
@@ -29,16 +29,14 @@ void Game::run(const Sprite &sprite) {
             }
         }
 
-        // update
+        gameObject.update(frameMs_ / 1000.0f);
 
         renderer_.setDrawColor(0, 0, 1, 1);
-        renderer_.clear();
-        
-        sprite.draw(0, 0, 56, 80, renderer_);
-
+        renderer_.clear();        
+        gameObject.draw(renderer_);
         renderer_.present();
 
-        const auto diff = SDL_GetTicks() - frameStartTime;
+        const auto diff = SDL_GetTicks() - frameStart;
         const auto delay = diff > frameMs_ ? 0 : frameMs_ - diff;
         SDL_Delay(delay);
     }

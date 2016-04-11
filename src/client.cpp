@@ -1,6 +1,6 @@
-#include "Sprite.h"
 #include "Game.h"
 #include "GameClient.h"
+#include "SpaceShip.h"
 
 #include <iostream>
 
@@ -14,9 +14,9 @@ int main() {
 
         Game game("Handle Latency", 640, 480, 30);
 
-        Sprite sprite("data/ninja.png", game.getRenderer());
+        SpaceShip spaceShip(game.getRenderer());
 
-        game.run(sprite);
+        game.run(spaceShip);
     
         SDL_Quit();
     
