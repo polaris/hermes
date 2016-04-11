@@ -12,7 +12,7 @@ int main() {
             throw std::runtime_error(SDL_GetError());
         }
 
-        Game game("Handle Latency", 640, 480);
+        Game game("Handle Latency", 640, 480, 30);
 
         Sprite sprite("data/ninja.png", game.getRenderer());
 

@@ -8,7 +8,7 @@ class Sprite;
 
 class Game {
 public:
-    Game(const char *title, unsigned int width, unsigned int height);
+    Game(const char *title, unsigned int width, unsigned int height, unsigned int frameRate);
 
     void run(const Sprite &sprite);
 
@@ -20,6 +20,10 @@ private:
     Window window_;
 
     Renderer renderer_;
+
+    const unsigned int frameRate_;
+
+    const unsigned int frameMs_;
 
     bool running_;
 };
