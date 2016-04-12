@@ -3,6 +3,7 @@
 
 #include "GameObject.h"
 #include "Sprite.h"
+#include "Vector2d.h"
 
 class SpaceShip : public GameObject {
 public:
@@ -14,6 +15,8 @@ public:
 
 private:
     Sprite sprite_;
+    Vector2d position_;
+    Vector2d velocity_;
 };
 
 #endif  // _SpaceShip_H

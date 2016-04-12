@@ -15,8 +15,13 @@ Game::Game(const char *title, unsigned int width, unsigned int height, unsigned 
 void Game::run(GameObject &gameObject) {
     running_ = true;
 
+    bool leftPressed = false;
+
+    auto lastTime = SDL_GetTicks();
     while (running_) {
-        const auto frameStart = SDL_GetTicks();
+        const auto currentTime = SDL_GetTicks();
+        const auto elapsed = currentTime - lastTime;
+        lastTime = currentTime;
 
         SDL_Event event;
         if (SDL_PollEvent(&event)) {
@@ -29,15 +34,34 @@ void Game::run(GameObject &gameObject) {
             }
         }
 
-        gameObject.update(frameMs_ / 1000.0f);
+        const Uint8* state = SDL_GetKeyboardState(NULL);
+        if (state[SDL_SCANCODE_LEFT] == 1) {
+            if (!leftPressed) {
+                std::cout << "Left key down" << std::endl;
+                leftPressed = true;
+            }
+
+            if (leftPressed) {
+                std::cout << "Left pressed" << std::endl;
+            }
+        } else {
+            if (leftPressed) {
+                std::cout << "Left key up" << std::endl;
+                leftPressed = false;
+            }
+        }
+
+
+        gameObject.update(elapsed / 1000.0f);
 
         renderer_.setDrawColor(0, 0, 1, 1);
-        renderer_.clear();        
+        renderer_.clear();
         gameObject.draw(renderer_);
         renderer_.present();
 
-        const auto diff = SDL_GetTicks() - frameStart;
-        const auto delay = diff > frameMs_ ? 0 : frameMs_ - diff;
-        SDL_Delay(delay);
+        const auto frameTime = SDL_GetTicks() - currentTime;
+        if (frameTime < frameMs_) {
+           SDL_Delay(frameMs_ - frameTime);
+        }
     }
 }
