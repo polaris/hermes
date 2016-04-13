@@ -51,18 +51,6 @@ public:
         return *this;
     }
     
-    Vector2d& operator *=(const Vector2d& v) {
-        x_ *= v.x_;
-        y_ *= v.y_;
-        return *this;
-    }
-
-    Vector2d& operator /=(const Vector2d& v) {
-        x_ /= v.x_;
-        y_ /= v.y_;
-        return *this;
-    }
-
     Vector2d& operator *=(float s) {
         x_ *= s;
         y_ *= s;
@@ -106,14 +94,6 @@ static Vector2d operator +(const Vector2d& a, const Vector2d& b) {
 
 static Vector2d operator -(const Vector2d& a, const Vector2d& b) {
     return Vector2d(a) -= b;
-}
-
-static Vector2d operator *(const Vector2d& a, const Vector2d& b) {
-    return Vector2d(a) *= b;
-}
-
-static Vector2d operator /(const Vector2d& a, const Vector2d& b) {
-    return Vector2d(a) /= b;
 }
 
 static Vector2d operator *(float s, const Vector2d& v) {
