@@ -17,13 +17,15 @@ public:
     }
 
 private:
+    void handleEvent(SDL_Event &event);
+
     Window window_;
 
     Renderer renderer_;
 
     const unsigned int frameRate_;
 
-    const unsigned int frameMs_;
+    const float frameDuration_;
 
     bool running_;
 };

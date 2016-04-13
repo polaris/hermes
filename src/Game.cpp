@@ -2,66 +2,63 @@
 #include "GameObject.h"
 
 #include <iostream>
+#include <chrono>
+
 #include <SDL2/SDL.h>
 
 Game::Game(const char *title, unsigned int width, unsigned int height, unsigned int frameRate)
 : window_(title, width, height)
 , renderer_(window_)
 , frameRate_(frameRate)
-, frameMs_(1000/frameRate_)
+, frameDuration_(1000.0f / frameRate_)
 , running_(false) {
 }
 
 void Game::run(GameObject &gameObject) {
     running_ = true;
 
-    bool leftPressed = false;
+    SDL_Event event;
+    memset(&event, 0, sizeof(SDL_Event));
 
-    auto lastTime = SDL_GetTicks();
+    auto lastTime = std::chrono::high_resolution_clock::now();
     while (running_) {
-        const auto currentTime = SDL_GetTicks();
-        const auto elapsed = currentTime - lastTime;
-        lastTime = currentTime;
-
-        SDL_Event event;
         if (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_QUIT:
+            if (event.type == SDL_QUIT || (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)) {
                 running_ = false;
-                break;
-            default:
-            break;
-            }
-        }
-
-        const Uint8* state = SDL_GetKeyboardState(NULL);
-        if (state[SDL_SCANCODE_LEFT] == 1) {
-            if (!leftPressed) {
-                std::cout << "Left key down" << std::endl;
-                leftPressed = true;
-            }
-
-            if (leftPressed) {
-                std::cout << "Left pressed" << std::endl;
+            } else {
+                handleEvent(event);
             }
         } else {
-            if (leftPressed) {
-                std::cout << "Left key up" << std::endl;
-                leftPressed = false;
+            const auto currentTime = std::chrono::high_resolution_clock::now();
+            const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count() / 1000.0f;
+            lastTime = currentTime;
+
+            gameObject.update(frameDuration_/1000.0f);
+
+            renderer_.setDrawColor(0, 0, 1, 1);
+            renderer_.clear();
+            gameObject.draw(renderer_);
+            renderer_.present();
+
+            const auto frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
+            if (frameTime < frameDuration_) {
+               SDL_Delay(static_cast<unsigned int>(frameDuration_ - frameTime));
             }
         }
+    }
+}
 
-
-        gameObject.update(elapsed / 1000.0f);
-
-        renderer_.setDrawColor(0, 0, 1, 1);
-        renderer_.clear();
-        gameObject.draw(renderer_);
-        renderer_.present();
-
-        const auto frameTime = SDL_GetTicks() - currentTime;
-        if (frameTime < frameMs_) {
-           SDL_Delay(frameMs_ - frameTime);
-        }
+void Game::handleEvent(SDL_Event &event) {
+    switch(event.type) {
+    case SDL_KEYDOWN:
+        std::cout << event.key.keysym.sym << std::endl;
+        // InputManager::sInstance->HandleInput( EIA_Pressed, inEvent->key.keysym.sym );
+        break;
+    case SDL_KEYUP:
+        std::cout << event.key.keysym.sym << std::endl;
+        //InputManager::sInstance->HandleInput( EIA_Released, inEvent->key.keysym.sym );
+        break;
+    default:
+        break;
     }
 }
