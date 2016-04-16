@@ -12,6 +12,7 @@ class Buffer {
 public:
     Buffer()
     : size_(0) {
+        memset(data_, 0, N);
     }
 
     Buffer(const Buffer &rhs)
