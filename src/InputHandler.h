@@ -12,7 +12,7 @@ enum class KeyAction {
 
 class InputHandler {
 public:
-    InputHandler(float sampleRate);
+    explicit InputHandler(float sampleRate);
 
     void handleInput(KeyAction keyAction, int keyCode);
 
