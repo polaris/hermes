@@ -11,6 +11,8 @@ public:
 
     void rotate(float angle);
 
+    void thrust(bool onOff);
+
     void update(float elapsed);
 
     void draw(const Renderer& renderer);

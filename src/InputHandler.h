@@ -29,8 +29,6 @@ private:
 
     float nextTimeToSample_;
 
-    bool hasInput;
-
     InputState inputState_;
 
     std::shared_ptr<Move> pendingMove;

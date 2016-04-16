@@ -19,19 +19,17 @@ public:
     }
 
 private:
-    void handleEvent(SDL_Event &event);
+    void handleEvent(SDL_Event &event, bool& running);
 
     Window window_;
 
     Renderer renderer_;
 
-    InputHandler inputHandler_;
-
     const unsigned int frameRate_;
 
-    const float frameDurationMs_;
+    InputHandler inputHandler_;
 
-    const float frameDurationSec_;
+    const float frameDuration_;
 };
 
 #endif  // _Game_H
