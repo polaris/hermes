@@ -4,21 +4,25 @@
 
 TEST_CASE("An empty queue can be constructed", "[Queue]") {
     const std::size_t capacity = 8;
-    Queue<Buffer<32>> queue(capacity);
+    Queue<Buffer> queue(capacity);
     REQUIRE(queue.pop() == nullptr);
 
-    queue.push(new Buffer<32>);
+    queue.push(new Buffer(32));
     auto buffer = queue.pop();
     REQUIRE(buffer != nullptr);
     delete buffer;
 }
 
-TEST_CASE("A prefilled queue can be constructed", "[Queue]") {
+TEST_CASE("Pushing and popping of a queue", "[Queue]") {
     const std::size_t capacity = 4;
-    Queue<Buffer<32>> pool(capacity, capacity);
-    Queue<Buffer<32>> queue(capacity);
 
-    Buffer<32> *buffer{nullptr};
+    Queue<Buffer> pool(capacity);
+    for (std::size_t i = 0; i < capacity; ++i) {
+        pool.push(new Buffer(32));
+    }
+    Queue<Buffer> queue(capacity);
+
+    Buffer *buffer{nullptr};
 
     for (std::size_t i = 0; i < capacity; i++) {
         buffer = pool.pop();

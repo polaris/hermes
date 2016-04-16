@@ -7,21 +7,19 @@
 #include <stdexcept>
 #include <vector>
 
-template<std::size_t N>
 class Buffer {
 public:
-    Buffer()
-    : size_(0) {
-        memset(data_, 0, N);
+    Buffer(std::size_t capacity)
+    : capacity_(capacity)
+    , size_(0)
+    , data_(new char [capacity_]) {
+        memset(data_, 0, capacity_);
     }
 
-    Buffer(const Buffer &rhs)
-    : size_(rhs.size_)
-    , data_(new char [N]) {
-        memcpy(data_, rhs.data_, N);
-    }
+    Buffer(const Buffer&) = delete;
 
     ~Buffer() {
+        delete [] data_;
     }
 
     void reset() {
@@ -29,15 +27,15 @@ public:
     }
 
     void clear() {
-        memset(data_, 0, N);
+        memset(data_, 0, capacity_);
     }
 
     std::size_t capacity() const {
-        return N;
+        return capacity_;
     }
 
     void size(std::size_t size) {
-        if (size > N) {
+        if (size > capacity_) {
             throw std::out_of_range("size is out of range");
         }
         size_ = size;
@@ -72,7 +70,7 @@ public:
     }
 
     void write(const void *data, std::size_t size) {
-        if (size_ + size > N) {
+        if (size_ + size > capacity_) {
             throw std::out_of_range("size is out of range");
         }
         memcpy(data_ + size_, data, size);
@@ -100,7 +98,7 @@ public:
     }
 
     void read(void *data, std::size_t size) {
-        if (size_ + size > N) {
+        if (size_ + size > capacity_) {
             throw std::out_of_range("size is out of range");
         }
         memcpy(data, data_ + size_, size);
@@ -108,8 +106,9 @@ public:
     }
 
 private:
+    const std::size_t capacity_;
     std::size_t size_;
-    char data_[N];
+    char* data_;
 };
 
 #endif  // _Buffer_H

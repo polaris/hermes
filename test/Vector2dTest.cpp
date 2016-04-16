@@ -119,7 +119,7 @@ TEST_CASE("Vector2d serialization") {
     const Vector2d a{123.456f, 789.456f};
     Vector2d b;
 
-    Buffer<1024> buffer;
+    Buffer buffer(32);
     a.write(buffer);
     buffer.reset();
     b.read(buffer);

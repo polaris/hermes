@@ -2,12 +2,12 @@
 #include "catch.hpp"
 
 TEST_CASE("Buffer has correct default values", "[Buffer]") {
-    Buffer<8> buffer;
+    Buffer buffer(8);
     REQUIRE(buffer.capacity() == 8);
 }
 
 TEST_CASE("Buffer can be read and written", "[Buffer]") {
-    Buffer<8> buffer;
+    Buffer buffer(8);
 
     const uint32_t value = 0x12345678;
     REQUIRE_NOTHROW(buffer.write(reinterpret_cast<const uint8_t*>(&value) + 0, sizeof(uint8_t)));
@@ -24,14 +24,14 @@ TEST_CASE("Buffer can be read and written", "[Buffer]") {
 }
 
 TEST_CASE("Exception is thrown when writing out of bounds", "[Buffer]") {
-    Buffer<2> buffer;
+    Buffer buffer(2);
 
     uint32_t value = 0;
     REQUIRE_THROWS_AS(buffer.write(&value, sizeof(uint32_t)), std::out_of_range);
 }
 
 TEST_CASE("Size can be set", "[Buffer]") {
-    Buffer<2> buffer;
+    Buffer buffer(2);
 
     REQUIRE(buffer.size() == 0);
     REQUIRE_NOTHROW(buffer.size(1));
@@ -42,7 +42,7 @@ TEST_CASE("Size can be set", "[Buffer]") {
 }
 
 TEST_CASE("BufferReader can be read", "[BufferReader]") {
-    Buffer<32> buffer;
+    Buffer buffer(32);
 
     SECTION("Read one byte") {
         const uint8_t value = 0x12;
@@ -86,13 +86,13 @@ TEST_CASE("BufferReader can be read", "[BufferReader]") {
 }
 
 TEST_CASE("Buffer has correct default values 2", "[Buffer]") {
-    Buffer<32> buffer;
+    Buffer buffer(32);
     REQUIRE(buffer.capacity() == 32);
     REQUIRE(buffer.size() == 0);
 }
 
 TEST_CASE("Buffer can be cleared", "[Buffer]") {
-    Buffer<32> buffer;
+    Buffer buffer(32);
 
     const uint8_t value = 0x12;
     buffer.write(value);
@@ -108,7 +108,7 @@ TEST_CASE("Buffer can be cleared", "[Buffer]") {
 }
 
 TEST_CASE("Buffer can be written", "[Buffer]") {
-    Buffer<32> buffer;
+    Buffer buffer(32);
 
     SECTION("Write single byte") {
         const uint8_t value = 0x12;

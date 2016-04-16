@@ -9,15 +9,9 @@
 template <typename T>
 class Queue {
 public:
-    explicit Queue(unsigned int size)
-    : Queue(size, 0) {
-    }
-
-    Queue(unsigned int size, unsigned int items)
-    : queue(size) {
-        for (std::size_t i = 0; i < items; ++i) {
-            queue.push(new T{});
-        }
+    explicit Queue(std::size_t size)
+    : size_(size)
+    , queue_(size_) {
     }
 
     Queue(const Queue&) =delete;
@@ -25,27 +19,32 @@ public:
 
     virtual ~Queue() {
         T* element;
-        while (queue.pop(element)) {
+        while (queue_.pop(element)) {
             delete element;
         }
     }
 
     void push(T* element) {
         if (element != nullptr) {
-            queue.push(element);
+            queue_.push(element);
         }
     }
 
     T* pop() {
         T* element;
-        if (queue.pop(element)) {
+        if (queue_.pop(element)) {
             return element;
         }
         return nullptr;
     }
 
+    std::size_t getSize() const {
+        return size_;
+    }
+
 private:
-    boost::lockfree::queue<T*> queue;
+    const std::size_t size_;
+    boost::lockfree::queue<T*> queue_;
 };
 
 template <typename T>

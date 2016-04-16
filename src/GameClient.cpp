@@ -3,19 +3,23 @@
 #include <iostream>
 
 GameClient::GameClient(const char *address, unsigned short port)
-: bufferPool(32, 32)
+: bufferPool(32)
 , io_service()
 , work(io_service)
 , socket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 0))
 , endpoint(boost::asio::ip::address::from_string(address), port)
 , thread([this] () { io_service.run(); }) {
+    for (unsigned int i = 0; i < bufferPool.getSize(); ++i) {
+        bufferPool.push(new Buffer(1024));
+    }
+
     auto buffer = bufferPool.pop();
     buffer->clear();
     buffer->size(32);
     send(buffer);
 }
 
-void GameClient::send(Buffer<1024> *sendBuffer) {
+void GameClient::send(Buffer *sendBuffer) {
     socket.async_send_to(boost::asio::buffer(sendBuffer->data(), sendBuffer->size()), endpoint,
         [this, sendBuffer] (const boost::system::error_code &ec, std::size_t bytesTransferred) {
             if (ec) {
@@ -32,7 +36,7 @@ void GameClient::send(Buffer<1024> *sendBuffer) {
         });
 }
 
-void GameClient::receive(Buffer<1024> *receiveBuffer) {
+void GameClient::receive(Buffer *receiveBuffer) {
     socket.async_receive_from(boost::asio::buffer(receiveBuffer->data(), receiveBuffer->capacity()), endpoint,
         [this, receiveBuffer] (const boost::system::error_code &ec, std::size_t bytesReceived) {
             if (ec) {

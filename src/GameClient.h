@@ -13,10 +13,10 @@ public:
     ~GameClient();
 
 private:
-    void send(Buffer<1024> *buffer);
-    void receive(Buffer<1024> *buffer);
+    void send(Buffer *buffer);
+    void receive(Buffer *buffer);
 
-    Queue<Buffer<1024>> bufferPool;
+    Queue<Buffer> bufferPool;
 
     boost::asio::io_service io_service;
     boost::asio::io_service::work work;
