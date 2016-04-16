@@ -1,6 +1,8 @@
 #ifndef _Vector2d_H
 #define _Vector2d_H
 
+#include "Types.h"
+
 #include <tuple>
 #include <cmath>
 
@@ -83,6 +85,16 @@ public:
 
     Vector2d perpendicular() const {
         return Vector2d(y_, -x_);
+    }
+
+    void write(Packet& packet) const {
+        packet.write(x_);
+        packet.write(y_);
+    }
+
+    void read(Packet& packet) {
+        packet.read(x_);
+        packet.read(y_);
     }
 
     friend bool operator ==(const Vector2d& a, const Vector2d& b) {

@@ -1,4 +1,5 @@
 #include "Vector2d.h"
+#include "Buffer.h"
 #include "catch.hpp"
 
 TEST_CASE("Vector2d default construction") {
@@ -112,4 +113,16 @@ TEST_CASE("Vector2d rotation 4") {
     a.rotate(static_cast<float>(M_PI * 2.0));
     REQUIRE(a.x() == Approx(b.x()).epsilon(0.000001));
     REQUIRE(a.y() == Approx(b.y()).epsilon(0.000001));
+}
+
+TEST_CASE("Vector2d serialization") {
+    const Vector2d a{123.456f, 789.456f};
+    Vector2d b;
+
+    Buffer<1024> buffer;
+    a.write(buffer);
+    buffer.reset();
+    b.read(buffer);
+
+    REQUIRE(a == b);
 }
