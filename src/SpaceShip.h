@@ -7,7 +7,7 @@
 
 class SpaceShip : public GameObject {
 public:
-    SpaceShip(const Renderer& renderer);
+    explicit SpaceShip(const Renderer& renderer);
 
     void rotate(float angle);
 
