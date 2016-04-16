@@ -72,6 +72,44 @@ TEST_CASE("Vector2d scalar multiplication 1") {
 TEST_CASE("Vector2d scalar multiplication 2") {
     Vector2d a{2, 4};
     a *= 5;
-    REQUIRE(a.x() == 10);
-    REQUIRE(a.y() == 20);
+    REQUIRE(a == Vector2d(10, 20));
+}
+
+TEST_CASE("Vector2d angles") {
+    REQUIRE(angle(Vector2d{0, 1}, Vector2d{ 0,  1}) == Approx( 0         ).epsilon(0.000001));
+    REQUIRE(angle(Vector2d{0, 1}, Vector2d{ 0, -1}) == Approx( M_PI      ).epsilon(0.000001));
+    REQUIRE(angle(Vector2d{0, 1}, Vector2d{ 1,  0}) == Approx( M_PI / 2.0).epsilon(0.000001));
+    REQUIRE(angle(Vector2d{0, 1}, Vector2d{-1,  0}) == Approx(-M_PI / 2.0).epsilon(0.000001));
+}
+
+TEST_CASE("Vector2d rotation 1") {
+    Vector2d a{1, 0};
+    const Vector2d b{-1, 0};
+    a.rotate(static_cast<float>(M_PI));
+    REQUIRE(a.x() == Approx(b.x()).epsilon(0.000001));
+    REQUIRE(a.y() == Approx(b.y()).epsilon(0.000001));
+}
+
+TEST_CASE("Vector2d rotation 2") {
+    Vector2d a{1, 0};
+    const Vector2d b{0, 1};
+    a.rotate(static_cast<float>(M_PI / 2.0));
+    REQUIRE(a.x() == Approx(b.x()).epsilon(0.000001));
+    REQUIRE(a.y() == Approx(b.y()).epsilon(0.000001));
+}
+
+TEST_CASE("Vector2d rotation 3") {
+    Vector2d a{1, 0};
+    const Vector2d b{0, -1};
+    a.rotate(static_cast<float>(-M_PI / 2.0));
+    REQUIRE(a.x() == Approx(b.x()).epsilon(0.000001));
+    REQUIRE(a.y() == Approx(b.y()).epsilon(0.000001));
+}
+
+TEST_CASE("Vector2d rotation 4") {
+    Vector2d a{1, 0};
+    const Vector2d b{1, 0};
+    a.rotate(static_cast<float>(M_PI * 2.0));
+    REQUIRE(a.x() == Approx(b.x()).epsilon(0.000001));
+    REQUIRE(a.y() == Approx(b.y()).epsilon(0.000001));
 }

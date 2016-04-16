@@ -63,6 +63,15 @@ public:
         return *this; 
     }
 
+    void rotate(float angle) {
+        const auto cs = std::cos(angle);
+        const auto sn = std::sin(angle);
+        const auto px = x_ * cs - y_ * sn;
+        const auto py = x_ * sn + y_ * cs;
+        x_ = px;
+        y_ = py;
+    }
+
     float length() const {
         return std::sqrt((x_ * x_) + (y_ * y_));
     }
@@ -108,8 +117,16 @@ static float dot(const Vector2d& a, const Vector2d& b) {
     return (a.x() * b.x()) + (a.y() * b.y());
 }
 
+static float determinant(const Vector2d& a, const Vector2d& b) {
+    return (a.x() * b.y()) + (a.y() * b.x());
+}
+
 static float cross(const Vector2d& a, const Vector2d& b) {
     return (a.x() * b.y()) - (a.y() * b.x());
+}
+
+static float angle(const Vector2d& a, const Vector2d& b) {
+    return std::atan2(determinant(a, b), dot(a, b));
 }
 
 static bool intersect(const Vector2d& aa, const Vector2d& ab, const Vector2d& ba, const Vector2d& bb) {
