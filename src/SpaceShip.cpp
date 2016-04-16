@@ -22,7 +22,8 @@ void SpaceShip::update(float elapsed) {
     position_ += (elapsed * velocity_);
 }
 
-void SpaceShip::draw(const Renderer &renderer) {
+void SpaceShip::draw(Renderer &renderer) {
+    renderer.setDrawColor(1, 0, 0, 1);
     const auto v = 30 * lookat_;
     SDL_RenderDrawLine(renderer.getSDLRenderer(),
                        static_cast<int>(position_.x()),

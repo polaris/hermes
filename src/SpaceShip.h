@@ -15,7 +15,7 @@ public:
 
     void update(float elapsed);
 
-    void draw(const Renderer& renderer);
+    void draw(Renderer& renderer);
 
 private:
     Sprite sprite_;

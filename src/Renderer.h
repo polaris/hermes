@@ -11,7 +11,7 @@ public:
 
     ~Renderer();
 
-    void clear();
+    void clear(float r, float g, float b);
 
     void setDrawColor(float r, float g, float b, float a);
 

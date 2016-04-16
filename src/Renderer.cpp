@@ -18,7 +18,8 @@ Renderer::~Renderer() {
     renderer_ = nullptr;
 }
 
-void Renderer::clear() {
+void Renderer::clear(float r, float g, float b) {
+    setDrawColor(r, g, b, 1);
     SDL_RenderClear(renderer_);
 }
 

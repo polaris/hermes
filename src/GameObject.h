@@ -9,7 +9,7 @@ public:
 
     virtual void update(float elapsed) = 0;
 
-    virtual void draw(const Renderer &renderer) = 0;
+    virtual void draw(Renderer &renderer) = 0;
 };
 
 #endif  // _GameObject_H

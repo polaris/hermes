@@ -42,9 +42,8 @@ void Game::run(SpaceShip &spaceShip) {
 
             spaceShip.update(frameDuration_);
 
-            renderer_.setDrawColor(0, 0, 1, 1);
-            renderer_.clear();
-            renderer_.setDrawColor(1, 0, 0, 1);
+            renderer_.clear(0.25f, 0.25f, 0.25f);
+
             spaceShip.draw(renderer_);
             renderer_.present();
 
