@@ -4,6 +4,7 @@
 #include <SDL2/SDL_Image.h>
 
 #include <stdexcept>
+#include <cmath>
 
 Sprite::Sprite(const char *filename, const Renderer &renderer)
 : texture_(nullptr)
@@ -41,12 +42,13 @@ void Sprite::tidyup() {
     }
 }
 
-void Sprite::draw(int x, int y, const Renderer &renderer) const {
-    draw(x, y, width_, height_, renderer);
+void Sprite::draw(int x, int y, const double &angle, const Renderer &renderer) const {
+    draw(x, y, width_, height_, angle, renderer);
 }
 
-void Sprite::draw(int x, int y, unsigned int width, unsigned int height, const Renderer &renderer) const {
+void Sprite::draw(int x, int y, unsigned int width, unsigned int height, const double &angle, const Renderer &renderer) const {
     SDL_Rect src = { 0, 0, static_cast<int>(width), static_cast<int>(height) };
-    SDL_Rect dst = { x, y, static_cast<int>(width), static_cast<int>(height) };    
-    SDL_RenderCopyEx(renderer.getSDLRenderer(), texture_, &src, &dst, 0, 0, SDL_FLIP_NONE);
+    SDL_Rect dst = { x, y, static_cast<int>(width), static_cast<int>(height) };
+    const auto angleDeg = angle * 180.0 / M_PI;
+    SDL_RenderCopyEx(renderer.getSDLRenderer(), texture_, &src, &dst, angleDeg, 0, SDL_FLIP_NONE);
 }

@@ -10,8 +10,16 @@ public:
     Sprite(const char *filename, const Renderer &renderer);
     ~Sprite();
 
-    void draw(int x, int y, const Renderer &renderer) const;
-    void draw(int x, int y, unsigned int width, unsigned int height, const Renderer &renderer) const;
+    unsigned int getWidth() const {
+        return width_;
+    }
+
+    unsigned int getHeight() const {
+        return height_;
+    }
+
+    void draw(int x, int y, const double &angle, const Renderer &renderer) const;
+    void draw(int x, int y, unsigned int width, unsigned int height, const double &angle, const Renderer &renderer) const;
 
 private:
     void tidyup();
