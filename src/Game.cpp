@@ -4,6 +4,7 @@
 #include "Clock.h"
 
 #include <SDL2/SDL.h>
+#include <thread>
 
 Game::Game(const char *title, unsigned int width, unsigned int height, unsigned int frameRate)
 : window_(title, width, height)
@@ -16,11 +17,9 @@ Game::Game(const char *title, unsigned int width, unsigned int height, unsigned 
 void Game::run(SpaceShip &spaceShip) {
     bool running = true;
 
-    SDL_Event event;
-    memset(&event, 0, sizeof(SDL_Event));
-
     Clock clock;
     while (running) {
+        SDL_Event event;
         if (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT || (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)) {
                 running = false;
@@ -50,7 +49,7 @@ void Game::run(SpaceShip &spaceShip) {
             const auto frameDuration = clock.getFrameDuration();
             if (frameDuration < frameDuration_) {
                 const auto delay = static_cast<unsigned int>((frameDuration_ - frameDuration) * 1000.0f);
-                SDL_Delay(delay);
+                std::this_thread::sleep_for(std::chrono::milliseconds(delay));
             }
         }
     }
