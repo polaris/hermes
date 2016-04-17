@@ -34,8 +34,10 @@ void SpaceShip::update(float elapsed) {
 }
 
 void SpaceShip::draw(Renderer &renderer) {
-    renderer.setDrawColor(1, 0, 0, 1);
+    renderer.setDrawColor(1, 1, 1, 1);
     renderer.drawLine(position_, position_ + (30 * lookat_));
+
+    renderer.setDrawColor(1, 0, 0, 1);
     renderer.drawLine(position_, position_ + velocity_);
 
     sprite_.draw(
