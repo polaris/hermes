@@ -1,8 +1,6 @@
 BINDIR := bin
 OBJDIR := obj
 
-CXX := clang
-
 CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
             -Wdisabled-optimization -Wformat=2 -Winit-self \
             -Wmissing-declarations -Wmissing-include-dirs \
