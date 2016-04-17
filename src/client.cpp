@@ -1,12 +1,12 @@
 #include "Game.h"
-#include "GameClient.h"
+#include "Transceiver.h"
 #include "SpaceShip.h"
 
 #include <iostream>
 
 int main() {
     try {
-        GameClient gameClient(32);
+        Transceiver transceiver(32);
 
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
             throw std::runtime_error(SDL_GetError());

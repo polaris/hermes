@@ -1,5 +1,5 @@
-#ifndef _GameClient_H
-#define _GameClient_H
+#ifndef _Transceiver_H
+#define _Transceiver_H
 
 #include "Queue.h"
 #include "Buffer.h"
@@ -7,11 +7,11 @@
 #include <boost/asio.hpp>
 #include <thread>
 
-class GameClient {
+class Transceiver {
 public:
-    GameClient(unsigned int poolSize);
+    Transceiver(unsigned int poolSize);
 
-    ~GameClient();
+    ~Transceiver();
 
 private:
     void initBufferPool();
@@ -30,4 +30,4 @@ private:
     std::thread thread;
 };
 
-#endif  // _GameClient_H
+#endif  // _Transceiver_H

@@ -1,8 +1,8 @@
-#include "GameClient.h"
+#include "Transceiver.h"
 
 #include <iostream>
 
-GameClient::GameClient(unsigned int poolSize)
+Transceiver::Transceiver(unsigned int poolSize)
 : bufferPool(poolSize)
 , bufferQueue(poolSize)
 , io_service()
@@ -18,13 +18,13 @@ GameClient::GameClient(unsigned int poolSize)
     send("127.0.0.1", 12345, buffer);
 }
 
-void GameClient::initBufferPool() {
+void Transceiver::initBufferPool() {
     for (unsigned int i = 0; i < bufferPool.getSize(); ++i) {
         bufferPool.push(new Buffer(1024));
     }
 }
 
-void GameClient::send(const char* address, unsigned short port, Buffer* sendBuffer) {
+void Transceiver::send(const char* address, unsigned short port, Buffer* sendBuffer) {
     boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::address::from_string(address), port);
     socket.async_send_to(boost::asio::buffer(sendBuffer->data(), sendBuffer->size()), endpoint,
         [this, sendBuffer] (const boost::system::error_code &ec, std::size_t bytesTransferred) {
@@ -43,7 +43,7 @@ void GameClient::send(const char* address, unsigned short port, Buffer* sendBuff
         });
 }
 
-void GameClient::receive(Buffer *receiveBuffer) {
+void Transceiver::receive(Buffer *receiveBuffer) {
     socket.async_receive_from(boost::asio::buffer(receiveBuffer->data(), receiveBuffer->capacity()), senderEndpoint,
         [this, receiveBuffer] (const boost::system::error_code &ec, std::size_t bytesReceived) {
             if (ec) {
@@ -62,7 +62,7 @@ void GameClient::receive(Buffer *receiveBuffer) {
         });
 }
 
-GameClient::~GameClient() {
+Transceiver::~Transceiver() {
     io_service.stop();
     thread.join();
 }
