@@ -9,7 +9,7 @@
 
 class Transceiver {
 public:
-    Transceiver(unsigned int poolSize);
+    explicit Transceiver(unsigned int poolSize);
 
     ~Transceiver();
 
