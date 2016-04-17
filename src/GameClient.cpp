@@ -2,21 +2,27 @@
 
 #include <iostream>
 
-GameClient::GameClient(const char *address, unsigned short port)
-: bufferPool(32)
+GameClient::GameClient(const char *address, unsigned short port, unsigned int poolSize)
+: bufferPool(poolSize)
+, bufferQueue(poolSize)
 , io_service()
 , work(io_service)
 , socket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 0))
 , endpoint(boost::asio::ip::address::from_string(address), port)
 , thread([this] () { io_service.run(); }) {
-    for (unsigned int i = 0; i < bufferPool.getSize(); ++i) {
-        bufferPool.push(new Buffer(1024));
-    }
+
+    initBufferPool();
 
     auto buffer = bufferPool.pop();
     buffer->clear();
     buffer->size(32);
     send(buffer);
+}
+
+void GameClient::initBufferPool() {
+    for (unsigned int i = 0; i < bufferPool.getSize(); ++i) {
+        bufferPool.push(new Buffer(1024));
+    }
 }
 
 void GameClient::send(Buffer *sendBuffer) {

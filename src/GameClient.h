@@ -9,14 +9,19 @@
 
 class GameClient {
 public:
-    GameClient(const char *address, unsigned short port);
+    GameClient(const char *address, unsigned short port, unsigned int poolSize);
+
     ~GameClient();
 
 private:
+    void initBufferPool();
+
     void send(Buffer *buffer);
+
     void receive(Buffer *buffer);
 
     Queue<Buffer> bufferPool;
+    Queue<Buffer> bufferQueue;
 
     boost::asio::io_service io_service;
     boost::asio::io_service::work work;

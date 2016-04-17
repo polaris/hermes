@@ -6,7 +6,7 @@
 
 int main() {
     try {
-        GameClient gameClient("127.0.0.1", 12345);
+        GameClient gameClient("127.0.0.1", 12345, 32);
 
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
             throw std::runtime_error(SDL_GetError());
