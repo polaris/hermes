@@ -9,14 +9,14 @@
 
 class GameClient {
 public:
-    GameClient(const char *address, unsigned short port, unsigned int poolSize);
+    GameClient(unsigned int poolSize);
 
     ~GameClient();
 
 private:
     void initBufferPool();
 
-    void send(Buffer *buffer);
+    void send(const char* address, unsigned short port, Buffer *buffer);
 
     void receive(Buffer *buffer);
 
@@ -26,7 +26,7 @@ private:
     boost::asio::io_service io_service;
     boost::asio::io_service::work work;
     boost::asio::ip::udp::socket socket;
-    boost::asio::ip::udp::endpoint endpoint;
+    boost::asio::ip::udp::endpoint senderEndpoint;
     std::thread thread;
 };
 
