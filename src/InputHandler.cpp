@@ -33,7 +33,7 @@ void InputHandler::handleInput(KeyAction keyAction, int keyCode) {
 
 void InputHandler::update(float currentTime) {
     if (currentTime >= nextTimeToSample_) {
-        pendingMove.reset(new Move(inputState_));
+        pendingMove.reset(new Move(inputState_, 0, 0));
         nextTimeToSample_ += sampleInterval_;
     }
 }

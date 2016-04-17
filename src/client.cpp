@@ -1,22 +1,25 @@
+#include "Window.h"
+#include "Renderer.h"
 #include "Game.h"
 #include "Transceiver.h"
+#include "InputHandler.h"
 #include "SpaceShip.h"
 
 #include <iostream>
 
 int main() {
     try {
-        Transceiver transceiver(32);
-
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
             throw std::runtime_error(SDL_GetError());
         }
 
-        Game game("Handle Latency", 640, 480, 60);
+        Window window("Handle Latency", 640, 480);
+        
+        Renderer renderer(window);
+        
+        Game game(60, renderer);
 
-        SpaceShip spaceShip(game.getRenderer());
-
-        game.run(spaceShip);
+        game.run();
     
         SDL_Quit();
     

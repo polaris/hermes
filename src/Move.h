@@ -5,7 +5,7 @@
 
 class Move {
 public:
-    explicit Move(const InputState &inputState);
+    explicit Move(const InputState &inputState, float timeStamp, float deltaTime);
 
     Move(const Move& rhs);
 
@@ -13,8 +13,14 @@ public:
 
     const InputState& getInputState() const;
 
+    float getTimeStamp() const;
+
+    float getDeltaTime() const;
+
 private:
     InputState inputState_;
+    float timeStamp_;
+    float deltaTime_;
 };
 
 #endif  // _Move_H

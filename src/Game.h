@@ -1,35 +1,30 @@
 #ifndef _Game_H
 #define _Game_H
 
-#include "Window.h"
-#include "Renderer.h"
+#include "World.h"
 #include "InputHandler.h"
 
+#include <SDL2/SDL.h>
+
 class GameObject;
-class SpaceShip;
+class Renderer;
 
 class Game {
 public:
-    Game(const char *title, unsigned int width, unsigned int height, unsigned int frameRate);
+    Game(unsigned int frameRate, Renderer& renderer);
 
-    void run(SpaceShip &spaceShip);
-
-    const Renderer &getRenderer() const {
-        return renderer_;
-    }
+    void run();
 
 private:
     void handleEvent(SDL_Event &event, bool& running);
 
-    Window window_;
+    const float frameDuration_;
 
-    Renderer renderer_;
+    Renderer& renderer_;
 
-    const unsigned int frameRate_;
+    World world_;
 
     InputHandler inputHandler_;
-
-    const float frameDuration_;
 };
 
 #endif  // _Game_H

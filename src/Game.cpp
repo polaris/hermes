@@ -1,20 +1,18 @@
 #include "Game.h"
-#include "GameObject.h"
-#include "SpaceShip.h"
 #include "Clock.h"
+#include "Renderer.h"
+#include "SpaceShip.h"
 
-#include <SDL2/SDL.h>
 #include <thread>
 
-Game::Game(const char *title, unsigned int width, unsigned int height, unsigned int frameRate)
-: window_(title, width, height)
-, renderer_(window_)
-, frameRate_(frameRate)
-, inputHandler_(frameRate_)
-, frameDuration_(1.0f / frameRate_) {
+Game::Game(unsigned int frameRate, Renderer& renderer)
+: frameDuration_(1.0f / frameRate)
+, renderer_(renderer)
+, inputHandler_(frameRate) {
+    world_.add(GameObjectPtr{new SpaceShip(renderer_, inputHandler_)});
 }
 
-void Game::run(SpaceShip &spaceShip) {
+void Game::run() {
     bool running = true;
 
     Clock clock;
@@ -31,20 +29,16 @@ void Game::run(SpaceShip &spaceShip) {
 
             inputHandler_.update(clock.getGameTime());
 
-            auto move = inputHandler_.getAndClearPendingMove();
-            if (move) {
-                const auto& inputState = move->getInputState();
-                spaceShip.rotate(inputState.desiredRightAmount * 5 * frameDuration_);
-                spaceShip.rotate(-inputState.desiredLeftAmount * 5 * frameDuration_);
-                spaceShip.thrust(inputState.desiredForwardAmount > 0);
-            }
+            world_.update(frameDuration_);
 
-            spaceShip.update(frameDuration_);
+            // process incoming packets
 
             renderer_.clear(0.25f, 0.25f, 0.25f);
 
-            spaceShip.draw(renderer_);
+            world_.draw(renderer_);
             renderer_.present();
+
+            // send outgoing packets
 
             const auto frameDuration = clock.getFrameDuration();
             if (frameDuration < frameDuration_) {
