@@ -1,7 +1,6 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "GameServer.h"
-#include "Transceiver.h"
 #include "InputHandler.h"
 #include "SpaceShip.h"
 
