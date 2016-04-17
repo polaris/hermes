@@ -17,10 +17,9 @@ public:
     void run();
 
 protected:    
-    virtual void handleWillUpdateWorld(Clock& clock) = 0;
-    virtual void handleDidUpdateWorld(Clock& clock) = 0;
+    virtual void handleWillUpdateWorld(const Clock& clock) = 0;
 
-    const float frameDuration_;
+    virtual void handleDidUpdateWorld(const Clock& clock) = 0;
 
     Renderer& renderer_;
 
@@ -30,6 +29,8 @@ protected:
 
 private:
     void handleEvent(SDL_Event &event, bool& running);
+
+    const float frameDuration_;
 };
 
 #endif  // _Game_H

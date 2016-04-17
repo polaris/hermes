@@ -11,8 +11,8 @@ public:
     GameClient(unsigned int frameRate, Renderer& renderer);
 
 private:
-    void handleWillUpdateWorld(Clock& clock) override;
-    void handleDidUpdateWorld(Clock& clock) override;
+    void handleWillUpdateWorld(const Clock& clock) override;
+    void handleDidUpdateWorld(const Clock& clock) override;
 };
 
 #endif  // _GameClient_H

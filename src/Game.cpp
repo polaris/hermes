@@ -6,9 +6,9 @@
 #include <thread>
 
 Game::Game(unsigned int frameRate, Renderer& renderer)
-: frameDuration_(1.0f / frameRate)
-, renderer_(renderer)
-, inputHandler_(frameRate) {
+: renderer_(renderer)
+, inputHandler_(frameRate)
+, frameDuration_(1.0f / frameRate) {
     world_.add(GameObjectPtr{new SpaceShip(renderer_, inputHandler_)});
 }
 
