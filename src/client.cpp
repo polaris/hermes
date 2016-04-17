@@ -1,6 +1,6 @@
 #include "Window.h"
 #include "Renderer.h"
-#include "Game.h"
+#include "GameClient.h"
 #include "Transceiver.h"
 #include "InputHandler.h"
 #include "SpaceShip.h"
@@ -17,9 +17,9 @@ int main() {
         
         Renderer renderer(window);
         
-        Game game(60, renderer);
+        GameClient gameClient(60, renderer);
 
-        game.run();
+        gameClient.run();
     
         SDL_Quit();
     

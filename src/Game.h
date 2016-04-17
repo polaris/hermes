@@ -8,6 +8,7 @@
 
 class GameObject;
 class Renderer;
+class Clock;
 
 class Game {
 public:
@@ -15,8 +16,9 @@ public:
 
     void run();
 
-private:
-    void handleEvent(SDL_Event &event, bool& running);
+protected:    
+    virtual void handleWillUpdateWorld(Clock& clock) = 0;
+    virtual void handleDidUpdateWorld(Clock& clock) = 0;
 
     const float frameDuration_;
 
@@ -25,6 +27,9 @@ private:
     World world_;
 
     InputHandler inputHandler_;
+
+private:
+    void handleEvent(SDL_Event &event, bool& running);
 };
 
 #endif  // _Game_H

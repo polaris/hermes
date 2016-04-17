@@ -27,22 +27,15 @@ void Game::run() {
         } else {
             clock.update();
 
-            inputHandler_.update(clock.getGameTime());
+            handleWillUpdateWorld(clock);
 
             world_.update(frameDuration_);
 
-            // process incoming packets
+            handleDidUpdateWorld(clock);
 
-            renderer_.clear(0.25f, 0.25f, 0.25f);
-
-            world_.draw(renderer_);
-            renderer_.present();
-
-            // send outgoing packets
-
-            const auto frameDuration = clock.getFrameDuration();
-            if (frameDuration < frameDuration_) {
-                const auto delay = static_cast<unsigned int>((frameDuration_ - frameDuration) * 1000.0f);
+            const auto currentFrameDuration = clock.getFrameDuration();
+            if (currentFrameDuration < frameDuration_) {
+                const auto delay = static_cast<unsigned int>((frameDuration_ - currentFrameDuration) * 1000.0f);
                 std::this_thread::sleep_for(std::chrono::milliseconds(delay));
             }
         }
