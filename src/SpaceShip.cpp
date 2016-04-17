@@ -24,17 +24,9 @@ void SpaceShip::update(float elapsed) {
 
 void SpaceShip::draw(Renderer &renderer) {
     renderer.setDrawColor(1, 0, 0, 1);
-    const auto v = 30 * lookat_;
-    SDL_RenderDrawLine(renderer.getSDLRenderer(),
-                       static_cast<int>(position_.x()),
-                       static_cast<int>(position_.y()),
-                       static_cast<int>(position_.x() + v.x()),
-                       static_cast<int>(position_.y() + v.y()));
-    SDL_RenderDrawLine(renderer.getSDLRenderer(),
-                       static_cast<int>(position_.x()),
-                       static_cast<int>(position_.y()),
-                       static_cast<int>(position_.x() + velocity_.x()),
-                       static_cast<int>(position_.y() + velocity_.y()));
+    renderer.drawLine(position_, position_ + (30 * lookat_));
+    renderer.drawLine(position_, position_ + velocity_);
+
     sprite_.draw(
         static_cast<int>(position_.x() - sprite_.getWidth() / 2),
         static_cast<int>(position_.y() - sprite_.getHeight() / 2),

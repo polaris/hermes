@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 
 class Window;
+class Vector2d;
 
 class Renderer {
 public:
@@ -14,6 +15,8 @@ public:
     void clear(float r, float g, float b);
 
     void setDrawColor(float r, float g, float b, float a);
+
+    void drawLine(const Vector2d& a, const Vector2d& b);
 
     void present();
 

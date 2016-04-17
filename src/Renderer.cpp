@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Window.h"
+#include "Vector2d.h"
 
 #include <stdexcept>
 
@@ -26,6 +27,11 @@ void Renderer::clear(float r, float g, float b) {
 void Renderer::setDrawColor(float r, float g, float b, float a) {
     SDL_SetRenderDrawColor(renderer_, static_cast<Uint8>(r * 255), static_cast<Uint8>(g * 255),
         static_cast<Uint8>(b * 255), static_cast<Uint8>(a * 255));
+}
+
+void Renderer::drawLine(const Vector2d& a, const Vector2d& b) {
+    SDL_RenderDrawLine(renderer_, static_cast<int>(a.x()), static_cast<int>(a.y()),
+                                  static_cast<int>(b.x()), static_cast<int>(b.y()));
 }
 
 void Renderer::present() {
