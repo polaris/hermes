@@ -9,7 +9,7 @@
 
 class Buffer {
 public:
-    Buffer(std::size_t capacity)
+    explicit Buffer(std::size_t capacity)
     : capacity_(capacity)
     , size_(0)
     , data_(new char [capacity_]) {
