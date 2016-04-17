@@ -2,7 +2,6 @@
 #define _Queue_H
 
 #include <boost/lockfree/queue.hpp>
-#include <boost/atomic.hpp>
 
 #include <memory>
 
