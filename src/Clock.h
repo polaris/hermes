@@ -9,6 +9,8 @@ public:
 
     void update();
 
+    float getTime() const;
+
     float getElapsed() const;
 
     float getGameTime() const;

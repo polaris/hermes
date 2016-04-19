@@ -13,6 +13,11 @@ void Clock::update() {
     lastTime = currentTime;
 }
 
+float Clock::getTime() const {
+    const auto now = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() / 1000.0f;
+}
+
 float Clock::getElapsed() const {
     return elapsed;
 }
