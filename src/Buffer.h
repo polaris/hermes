@@ -3,6 +3,8 @@
 
 #include "ByteSwap.h"
 
+#include <boost/asio.hpp>
+
 #include <cstring>
 #include <stdexcept>
 #include <vector>
@@ -51,6 +53,19 @@ public:
 
     const char* data() const {
         return data_;
+    }
+
+    void setEndpoint(const char* address, unsigned short port) {
+        using namespace boost::asio::ip;
+        endpoint_ = udp::endpoint(address::from_string(address), port);
+    }
+
+    boost::asio::ip::udp::endpoint& endpoint() {
+        return endpoint_;
+    }
+
+    const boost::asio::ip::udp::endpoint& endpoint() const {
+        return endpoint_;
     }
 
     template<typename T>
@@ -109,6 +124,8 @@ private:
     const std::size_t capacity_;
     std::size_t size_;
     char* data_;
+
+    boost::asio::ip::udp::endpoint endpoint_;
 };
 
 #endif  // _Buffer_H
