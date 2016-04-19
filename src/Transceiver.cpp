@@ -2,13 +2,26 @@
 
 #include <iostream>
 
-Transceiver::Transceiver(Queue<Buffer>& bufferPool, Queue<Buffer>& incomingPackets)
+Transceiver::Transceiver(unsigned short port, Queue<Buffer>& bufferPool, Queue<Buffer>& incomingPackets)
 : bufferPool_(bufferPool)
 , incomingPackets_(incomingPackets)
 , io_service_()
 , work_(io_service_)
-, socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 0))
+, socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))
 , thread_([this] () { io_service_.run(); }) {
+}
+
+Transceiver::Transceiver(Queue<Buffer>& bufferPool, Queue<Buffer>& incomingPackets)
+: Transceiver(0, bufferPool, incomingPackets) {
+}
+
+void Transceiver::startReception() {
+    auto buffer = bufferPool_.pop();
+    if (buffer) {
+        receiveFrom(buffer);
+    } else {
+        // TODO: handle out-of-buffers ... exception?
+    }
 }
 
 void Transceiver::sendTo(Buffer* buffer) {

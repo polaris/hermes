@@ -2,6 +2,11 @@
 #define _GameClient_H
 
 #include "Game.h"
+#include "Queue.h"
+#include "Buffer.h"
+#include "Transceiver.h"
+
+#include <memory>
 
 class Renderer;
 class Clock;
@@ -13,6 +18,44 @@ public:
 private:
     void handleWillUpdateWorld(const Clock& clock) override;
     void handleDidUpdateWorld(const Clock& clock) override;
+
+    class State {
+    public:
+        State(GameClient* gameClient);
+        virtual ~State() = default;
+        virtual void handleWillUpdateWorld(const Clock& clock) = 0;
+        virtual void handleDidUpdateWorld(const Clock& clock) = 0;
+
+    protected:
+        GameClient* gameClient_;
+    };
+
+    class Connecting : public State {
+    public:
+        Connecting(GameClient* gameClient);
+        void handleWillUpdateWorld(const Clock& clock) override;
+        void handleDidUpdateWorld(const Clock& clock) override;
+
+    private:
+        void sendHello(const Clock& clock);
+
+        float lastHelloTime_;
+    };
+
+    class Connected : public State {
+    public:
+        Connected(GameClient* gameClient);
+        void handleWillUpdateWorld(const Clock& clock) override;
+        void handleDidUpdateWorld(const Clock& clock) override;
+    };
+
+    void setState(std::shared_ptr<State>& newState);
+
+    std::shared_ptr<State> currentState;
+
+    Queue<Buffer> bufferPool_;
+    Queue<Buffer> incomingPackets_;
+    Transceiver transceiver_;
 };
 
 #endif  // _GameClient_H
