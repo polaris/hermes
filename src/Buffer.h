@@ -60,11 +60,15 @@ public:
         endpoint_ = udp::endpoint(address::from_string(address), port);
     }
 
-    boost::asio::ip::udp::endpoint& endpoint() {
+    void setEndpoint(const boost::asio::ip::udp::endpoint& endpoint) {
+        endpoint_ = endpoint;
+    }
+
+    boost::asio::ip::udp::endpoint& getEndpoint() {
         return endpoint_;
     }
 
-    const boost::asio::ip::udp::endpoint& endpoint() const {
+    const boost::asio::ip::udp::endpoint& getEndpoint() const {
         return endpoint_;
     }
 

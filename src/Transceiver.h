@@ -10,11 +10,10 @@
 class Transceiver {
 public:
     Transceiver(unsigned short port, Queue<Buffer>& bufferPool, Queue<Buffer>& incomingPackets);
+
     Transceiver(Queue<Buffer>& bufferPool, Queue<Buffer>& incomingPackets);
 
     ~Transceiver();
-
-    void startReception();
 
     void sendTo(Buffer* buffer);
 

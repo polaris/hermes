@@ -38,6 +38,7 @@ private:
 
     private:
         void sendHello(const Clock& clock);
+        void processIncomingPackets();
 
         float lastHelloTime_;
     };
