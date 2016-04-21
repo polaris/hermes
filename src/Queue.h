@@ -4,6 +4,7 @@
 #include <boost/lockfree/queue.hpp>
 
 #include <memory>
+#include <functional>
 
 template <typename T>
 class Queue {
@@ -11,6 +12,14 @@ public:
     explicit Queue(std::size_t size)
     : size_(size)
     , queue_(size_) {
+    }
+
+    Queue(std::size_t size, std::function<T* ()> create)
+    : size_(size)
+    , queue_(size_) {
+        for (std::size_t i = 0; i < size_; ++i) {
+            push(create());
+        }
     }
 
     Queue(const Queue&) =delete;
