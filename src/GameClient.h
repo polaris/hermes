@@ -13,11 +13,12 @@ class Clock;
 
 class GameClient : public Game {
 public:
-    GameClient(unsigned int frameRate, Renderer& renderer);
+    GameClient(unsigned int frameRate, const char *address, unsigned short port, Renderer& renderer);
 
 private:
     void handleWillUpdateWorld(const Clock& clock) override;
     void handleDidUpdateWorld(const Clock& clock) override;
+    void finishFrame() override;
 
     class State {
     public:
@@ -39,6 +40,8 @@ private:
     private:
         void sendHello(const Clock& clock);
         void processIncomingPackets();
+        void handlePacket(Packet* packet);
+        void handleWelcome(Packet* packet);
 
         float lastHelloTime_;
     };
@@ -53,10 +56,13 @@ private:
     void setState(std::shared_ptr<State>& newState);
 
     std::shared_ptr<State> currentState;
+    std::shared_ptr<State> nextState;
 
     Queue<Packet> packetPool_;
     Queue<Packet> incomingPackets_;
     Transceiver transceiver_;
+
+    boost::asio::ip::udp::endpoint serverEndpoint_;
 };
 
 #endif  // _GameClient_H

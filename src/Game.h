@@ -21,6 +21,8 @@ protected:
 
     virtual void handleDidUpdateWorld(const Clock& clock) = 0;
 
+    virtual void finishFrame() {}
+
     Renderer& renderer_;
 
     World world_;

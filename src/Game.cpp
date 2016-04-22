@@ -33,6 +33,8 @@ void Game::run() {
 
             handleDidUpdateWorld(clock);
 
+            finishFrame();
+
             const auto currentFrameDuration = clock.getFrameDuration();
             if (currentFrameDuration < frameDuration_) {
                 const auto delay = static_cast<unsigned int>((frameDuration_ - currentFrameDuration) * 1000.0f);

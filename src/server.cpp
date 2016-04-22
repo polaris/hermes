@@ -4,7 +4,7 @@
 #include "InputHandler.h"
 #include "SpaceShip.h"
 
-#include <iostream>
+#include <boost/log/trivial.hpp>
 
 int main() {
     try {
@@ -23,7 +23,7 @@ int main() {
         
         return 0;
     } catch (const std::exception &ex) {
-        std::cerr << "Error: " << ex.what() << std::endl;
+        BOOST_LOG_TRIVIAL(fatal) << "Exception: " << ex.what();
         return 1;
     }
 }

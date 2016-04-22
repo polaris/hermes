@@ -2,8 +2,6 @@
 
 #include <SDL2/SDL.h>
 
-#include <iostream>
-
 InputHandler::InputHandler(float sampleRate)
 : sampleInterval_(1.0f / sampleRate)
 , nextTimeToSample_(0) {

@@ -1,6 +1,6 @@
 #include "Transceiver.h"
 
-#include <iostream>
+#include <boost/log/trivial.hpp>
 
 Transceiver::Transceiver(unsigned short port, Queue<Packet>& packetPool, Queue<Packet>& incomingPackets)
 : packetPool_(packetPool)
@@ -24,11 +24,10 @@ void Transceiver::sendTo(Packet* packet) {
     socket_.async_send_to(boost::asio::buffer(packet->getData(), packet->getSize()), packet->getEndpoint(),
         [this, packet] (const boost::system::error_code &ec, std::size_t bytesTransferred) {
             if (ec) {
-                std::cerr << ec.message() << "\n";
+                BOOST_LOG_TRIVIAL(error) << "Failed to send a packet: " << ec.message();
             } else {
                 assert(bytesTransferred == packet->getSize());
             }
-            packet->reset();
             packetPool_.push(packet);
         });
 }
@@ -37,8 +36,7 @@ void Transceiver::receiveFrom(Packet* packet) {
     socket_.async_receive_from(boost::asio::buffer(packet->getData(), packet->getCapacity()), packet->getEndpoint(),
         [this, packet] (const boost::system::error_code &ec, std::size_t bytesReceived) {
             if (ec) {
-                std::cerr << ec.message() << "\n";
-                packet->reset();
+                BOOST_LOG_TRIVIAL(error) << "Failed to receive a packet: " << ec.message();
                 packetPool_.push(packet);
             } else {
                 auto newBuffer = packetPool_.pop();
@@ -47,7 +45,7 @@ void Transceiver::receiveFrom(Packet* packet) {
                     incomingPackets_.push(packet);
                     receiveFrom(newBuffer);
                 } else {
-                    std::cerr << "Packet pool is empty. Discard the received packet.\n";
+                    BOOST_LOG_TRIVIAL(error) << "Packet pool is empty. Discard the received packet.";
                     packet->reset();
                     receiveFrom(packet);
                 }

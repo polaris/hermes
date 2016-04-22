@@ -18,6 +18,8 @@ private:
     void handleDidUpdateWorld(const Clock& clock) override;
 
     void processIncomingPackets();
+    void handlePacket(Packet* packet);
+    void handleHello(Packet* packet);
 
     Queue<Packet> packetPool_;
     Queue<Packet> incomingPackets_;

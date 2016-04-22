@@ -4,7 +4,10 @@
 #include "InputHandler.h"
 #include "SpaceShip.h"
 
-#include <iostream>
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/console.hpp>
+
+void initLogger();
 
 int main() {
     try {
@@ -17,13 +20,13 @@ int main() {
         
         Renderer renderer(window);
         
-        GameClient gameClient(60, renderer);
+        GameClient gameClient(60, "127.0.0.1", 12345, renderer);
 
         gameClient.run();
         
         return 0;
     } catch (const std::exception &ex) {
-        std::cerr << "Error: " << ex.what() << std::endl;
+        BOOST_LOG_TRIVIAL(fatal) << "Exception: " << ex.what();
         return 1;
     }
 }

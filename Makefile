@@ -7,8 +7,8 @@ CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
             -Wold-style-cast -Woverloaded-virtual -Wredundant-decls \
             -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 \
             -Wswitch-default -Wundef -Werror -Wno-unused -Wconversion \
-            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O3
-LDFLAGS := -lstdc++ -lm -lsdl2 -lsdl2_image -lboost_system
+            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O0 -g -DBOOST_LOG_DYN_LINK
+LDFLAGS := -lstdc++ -lm -lsdl2 -lsdl2_image -lboost_system -lboost_log-mt -lboost_log_setup-mt -lboost_thread-mt
 INC := -Isrc
 
 MAIN := src/client.cpp src/server.cpp
