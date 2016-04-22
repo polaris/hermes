@@ -14,6 +14,7 @@ public:
     explicit Packet(std::size_t capacity)
     : capacity_(capacity)
     , size_(0)
+    , head_(0)
     , data_(new char [capacity_]) {
         memset(data_, 0, capacity_);
     }
@@ -25,11 +26,11 @@ public:
     }
 
     void reset() {
-        size_ = 0;
+        head_ = 0;
     }
 
     void clear() {
-        memset(data_, 0, capacity_);
+        size_ = 0;
     }
 
     std::size_t getCapacity() const {
@@ -45,6 +46,10 @@ public:
 
     std::size_t getSize() const {
         return size_;
+    }
+
+    std::size_t getHead() const {
+        return head_;
     }
 
     char* getData() {
@@ -116,17 +121,18 @@ public:
         }
     }
 
-    void read(void *data, std::size_t size) {
-        if (size_ + size > capacity_) {
+    void read(void *out, std::size_t size) {
+        if (head_ + size > size_) {
             throw std::out_of_range("size is out of range");
         }
-        memcpy(data, data_ + size_, size);
-        size_ += size;
+        memcpy(out, data_ + head_, size);
+        head_ += size;
     }
 
 private:
     const std::size_t capacity_;
     std::size_t size_;
+    std::size_t head_;
     char* data_;
 
     boost::asio::ip::udp::endpoint endpoint_;
