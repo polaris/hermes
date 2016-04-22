@@ -7,9 +7,9 @@
 GameClient::GameClient(unsigned int frameRate, Renderer& renderer)
 : Game(frameRate, renderer)
 , currentState(new GameClient::Connecting{this})
-, bufferPool_(100 , [] () { return new Buffer(1500); })
+, packetPool_(100 , [] () { return new Packet(1500); })
 , incomingPackets_(100)
-, transceiver_(bufferPool_, incomingPackets_) {
+, transceiver_(packetPool_, incomingPackets_) {
 }
 
 void GameClient::handleWillUpdateWorld(const Clock& clock) {
@@ -48,11 +48,11 @@ void GameClient::Connecting::handleDidUpdateWorld(const Clock& clock) {
 }
 
 void GameClient::Connecting::processIncomingPackets() {
-    auto buffer = gameClient_->incomingPackets_.pop();
-    if (buffer) {
+    auto packet = gameClient_->incomingPackets_.pop();
+    if (packet) {
         std::cout << "Received a packet\n";
-        buffer->reset();
-        gameClient_->bufferPool_.push(buffer);
+        packet->reset();
+        gameClient_->packetPool_.push(packet);
     }
 }
 
@@ -60,10 +60,10 @@ void GameClient::Connecting::sendHello(const Clock& clock) {
     auto now = clock.getTime();
 
     if (now > lastHelloTime_ + 1) {
-        auto buffer = gameClient_->bufferPool_.pop();
-        buffer->setEndpoint("127.0.0.1", 12345);
-        buffer->write("HELO\0", 6);
-        gameClient_->transceiver_.sendTo(buffer);
+        auto packet = gameClient_->packetPool_.pop();
+        packet->setEndpoint("127.0.0.1", 12345);
+        packet->write("HELO\0", 6);
+        gameClient_->transceiver_.sendTo(packet);
         lastHelloTime_ = now;
     }
 }

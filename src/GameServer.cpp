@@ -6,9 +6,9 @@
 
 GameServer::GameServer(unsigned int frameRate, Renderer& renderer)
 : Game(frameRate, renderer)
-, bufferPool_(100, [] () { return new Buffer(1500); })
+, packetPool_(100, [] () { return new Packet(1500); })
 , incomingPackets_(100)
-, transceiver_(12345, bufferPool_, incomingPackets_) {
+, transceiver_(12345, packetPool_, incomingPackets_) {
 }
 
 void GameServer::handleWillUpdateWorld(const Clock&) {
@@ -20,17 +20,17 @@ void GameServer::handleWillUpdateWorld(const Clock&) {
 }
 
 void GameServer::processIncomingPackets() {
-    auto buffer = incomingPackets_.pop();
-    if (buffer) {
+    auto packet = incomingPackets_.pop();
+    if (packet) {
         std::cout << "Received a packet\n";
 
-        auto sendBuffer = bufferPool_.pop();
-        sendBuffer->setEndpoint(buffer->getEndpoint());
+        auto sendBuffer = packetPool_.pop();
+        sendBuffer->setEndpoint(packet->getEndpoint());
         sendBuffer->write("HELO\0", 6);
         transceiver_.sendTo(sendBuffer);
 
-        buffer->reset();
-        bufferPool_.push(buffer);
+        packet->reset();
+        packetPool_.push(packet);
     }
 }
 

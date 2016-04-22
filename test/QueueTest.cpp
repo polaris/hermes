@@ -1,40 +1,40 @@
 #include "Queue.h"
-#include "Buffer.h"
+#include "Packet.h"
 #include "catch.hpp"
 
 TEST_CASE("An empty queue can be constructed", "[Queue]") {
     const std::size_t capacity = 8;
-    Queue<Buffer> queue(capacity);
+    Queue<Packet> queue(capacity);
     REQUIRE(queue.pop() == nullptr);
 
-    queue.push(new Buffer(32));
-    auto buffer = queue.pop();
-    REQUIRE(buffer != nullptr);
-    delete buffer;
+    queue.push(new Packet(32));
+    auto packet = queue.pop();
+    REQUIRE(packet != nullptr);
+    delete packet;
 }
 
 TEST_CASE("Pushing and popping of a queue", "[Queue]") {
     const std::size_t capacity = 4;
 
-    Queue<Buffer> pool(capacity);
+    Queue<Packet> pool(capacity);
     for (std::size_t i = 0; i < capacity; ++i) {
-        pool.push(new Buffer(32));
+        pool.push(new Packet(32));
     }
-    Queue<Buffer> queue(capacity);
+    Queue<Packet> queue(capacity);
 
-    Buffer *buffer{nullptr};
+    Packet *packet{nullptr};
 
     for (std::size_t i = 0; i < capacity; i++) {
-        buffer = pool.pop();
-        REQUIRE(buffer != nullptr);
-        queue.push(buffer);
+        packet = pool.pop();
+        REQUIRE(packet != nullptr);
+        queue.push(packet);
     }
     REQUIRE(pool.pop() == nullptr);
 
     for (std::size_t i = 0; i < capacity; i++) {
-        buffer = queue.pop();
-        REQUIRE(buffer != nullptr);
-        pool.push(buffer);
+        packet = queue.pop();
+        REQUIRE(packet != nullptr);
+        pool.push(packet);
     }
     REQUIRE(queue.pop() == nullptr);
 }

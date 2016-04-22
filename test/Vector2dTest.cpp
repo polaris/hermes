@@ -1,5 +1,5 @@
 #include "Vector2d.h"
-#include "Buffer.h"
+#include "Packet.h"
 #include "catch.hpp"
 
 TEST_CASE("Vector2d default construction") {
@@ -119,10 +119,10 @@ TEST_CASE("Vector2d serialization") {
     const Vector2d a{123.456f, 789.456f};
     Vector2d b;
 
-    Buffer buffer(32);
-    a.write(buffer);
-    buffer.reset();
-    b.read(buffer);
+    Packet packet(32);
+    a.write(packet);
+    packet.reset();
+    b.read(packet);
 
     REQUIRE(a == b);
 }

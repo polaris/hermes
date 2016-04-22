@@ -1,5 +1,5 @@
-#ifndef _Buffer_H
-#define _Buffer_H
+#ifndef _Packet_H
+#define _Packet_H
 
 #include "ByteSwap.h"
 
@@ -9,18 +9,18 @@
 #include <stdexcept>
 #include <vector>
 
-class Buffer {
+class Packet {
 public:
-    explicit Buffer(std::size_t capacity)
+    explicit Packet(std::size_t capacity)
     : capacity_(capacity)
     , size_(0)
     , data_(new char [capacity_]) {
         memset(data_, 0, capacity_);
     }
 
-    Buffer(const Buffer&) = delete;
+    Packet(const Packet&) = delete;
 
-    ~Buffer() {
+    ~Packet() {
         delete [] data_;
     }
 
@@ -132,4 +132,4 @@ private:
     boost::asio::ip::udp::endpoint endpoint_;
 };
 
-#endif  // _Buffer_H
+#endif  // _Packet_H

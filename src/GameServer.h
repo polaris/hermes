@@ -3,7 +3,7 @@
 
 #include "Game.h"
 #include "Queue.h"
-#include "Buffer.h"
+#include "Packet.h"
 #include "Transceiver.h"
 
 class Renderer;
@@ -19,8 +19,8 @@ private:
 
     void processIncomingPackets();
 
-    Queue<Buffer> bufferPool_;
-    Queue<Buffer> incomingPackets_;
+    Queue<Packet> packetPool_;
+    Queue<Packet> incomingPackets_;
     Transceiver transceiver_;
 };
 
