@@ -24,9 +24,8 @@ void Transceiver::sendTo(Buffer* buffer) {
     socket_.async_send_to(boost::asio::buffer(buffer->data(), buffer->size()), buffer->getEndpoint(),
         [this, buffer] (const boost::system::error_code &ec, std::size_t bytesTransferred) {
             if (ec) {
-                std::cerr << ec.message() << std::endl;
+                std::cerr << ec.message() << "\n";
             } else {
-                std::cout << bytesTransferred << " bytes transferred" << std::endl;
                 assert(bytesTransferred == buffer->size());
             }
             buffer->reset();
@@ -38,19 +37,18 @@ void Transceiver::receiveFrom(Buffer* buffer) {
     socket_.async_receive_from(boost::asio::buffer(buffer->data(), buffer->capacity()), buffer->getEndpoint(),
         [this, buffer] (const boost::system::error_code &ec, std::size_t bytesReceived) {
             if (ec) {
-                std::cerr << ec.message() << std::endl;
+                std::cerr << ec.message() << "\n";
                 buffer->reset();
                 bufferPool_.push(buffer);
             } else {
-                buffer->size(bytesReceived);
-                std::cout << buffer->size() << " bytes received from " << buffer->getEndpoint().address() << ":" << buffer->getEndpoint().port() << std::endl;
-
                 auto newBuffer = bufferPool_.pop();
                 if (newBuffer) {
+                    buffer->size(bytesReceived);
                     incomingPackets_.push(buffer);
                     receiveFrom(newBuffer);
                 } else {
                     std::cerr << "Buffer pool is empty. Discard the received packet.\n";
+                    buffer->reset();
                     receiveFrom(buffer);
                 }
             }
