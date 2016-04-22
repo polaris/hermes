@@ -22,7 +22,7 @@ private:
 
     class State {
     public:
-        State(GameClient* gameClient);
+        explicit State(GameClient* gameClient);
         virtual ~State() = default;
         virtual void handleWillUpdateWorld(const Clock& clock) = 0;
         virtual void handleDidUpdateWorld(const Clock& clock) = 0;
@@ -33,7 +33,7 @@ private:
 
     class Connecting : public State {
     public:
-        Connecting(GameClient* gameClient);
+        explicit Connecting(GameClient* gameClient);
         void handleWillUpdateWorld(const Clock& clock) override;
         void handleDidUpdateWorld(const Clock& clock) override;
 
@@ -48,7 +48,7 @@ private:
 
     class Connected : public State {
     public:
-        Connected(GameClient* gameClient);
+        explicit Connected(GameClient* gameClient);
         void handleWillUpdateWorld(const Clock& clock) override;
         void handleDidUpdateWorld(const Clock& clock) override;
     };
