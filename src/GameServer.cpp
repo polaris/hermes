@@ -54,14 +54,14 @@ void GameServer::handlePacket(Packet* packet) {
 }
 
 void GameServer::handleHello(Packet* packet) {
-    BOOST_LOG_TRIVIAL(debug) << "Received a HELLO from " << packet->getEndpoint();
+    BOOST_LOG_TRIVIAL(debug) << "Received a HELLO from client " << packet->getEndpoint();
     auto welcomePacket = packetPool_.pop();
     if (welcomePacket) {
         createWelcomePacket(welcomePacket, packet->getEndpoint());
-        BOOST_LOG_TRIVIAL(debug) << "Send WELCOME to " << welcomePacket->getEndpoint();
+        BOOST_LOG_TRIVIAL(debug) << "Send WELCOME to client " << welcomePacket->getEndpoint();
         transceiver_.sendTo(welcomePacket);
     } else {
-        BOOST_LOG_TRIVIAL(warning) << "Failed to send WELCOME to server: packet pool";
+        BOOST_LOG_TRIVIAL(warning) << "Failed to send WELCOME to client: empty packet pool";
     }
 }
 

@@ -110,7 +110,7 @@ void GameClient::Connecting::sendHello(const Clock& clock) {
             gameClient_->transceiver_.sendTo(packet);
         } else {
             // TODO: Count failures and go to error state after a reasonable number of tries.
-            BOOST_LOG_TRIVIAL(warning) << "Failed to send HELLO to server: packet pool";
+            BOOST_LOG_TRIVIAL(warning) << "Failed to send HELLO to server: empty packet pool";
         }
         lastHelloTime_ = now;
     }
