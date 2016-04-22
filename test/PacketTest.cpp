@@ -107,6 +107,7 @@ TEST_CASE("Packet can be cleared", "[Packet]") {
     CHECK(*packet.getData() != 0x00);
     
     REQUIRE(packet.getSize() == 0);
+    REQUIRE(packet.getHead() == 0);
 }
 
 TEST_CASE("Packet can be written", "[Packet]") {

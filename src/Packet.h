@@ -30,6 +30,7 @@ public:
     }
 
     void clear() {
+        reset();
         size_ = 0;
     }
 
