@@ -21,12 +21,12 @@ Transceiver::Transceiver(Queue<Packet>& packetPool, Queue<Packet>& incomingPacke
 }
 
 void Transceiver::sendTo(Packet* packet) {
-    socket_.async_send_to(boost::asio::buffer(packet->data(), packet->size()), packet->getEndpoint(),
+    socket_.async_send_to(boost::asio::buffer(packet->getData(), packet->getSize()), packet->getEndpoint(),
         [this, packet] (const boost::system::error_code &ec, std::size_t bytesTransferred) {
             if (ec) {
                 std::cerr << ec.message() << "\n";
             } else {
-                assert(bytesTransferred == packet->size());
+                assert(bytesTransferred == packet->getSize());
             }
             packet->reset();
             packetPool_.push(packet);
@@ -34,7 +34,7 @@ void Transceiver::sendTo(Packet* packet) {
 }
 
 void Transceiver::receiveFrom(Packet* packet) {
-    socket_.async_receive_from(boost::asio::buffer(packet->data(), packet->capacity()), packet->getEndpoint(),
+    socket_.async_receive_from(boost::asio::buffer(packet->getData(), packet->getCapacity()), packet->getEndpoint(),
         [this, packet] (const boost::system::error_code &ec, std::size_t bytesReceived) {
             if (ec) {
                 std::cerr << ec.message() << "\n";
@@ -43,7 +43,7 @@ void Transceiver::receiveFrom(Packet* packet) {
             } else {
                 auto newBuffer = packetPool_.pop();
                 if (newBuffer) {
-                    packet->size(bytesReceived);
+                    packet->setSize(bytesReceived);
                     incomingPackets_.push(packet);
                     receiveFrom(newBuffer);
                 } else {

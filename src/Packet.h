@@ -32,22 +32,22 @@ public:
         memset(data_, 0, capacity_);
     }
 
-    std::size_t capacity() const {
+    std::size_t getCapacity() const {
         return capacity_;
     }
 
-    void size(std::size_t size) {
+    void setSize(std::size_t size) {
         if (size > capacity_) {
             throw std::out_of_range("size is out of range");
         }
         size_ = size;
     }
 
-    std::size_t size() const {
+    std::size_t getSize() const {
         return size_;
     }
 
-    char* data() {
+    char* getData() {
         return data_;
     }
 
