@@ -103,7 +103,7 @@ TEST_CASE("Packet can be cleared", "[Packet]") {
     packet.clear();
     packet.reset();
 
-    // Note: This is expected! Packet::clear() does not clear the memory.
+    // Note: This is expected! Packet::clear() does not set the memory to 0.
     CHECK(*packet.getData() != 0x00);
     
     REQUIRE(packet.getSize() == 0);

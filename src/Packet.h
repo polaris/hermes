@@ -16,7 +16,6 @@ public:
     , size_(0)
     , head_(0)
     , data_(new char [capacity_]) {
-        memset(data_, 0, capacity_);
     }
 
     Packet(const Packet&) = delete;
