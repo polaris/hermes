@@ -20,6 +20,10 @@ private:
     void handleDidUpdateWorld(const Clock& clock) override;
     void finishFrame() override;
 
+    void setState(std::shared_ptr<State>& newState);
+
+    void renderFrame();
+
     class State {
     public:
         explicit State(GameClient* gameClient);
@@ -52,8 +56,6 @@ private:
         void handleWillUpdateWorld(const Clock& clock) override;
         void handleDidUpdateWorld(const Clock& clock) override;
     };
-
-    void setState(std::shared_ptr<State>& newState);
 
     std::shared_ptr<State> currentState;
     std::shared_ptr<State> nextState;

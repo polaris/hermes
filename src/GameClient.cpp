@@ -33,6 +33,12 @@ void GameClient::setState(std::shared_ptr<State>& newState) {
     nextState = newState;
 }
 
+void GameClient::renderFrame() {
+    renderer_.clear(0.25f, 0.25f, 0.25f);
+    world_.draw(renderer_);
+    renderer_.present();
+}
+
 GameClient::State::State(GameClient* gameClient)
 : gameClient_(gameClient) {
 }
@@ -49,9 +55,7 @@ void GameClient::Connecting::handleWillUpdateWorld(const Clock& clock) {
 void GameClient::Connecting::handleDidUpdateWorld(const Clock& clock) {
     processIncomingPackets();
 
-    gameClient_->renderer_.clear(0.25f, 0.25f, 0.25f);
-    gameClient_->world_.draw(gameClient_->renderer_);
-    gameClient_->renderer_.present();
+    gameClient_->renderFrame();
 
     sendHello(clock);
 }
@@ -121,7 +125,5 @@ void GameClient::Connected::handleWillUpdateWorld(const Clock& clock) {
 }
 
 void GameClient::Connected::handleDidUpdateWorld(const Clock&) {
-    gameClient_->renderer_.clear(0.25f, 0.25f, 0.25f);
-    gameClient_->world_.draw(gameClient_->renderer_);
-    gameClient_->renderer_.present();
+    gameClient_->renderFrame();
 }
