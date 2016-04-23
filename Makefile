@@ -28,7 +28,7 @@ $(BINDIR)/client: $(OBJ) $(OBJDIR)/client.o
 	@mkdir -p $(BINDIR)
 	$(CXX) $(LDFLAGS) $^ -o $@
 
-$(BINDIR)/test: $(TEST_OBJ)
+$(BINDIR)/test: $(TEST_OBJ) $(OBJ)
 	@mkdir -p $(BINDIR)
 	$(CXX) $(LDFLAGS) $^ -o $@
 
