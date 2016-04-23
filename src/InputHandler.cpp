@@ -4,7 +4,8 @@
 
 InputHandler::InputHandler(float sampleRate)
 : sampleInterval_(1.0f / sampleRate)
-, nextTimeToSample_(0) {
+, nextTimeToSample_(0)
+, pendingMove_(nullptr) {
 }
 
 void InputHandler::handleInput(KeyAction keyAction, int keyCode) {
@@ -31,7 +32,21 @@ void InputHandler::handleInput(KeyAction keyAction, int keyCode) {
 
 void InputHandler::update(float currentTime) {
     if (currentTime >= nextTimeToSample_) {
-        pendingMove.reset(new Move(inputState_, 0, 0));
+        pendingMove_.reset(new Move(moveList_.addMove(inputState_, currentTime)));
         nextTimeToSample_ += sampleInterval_;
     }
+}
+
+float InputHandler::getSampleInterval() const {
+    return sampleInterval_;
+}
+
+std::shared_ptr<Move> InputHandler::getAndClearPendingMove() {
+    auto result = pendingMove_;
+    pendingMove_.reset();
+    return result;
+}
+
+MoveList& InputHandler::getMoveList() {
+    return moveList_;
 }

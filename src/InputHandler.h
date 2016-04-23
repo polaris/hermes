@@ -3,6 +3,7 @@
 
 #include "InputState.h"
 #include "Move.h"
+#include "MoveList.h"
 
 #include <memory>
 
@@ -18,11 +19,11 @@ public:
 
     void update(float currentTime);
 
-    std::shared_ptr<Move> getAndClearPendingMove() {
-        auto result = pendingMove;
-        pendingMove.reset();
-        return result;
-    }
+    float getSampleInterval() const;
+
+    std::shared_ptr<Move> getAndClearPendingMove();
+
+    MoveList& getMoveList();
 
 private:
     const float sampleInterval_;
@@ -31,7 +32,9 @@ private:
 
     InputState inputState_;
 
-    std::shared_ptr<Move> pendingMove;
+    std::shared_ptr<Move> pendingMove_;
+
+    MoveList moveList_;
 };
 
 #endif  // _InputHandler_H

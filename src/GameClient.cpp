@@ -19,7 +19,7 @@ void GameClient::handleWillUpdateWorld(const Clock& clock) {
 }
 
 void GameClient::handleDidUpdateWorld(const Clock& clock) {
-    currentState->processIncomingPackets(clock);
+    processIncomingPackets(clock);
     renderFrame();
     currentState->sendOutgoingPackets(clock);
 }
@@ -33,6 +33,26 @@ void GameClient::finishFrame() {
 
 void GameClient::setState(std::shared_ptr<State>& newState) {
     nextState = newState;
+}
+
+void GameClient::processIncomingPackets(const Clock&) {
+    auto packet = incomingPackets_.pop();
+    if (packet) {
+        unsigned int magicNumber = 0;
+        packet->read(magicNumber);
+        if (magicNumber == PROTOCOL_MAGIC_NUMBER) {
+            unsigned char protocolVersion = 0;
+            packet->read(protocolVersion);
+            if (protocolVersion == PROTOCOL_VERSION) {
+                currentState->handleIncomingPacket(packet);
+            } else {
+                BOOST_LOG_TRIVIAL(warning) << "Received a packet from server with invalid protocol version " << static_cast<unsigned int>(protocolVersion);
+            }
+        } else {
+            BOOST_LOG_TRIVIAL(info) << "Received invalid packet from " << packet->getEndpoint();
+        }
+        packetPool_.push(packet);
+    }
 }
 
 void GameClient::renderFrame() {
@@ -50,36 +70,16 @@ GameClient::Connecting::Connecting(GameClient* gameClient)
 , lastHelloTime_(0) {
 }
 
-void GameClient::Connecting::processIncomingPackets(const Clock&) {
-    auto packet = gameClient_->incomingPackets_.pop();
-    if (packet) {
-        unsigned int magicNumber = 0;
-        packet->read(magicNumber);
-        if (magicNumber == PROTOCOL_MAGIC_NUMBER) {
-            handlePacket(packet);
-        } else {
-            BOOST_LOG_TRIVIAL(info) << "Received invalid packet from " << packet->getEndpoint();
-        }
-        gameClient_->packetPool_.push(packet);
-    }
-}
-
-void GameClient::Connecting::handlePacket(Packet* packet) {
-    unsigned char protocolVersion = 0;
-    packet->read(protocolVersion);
-    if (protocolVersion == PROTOCOL_VERSION) {
-        unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
-        packet->read(packetType);
-        switch (packetType) {
-        case PROTOCOL_PACKET_TYPE_WELCOME:
-            handleWelcome(packet);
-            break;
-        default:
-            BOOST_LOG_TRIVIAL(warning) << "Received a packet with unexpected packet type " << static_cast<unsigned int>(packetType) << " from " << packet->getEndpoint();
-            break;
-        }
-    } else {
-        BOOST_LOG_TRIVIAL(warning) << "Received a packet from server with invalid protocol version " << static_cast<unsigned int>(protocolVersion);
+void GameClient::Connecting::handleIncomingPacket(Packet* packet) {
+    unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
+    packet->read(packetType);
+    switch (packetType) {
+    case PROTOCOL_PACKET_TYPE_WELCOME:
+        handleWelcome(packet);
+        break;
+    default:
+        BOOST_LOG_TRIVIAL(warning) << "Received a packet with unexpected packet type " << static_cast<unsigned int>(packetType) << " from " << packet->getEndpoint();
+        break;
     }
 }
 
@@ -110,11 +110,39 @@ void GameClient::Connecting::sendHello(const Clock& clock) {
 }
 
 GameClient::Connected::Connected(GameClient* gameClient)
-: State(gameClient) {
+: State(gameClient)
+, lastInputTime_(0) {
 }
 
-void GameClient::Connected::processIncomingPackets(const Clock&) {
+void GameClient::Connected::handleIncomingPacket(Packet* packet) {
+    unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
+    packet->read(packetType);
+    switch (packetType) {
+    default:
+        BOOST_LOG_TRIVIAL(warning) << "Received a packet with unexpected packet type " << static_cast<unsigned int>(packetType) << " from " << packet->getEndpoint();
+        break;
+    }
 }
 
-void GameClient::Connected::sendOutgoingPackets(const Clock&) {
+void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {
+    const auto now = clock.getTime();
+    if (now > lastInputTime_ + gameClient_->inputHandler_.getSampleInterval()) {
+        sendInput();
+        lastInputTime_ = now;
+    }
+}
+
+void GameClient::Connected::sendInput() {
+    auto& moveList = gameClient_->inputHandler_.getMoveList();
+    if (moveList.getCount() > 0) {
+        auto packet = gameClient_->packetPool_.pop();
+        if (packet) {
+            createInputPacket(packet, gameClient_->serverEndpoint_, moveList);
+            moveList.clear();
+            gameClient_->transceiver_.sendTo(packet);
+        } else {
+            // TODO: Count failures and go to error state after a reasonable number of tries.
+            BOOST_LOG_TRIVIAL(warning) << "Failed to send INPUT to server: empty packet pool";
+        }
+    }
 }

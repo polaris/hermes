@@ -1,4 +1,10 @@
 #include "Move.h"
+#include "Packet.h"
+
+Move::Move()
+: timeStamp_(0)
+, deltaTime_(0) {
+}
 
 Move::Move(const InputState& inputState, float timeStamp, float deltaTime)
 : inputState_(inputState)
@@ -29,4 +35,16 @@ float Move::getTimeStamp() const {
 
 float Move::getDeltaTime() const {
     return deltaTime_;
+}
+
+void Move::write(Packet* packet) const {
+    inputState_.write(packet);
+    packet->write(timeStamp_);
+    packet->write(deltaTime_);
+}
+
+void Move::read(Packet* packet) {
+    inputState_.read(packet);
+    packet->read(timeStamp_);
+    packet->read(deltaTime_);
 }

@@ -3,9 +3,13 @@
 
 #include "InputState.h"
 
+class Packet;
+
 class Move {
 public:
-    explicit Move(const InputState &inputState, float timeStamp, float deltaTime);
+    Move();
+
+    Move(const InputState &inputState, float timeStamp, float deltaTime);
 
     Move(const Move& rhs);
 
@@ -16,6 +20,10 @@ public:
     float getTimeStamp() const;
 
     float getDeltaTime() const;
+
+    void write(Packet* packet) const;
+
+    void read(Packet* packet);
 
 private:
     InputState inputState_;

@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 
 class Packet;
+class MoveList;
 
 const unsigned int   PROTOCOL_MAGIC_NUMBER          = 0x01600CE8;
 
@@ -15,9 +16,11 @@ const unsigned char  PROTOCOL_PACKET_TYPE_WELCOME   = 0x02;
 const unsigned char  PROTOCOL_PACKET_TYPE_INPUT     = 0x03;
 const unsigned char  PROTOCOL_PACKET_TYPE_STATE     = 0x04;
 
-const float          PROTOCOL_HELLO_INTERVAL        = 1.0;
+const float          PROTOCOL_HELLO_INTERVAL        = 1.0f;
+const float          PROTOCOL_INPUT_INTERVAL        = 0.033f;
 
 void createHelloPacket(Packet* packet, boost::asio::ip::udp::endpoint& endpoint);
 void createWelcomePacket(Packet* packet, boost::asio::ip::udp::endpoint& endpoint);
+void createInputPacket(Packet* packet, boost::asio::ip::udp::endpoint& endpoint, const MoveList& moveList);
 
 #endif  // _Protocol_H
