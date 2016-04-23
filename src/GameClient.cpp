@@ -56,7 +56,6 @@ void GameClient::Connecting::processIncomingPackets(const Clock&) {
         unsigned int magicNumber = 0;
         packet->read(magicNumber);
         if (magicNumber == PROTOCOL_MAGIC_NUMBER) {
-            BOOST_LOG_TRIVIAL(debug) << "Received a packet from " << packet->getEndpoint();
             handlePacket(packet);
         } else {
             BOOST_LOG_TRIVIAL(info) << "Received invalid packet from " << packet->getEndpoint();
