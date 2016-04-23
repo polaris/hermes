@@ -26,8 +26,9 @@ private:
     public:
         explicit State(GameClient* gameClient);
         virtual ~State() = default;
+        virtual void processIncomingPackets(const Clock& clock) = 0;
+        virtual void sendOutgoingPackets(const Clock& clock) = 0;
         virtual void handleWillUpdateWorld(const Clock& clock) = 0;
-        virtual void handleDidUpdateWorld(const Clock& clock) = 0;
 
     protected:
         GameClient* gameClient_;
@@ -38,12 +39,12 @@ private:
     class Connecting : public State {
     public:
         explicit Connecting(GameClient* gameClient);
+        void processIncomingPackets(const Clock& clock) override;
+        void sendOutgoingPackets(const Clock& clock) override;
         void handleWillUpdateWorld(const Clock& clock) override;
-        void handleDidUpdateWorld(const Clock& clock) override;
 
     private:
         void sendHello(const Clock& clock);
-        void processIncomingPackets();
         void handlePacket(Packet* packet);
         void handleWelcome(Packet* packet);
 
@@ -53,8 +54,9 @@ private:
     class Connected : public State {
     public:
         explicit Connected(GameClient* gameClient);
+        void processIncomingPackets(const Clock& clock) override;
+        void sendOutgoingPackets(const Clock& clock) override;
         void handleWillUpdateWorld(const Clock& clock) override;
-        void handleDidUpdateWorld(const Clock& clock) override;
     };
 
     std::shared_ptr<State> currentState;

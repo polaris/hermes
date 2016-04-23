@@ -19,7 +19,9 @@ void GameClient::handleWillUpdateWorld(const Clock& clock) {
 }
 
 void GameClient::handleDidUpdateWorld(const Clock& clock) {
-    currentState->handleDidUpdateWorld(clock);
+    currentState->processIncomingPackets(clock);
+    renderFrame();
+    currentState->sendOutgoingPackets(clock);
 }
 
 void GameClient::finishFrame() {
@@ -52,15 +54,7 @@ void GameClient::Connecting::handleWillUpdateWorld(const Clock& clock) {
     gameClient_->inputHandler_.update(clock.getGameTime());
 }
 
-void GameClient::Connecting::handleDidUpdateWorld(const Clock& clock) {
-    processIncomingPackets();
-
-    gameClient_->renderFrame();
-
-    sendHello(clock);
-}
-
-void GameClient::Connecting::processIncomingPackets() {
+void GameClient::Connecting::processIncomingPackets(const Clock&) {
     auto packet = gameClient_->incomingPackets_.pop();
     if (packet) {
         unsigned int magicNumber = 0;
@@ -73,6 +67,10 @@ void GameClient::Connecting::processIncomingPackets() {
         }
         gameClient_->packetPool_.push(packet);
     }
+}
+
+void GameClient::Connecting::sendOutgoingPackets(const Clock& clock) {
+    sendHello(clock);
 }
 
 void GameClient::Connecting::handlePacket(Packet* packet) {
@@ -124,6 +122,8 @@ void GameClient::Connected::handleWillUpdateWorld(const Clock& clock) {
     gameClient_->inputHandler_.update(clock.getGameTime());
 }
 
-void GameClient::Connected::handleDidUpdateWorld(const Clock&) {
-    gameClient_->renderFrame();
+void GameClient::Connected::processIncomingPackets(const Clock&) {
+}
+
+void GameClient::Connected::sendOutgoingPackets(const Clock&) {
 }
