@@ -29,8 +29,10 @@ public:
     }
 
     void clear() {
+        using namespace boost::asio::ip;
         reset();
         size_ = 0;
+        endpoint_ = udp::endpoint(address::from_string("0.0.0.0"), 0);
     }
 
     std::size_t getCapacity() const {
