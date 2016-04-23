@@ -94,7 +94,7 @@ void GameClient::Connecting::sendOutgoingPackets(const Clock& clock) {
 }
 
 void GameClient::Connecting::sendHello(const Clock& clock) {
-    auto now = clock.getTime();
+    const auto now = clock.getTime();
     if (now > lastHelloTime_ + PROTOCOL_HELLO_INTERVAL) {
         auto packet = gameClient_->packetPool_.pop();
         if (packet) {
