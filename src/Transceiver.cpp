@@ -12,6 +12,7 @@ Transceiver::Transceiver(unsigned short port, Queue<Packet>& packetPool, Queue<P
     auto packet = packetPool_.pop();
     assert(packet != nullptr);
     if (packet) {
+        packet->clear();
         receiveFrom(packet);
     }
 }
@@ -43,10 +44,11 @@ void Transceiver::receiveFrom(Packet* packet) {
                 if (newBuffer) {
                     packet->setSize(bytesReceived);
                     incomingPackets_.push(packet);
+                    newBuffer->clear();
                     receiveFrom(newBuffer);
                 } else {
                     BOOST_LOG_TRIVIAL(error) << "Packet pool is empty. Discard the received packet.";
-                    packet->reset();
+                    packet->clear();
                     receiveFrom(packet);
                 }
             }
