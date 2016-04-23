@@ -11,7 +11,7 @@ class Clock;
 
 class GameServer : public Game {
 public:
-    GameServer(unsigned int frameRate, Renderer& renderer);
+    GameServer(unsigned int frameRate, unsigned short port, Renderer& renderer);
 
 private:
     void handleWillUpdateWorld(const Clock& clock) override;

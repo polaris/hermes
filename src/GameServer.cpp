@@ -5,11 +5,11 @@
 
 #include <boost/log/trivial.hpp>
 
-GameServer::GameServer(unsigned int frameRate, Renderer& renderer)
+GameServer::GameServer(unsigned int frameRate, unsigned short port, Renderer& renderer)
 : Game(frameRate, renderer)
 , packetPool_(100, [] () { return new Packet(1500); })
 , incomingPackets_(100)
-, transceiver_(12345, packetPool_, incomingPackets_) {
+, transceiver_(port, packetPool_, incomingPackets_) {
 }
 
 void GameServer::handleWillUpdateWorld(const Clock&) {

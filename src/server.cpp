@@ -17,7 +17,7 @@ int main() {
         
         Renderer renderer(window);
         
-        GameServer gameServer(60, renderer);
+        GameServer gameServer(60, 12345, renderer);
 
         gameServer.run();
         
