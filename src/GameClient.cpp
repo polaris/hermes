@@ -64,10 +64,6 @@ void GameClient::Connecting::processIncomingPackets(const Clock&) {
     }
 }
 
-void GameClient::Connecting::sendOutgoingPackets(const Clock& clock) {
-    sendHello(clock);
-}
-
 void GameClient::Connecting::handlePacket(Packet* packet) {
     unsigned char protocolVersion = 0;
     packet->read(protocolVersion);
@@ -91,6 +87,10 @@ void GameClient::Connecting::handleWelcome(Packet* packet) {
     BOOST_LOG_TRIVIAL(debug) << "Received a WELCOME from " << packet->getEndpoint();
     auto newState = std::shared_ptr<State>(new Connected{gameClient_});
     gameClient_->setState(newState);
+}
+
+void GameClient::Connecting::sendOutgoingPackets(const Clock& clock) {
+    sendHello(clock);
 }
 
 void GameClient::Connecting::sendHello(const Clock& clock) {
