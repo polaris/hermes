@@ -15,7 +15,7 @@ GameClient::GameClient(unsigned int frameRate, const char *address, unsigned sho
 }
 
 void GameClient::handleWillUpdateWorld(const Clock& clock) {
-    currentState->handleWillUpdateWorld(clock);
+    inputHandler_.update(clock.getGameTime());
 }
 
 void GameClient::handleDidUpdateWorld(const Clock& clock) {
@@ -48,10 +48,6 @@ GameClient::State::State(GameClient* gameClient)
 GameClient::Connecting::Connecting(GameClient* gameClient)
 : State(gameClient)
 , lastHelloTime_(0) {
-}
-
-void GameClient::Connecting::handleWillUpdateWorld(const Clock& clock) {
-    gameClient_->inputHandler_.update(clock.getGameTime());
 }
 
 void GameClient::Connecting::processIncomingPackets(const Clock&) {
@@ -116,10 +112,6 @@ void GameClient::Connecting::sendHello(const Clock& clock) {
 
 GameClient::Connected::Connected(GameClient* gameClient)
 : State(gameClient) {
-}
-
-void GameClient::Connected::handleWillUpdateWorld(const Clock& clock) {
-    gameClient_->inputHandler_.update(clock.getGameTime());
 }
 
 void GameClient::Connected::processIncomingPackets(const Clock&) {
