@@ -6,11 +6,12 @@
 #include "Vector2d.h"
 
 class Renderer;
-class InputHandler;
 
 class SpaceShip : public GameObject {
 public:
-    explicit SpaceShip(const Renderer& renderer, InputHandler& inputHandler);
+    explicit SpaceShip(const Renderer& renderer);
+
+    virtual ~SpaceShip() = default;
 
     void update(float elapsed);
 
@@ -21,9 +22,10 @@ protected:
 
     void thrust(bool onOff);
 
+    virtual void beforeUpdate(float) {}
+
 private:
     Sprite sprite_;
-    InputHandler& inputHandler_;
 
     Vector2d position_;
     Vector2d velocity_;

@@ -2,9 +2,8 @@
 #include "Renderer.h"
 #include "InputHandler.h"
 
-SpaceShip::SpaceShip(const Renderer &renderer, InputHandler& inputHandler)
+SpaceShip::SpaceShip(const Renderer &renderer)
 : sprite_("data/ship.png", renderer)
-, inputHandler_(inputHandler)
 , position_(320, 240)
 , velocity_(0, 0)
 , lookat_(0, -1)
@@ -20,13 +19,7 @@ void SpaceShip::thrust(bool onOff) {
 }
 
 void SpaceShip::update(float elapsed) {
-    auto move = inputHandler_.getAndClearPendingMove();
-    if (move) {
-        const auto& inputState = move->getInputState();
-        rotate(inputState.desiredRightAmount * 5 * elapsed);
-        rotate(-inputState.desiredLeftAmount * 5 * elapsed);
-        thrust(inputState.desiredForwardAmount > 0);
-    }
+    beforeUpdate(elapsed);
 
     velocity_ *= 0.995f;
     velocity_ += (elapsed * (acceleration_ * lookat_));
