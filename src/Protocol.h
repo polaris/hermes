@@ -20,8 +20,10 @@ const unsigned char  PROTOCOL_PACKET_TYPE_GOODBYE   = 0x05;
 const float          PROTOCOL_HELLO_INTERVAL        = 1.0f;
 const float          PROTOCOL_INPUT_INTERVAL        = 0.033f;
 
-void createHelloPacket(Packet* packet, boost::asio::ip::udp::endpoint& endpoint);
-void createWelcomePacket(Packet* packet, boost::asio::ip::udp::endpoint& endpoint);
-void createInputPacket(Packet* packet, boost::asio::ip::udp::endpoint& endpoint, const MoveList& moveList);
+const float          PROTOCOL_CLIENT_TIMEOUT        = 1.0f;
+
+void createHelloPacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint);
+void createWelcomePacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint);
+void createInputPacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint, const MoveList& moveList);
 
 #endif  // _Protocol_H
