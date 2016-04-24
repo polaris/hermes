@@ -15,6 +15,7 @@ const unsigned char  PROTOCOL_PACKET_TYPE_HELLO     = 0x01;
 const unsigned char  PROTOCOL_PACKET_TYPE_WELCOME   = 0x02;
 const unsigned char  PROTOCOL_PACKET_TYPE_INPUT     = 0x03;
 const unsigned char  PROTOCOL_PACKET_TYPE_STATE     = 0x04;
+const unsigned char  PROTOCOL_PACKET_TYPE_GOODBYE   = 0x05;
 
 const float          PROTOCOL_HELLO_INTERVAL        = 1.0f;
 const float          PROTOCOL_INPUT_INTERVAL        = 0.033f;
