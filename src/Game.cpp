@@ -1,15 +1,12 @@
 #include "Game.h"
 #include "Clock.h"
 #include "Renderer.h"
-#include "LocalSpaceShip.h"
 
 #include <thread>
 
 Game::Game(unsigned int frameRate, Renderer& renderer)
 : renderer_(renderer)
-, inputHandler_(frameRate)
 , frameDuration_(1.0f / frameRate) {
-    world_.add(GameObjectPtr{new LocalSpaceShip(renderer_, inputHandler_)});
 }
 
 void Game::run() {
@@ -22,7 +19,7 @@ void Game::run() {
             if (event.type == SDL_QUIT || (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)) {
                 running = false;
             } else {
-                handleEvent(event, running);
+                processEvent(event, running);
             }
         } else {
             clock.update();
@@ -44,19 +41,6 @@ void Game::run() {
     }
 }
 
-void Game::handleEvent(SDL_Event &event, bool& running) {
-    switch(event.type) {
-    case SDL_KEYDOWN:
-        if (event.key.keysym.sym == SDLK_ESCAPE) {
-            running = false;
-        } else {
-            inputHandler_.handleInput(KeyAction::Down, event.key.keysym.sym);
-        }
-        break;
-    case SDL_KEYUP:
-        inputHandler_.handleInput(KeyAction::Up, event.key.keysym.sym);
-        break;
-    default:
-        break;
-    }
+void Game::processEvent(SDL_Event &event, bool& running) {
+    handleEvent(event, running);
 }

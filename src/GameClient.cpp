@@ -2,17 +2,20 @@
 #include "Renderer.h"
 #include "Clock.h"
 #include "Protocol.h"
+#include "LocalSpaceShip.h"
 
 #include <boost/log/trivial.hpp>
 
 GameClient::GameClient(unsigned int frameRate, const char *address, unsigned short port, Renderer& renderer)
 : Game(frameRate, renderer)
+, inputHandler_(frameRate)
 , currentState(new GameClient::Connecting{this})
 , packetPool_(100 , [] () { return new Packet(1500); })
 , incomingPackets_(100)
 , transceiver_(packetPool_, incomingPackets_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
 , playerId_(PROTOCOL_INVALID_CLIENT_ID) {
+    world_.add(GameObjectPtr{new LocalSpaceShip(0, 0, renderer_, inputHandler_)});
 }
 
 void GameClient::handleWillUpdateWorld(const Clock& clock) {
@@ -23,6 +26,23 @@ void GameClient::handleDidUpdateWorld(const Clock& clock) {
     processIncomingPackets(clock);
     renderFrame();
     currentState->sendOutgoingPackets(clock);
+}
+
+void GameClient::handleEvent(SDL_Event& event, bool& running) {
+    switch(event.type) {
+    case SDL_KEYDOWN:
+        if (event.key.keysym.sym == SDLK_ESCAPE) {
+            running = false;
+        } else {
+            inputHandler_.handleInput(KeyAction::Down, event.key.keysym.sym);
+        }
+        break;
+    case SDL_KEYUP:
+        inputHandler_.handleInput(KeyAction::Up, event.key.keysym.sym);
+        break;
+    default:
+        break;
+    }
 }
 
 void GameClient::finishFrame() {

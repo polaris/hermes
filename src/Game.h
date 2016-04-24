@@ -2,7 +2,6 @@
 #define _Game_H
 
 #include "World.h"
-#include "InputHandler.h"
 
 #include <SDL2/SDL.h>
 
@@ -21,16 +20,16 @@ protected:
 
     virtual void handleDidUpdateWorld(const Clock& clock) = 0;
 
+    virtual void handleEvent(SDL_Event &event, bool& running) = 0;
+
     virtual void finishFrame() {}
 
     Renderer& renderer_;
 
     World world_;
 
-    InputHandler inputHandler_;
-
 private:
-    void handleEvent(SDL_Event &event, bool& running);
+    void processEvent(SDL_Event &event, bool& running);
 
     const float frameDuration_;
 };

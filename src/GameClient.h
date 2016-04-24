@@ -4,6 +4,7 @@
 #include "Game.h"
 #include "Queue.h"
 #include "Packet.h"
+#include "InputHandler.h"
 #include "Transceiver.h"
 
 #include <memory>
@@ -18,6 +19,7 @@ public:
 private:
     void handleWillUpdateWorld(const Clock& clock) override;
     void handleDidUpdateWorld(const Clock& clock) override;
+    void handleEvent(SDL_Event& event, bool& running) override;
     void finishFrame() override;
 
     void processIncomingPackets(const Clock& clock);
@@ -60,6 +62,8 @@ private:
 
         float lastInputTime_;
     };
+
+    InputHandler inputHandler_;
 
     std::shared_ptr<State> currentState;
     std::shared_ptr<State> nextState;

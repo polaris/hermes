@@ -8,7 +8,7 @@ class InputHandler;
 
 class LocalSpaceShip : public SpaceShip {
 public:
-    LocalSpaceShip(const Renderer &renderer, InputHandler& inputHandler);
+    LocalSpaceShip(unsigned int playerId, unsigned int objectId, const Renderer &renderer, InputHandler& inputHandler);
 
 private:
     InputHandler& inputHandler_;

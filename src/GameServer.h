@@ -23,6 +23,7 @@ public:
 private:
     void handleWillUpdateWorld(const Clock& clock) override;
     void handleDidUpdateWorld(const Clock& clock) override;
+    void handleEvent(SDL_Event &event, bool& running) override;
 
     void processIncomingPackets(const Clock& clock);
     void handlePacket(Packet* packet, const Clock& clock);
@@ -33,6 +34,7 @@ private:
     void checkForDisconnects(const Clock& clock);
 
     unsigned int nextPlayerId_;
+    unsigned int nextObjectId_;
 
     PlayerIdToSessionMap clientSessions_;
     EndpointToPlayerIdMap playerIds_;

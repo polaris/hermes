@@ -3,8 +3,8 @@
 #include "InputHandler.h"
 #include "Move.h"
 
-LocalSpaceShip::LocalSpaceShip(const Renderer &renderer, InputHandler& inputHandler)
-: SpaceShip(renderer)
+LocalSpaceShip::LocalSpaceShip(unsigned int playerId, unsigned int objectId, const Renderer &renderer, InputHandler& inputHandler)
+: SpaceShip(playerId, objectId, renderer)
 , inputHandler_(inputHandler) {
 }
 

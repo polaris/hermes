@@ -6,16 +6,25 @@
 #include "Vector2d.h"
 
 class Renderer;
+class Packet;
 
 class SpaceShip : public GameObject {
 public:
-    explicit SpaceShip(const Renderer& renderer);
+    explicit SpaceShip(unsigned int playerId, unsigned int objectId, const Renderer& renderer);
 
     virtual ~SpaceShip() = default;
 
     void update(float elapsed);
 
     void draw(Renderer& renderer);
+
+    void write(Packet* packet);
+
+    void read(Packet* packet);
+
+    unsigned int getPlayerId() const;
+
+    unsigned int getObjectId() const;
 
 protected:
     void rotate(float angle);
@@ -25,6 +34,9 @@ protected:
     virtual void beforeUpdate(float) {}
 
 private:
+    const unsigned int playerId_;
+    const unsigned int objectId_;
+
     Sprite sprite_;
 
     Vector2d position_;

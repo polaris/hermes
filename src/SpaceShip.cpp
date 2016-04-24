@@ -1,9 +1,12 @@
 #include "SpaceShip.h"
 #include "Renderer.h"
 #include "InputHandler.h"
+#include "Packet.h"
 
-SpaceShip::SpaceShip(const Renderer &renderer)
-: sprite_("data/ship.png", renderer)
+SpaceShip::SpaceShip(unsigned int playerId, unsigned int objectId, const Renderer &renderer)
+: playerId_(playerId)
+, objectId_(objectId)
+, sprite_("data/ship.png", renderer)
 , position_(320, 240)
 , velocity_(0, 0)
 , lookat_(0, -1)
@@ -38,4 +41,28 @@ void SpaceShip::draw(Renderer &renderer) {
         static_cast<int>(position_.y() - sprite_.getHeight() / 2),
         -angle(Vector2d{0, -1}, lookat_),
         renderer);
+}
+
+void SpaceShip::write(Packet* packet) {
+    packet->write(playerId_);
+    packet->write(objectId_);
+    position_.write(packet);
+    velocity_.write(packet);
+    lookat_.write(packet);
+    packet->write(acceleration_);
+}
+
+void SpaceShip::read(Packet* packet) {
+    position_.read(packet);
+    velocity_.read(packet);
+    lookat_.read(packet);
+    packet->read(acceleration_);
+}
+
+unsigned int SpaceShip::getPlayerId() const {
+    return playerId_;
+}
+
+unsigned int SpaceShip::getObjectId() const {
+    return objectId_;
 }

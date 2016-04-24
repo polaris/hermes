@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Clock.h"
 #include "Protocol.h"
+#include "SpaceShip.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/lexical_cast.hpp>
@@ -9,6 +10,7 @@
 GameServer::GameServer(unsigned int frameRate, unsigned short port, Renderer& renderer)
 : Game(frameRate, renderer)
 , nextPlayerId_(1)
+, nextObjectId_(0)
 , packetPool_(100, [] () { return new Packet(1500); })
 , incomingPackets_(100)
 , transceiver_(port, packetPool_, incomingPackets_) {
@@ -67,6 +69,8 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
         auto welcomePacket = packetPool_.pop();
         if (welcomePacket) {
             const auto playerId = nextPlayerId_++;
+            const auto objectId = nextObjectId_++;
+            world_.add(GameObjectPtr{new SpaceShip(playerId, objectId, renderer_)});
             createNewClientSession(playerId, packet->getEndpoint(), clock);
             createWelcomePacket(welcomePacket, playerId, packet->getEndpoint());
             transceiver_.sendTo(welcomePacket);
@@ -120,6 +124,18 @@ void GameServer::handleDidUpdateWorld(const Clock&) {
     renderer_.present();
 
     // send outgoing packets
+}
+
+void GameServer::handleEvent(SDL_Event& event, bool& running) {
+    switch(event.type) {
+    case SDL_KEYDOWN:
+        if (event.key.keysym.sym == SDLK_ESCAPE) {
+            running = false;
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 void GameServer::createNewClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint, const Clock& clock) {
