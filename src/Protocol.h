@@ -10,7 +10,8 @@ const unsigned int   PROTOCOL_MAGIC_NUMBER          = 0x01600CE8;
 
 const unsigned char  PROTOCOL_VERSION               = 0x01;
 
-const unsigned int   PROTOCOL_INVALID_CLIENT_ID     = 0;
+const unsigned int   PROTOCOL_INVALID_PLAYER_ID     = 0;
+const unsigned int   PROTOCOL_INVALID_OBJECT_ID     = 0;
 
 const unsigned char  PROTOCOL_PACKET_TYPE_INVALID   = 0x00;
 const unsigned char  PROTOCOL_PACKET_TYPE_HELLO     = 0x01;

@@ -10,7 +10,7 @@
 GameServer::GameServer(unsigned int frameRate, unsigned short port, Renderer& renderer)
 : Game(frameRate, renderer)
 , nextPlayerId_(1)
-, nextObjectId_(0)
+, nextObjectId_(1)
 , packetPool_(100, [] () { return new Packet(1500); })
 , incomingPackets_(100)
 , transceiver_(port, packetPool_, incomingPackets_) {
@@ -70,7 +70,8 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
         if (welcomePacket) {
             const auto playerId = nextPlayerId_++;
             const auto objectId = nextObjectId_++;
-            world_.add(GameObjectPtr{new SpaceShip(playerId, objectId, renderer_)});
+            GameObjectPtr gameObject(new SpaceShip(playerId, objectId, renderer_));
+            world_.add(objectId, gameObject);
             createNewClientSession(playerId, packet->getEndpoint(), clock);
             createWelcomePacket(welcomePacket, playerId, packet->getEndpoint());
             transceiver_.sendTo(welcomePacket);
@@ -84,7 +85,7 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 }
 
 void GameServer::handleInput(Packet* packet, const Clock& clock) {
-    unsigned int playerId = PROTOCOL_INVALID_CLIENT_ID;
+    unsigned int playerId = PROTOCOL_INVALID_PLAYER_ID;
     packet->read(playerId);
     if (verifyClientSession(playerId, packet->getEndpoint())) {
         clientSessions_[playerId]->handleInput(packet, clock);
@@ -94,7 +95,7 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
 }
 
 void GameServer::handleGoodBye(Packet* packet) {
-    unsigned int playerId = PROTOCOL_INVALID_CLIENT_ID;
+    unsigned int playerId = PROTOCOL_INVALID_PLAYER_ID;
     packet->read(playerId);
     if (verifyClientSession(playerId, packet->getEndpoint())) {
         BOOST_LOG_TRIVIAL(debug) << "Received GOODBYE from client " << playerId;

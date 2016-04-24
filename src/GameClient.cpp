@@ -14,8 +14,9 @@ GameClient::GameClient(unsigned int frameRate, const char *address, unsigned sho
 , incomingPackets_(100)
 , transceiver_(packetPool_, incomingPackets_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
-, playerId_(PROTOCOL_INVALID_CLIENT_ID) {
-    world_.add(GameObjectPtr{new LocalSpaceShip(0, 0, renderer_, inputHandler_)});
+, playerId_(PROTOCOL_INVALID_PLAYER_ID) {
+    GameObjectPtr gameObject(new LocalSpaceShip(0, 0, renderer_, inputHandler_));
+    world_.add(0, gameObject);
 }
 
 void GameClient::handleWillUpdateWorld(const Clock& clock) {
@@ -140,10 +141,17 @@ void GameClient::Connected::handleIncomingPacket(Packet* packet) {
     unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
     packet->read(packetType);
     switch (packetType) {
+    case PROTOCOL_PACKET_TYPE_STATE:
+        handleState(packet);
+        break;
     default:
         BOOST_LOG_TRIVIAL(warning) << "Received a packet with unexpected packet type " << static_cast<unsigned int>(packetType) << " from " << packet->getEndpoint();
         break;
     }
+}
+
+void GameClient::Connected::handleState(Packet* packet) {
+    gameClient_->world_.read(packet);
 }
 
 void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {

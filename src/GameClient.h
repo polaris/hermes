@@ -8,6 +8,7 @@
 #include "Transceiver.h"
 
 #include <memory>
+#include <unordered_map>
 
 class Renderer;
 class Clock;
@@ -59,8 +60,11 @@ private:
 
     private:
         void sendInput();
+        void handleState(Packet* packet);
 
         float lastInputTime_;
+
+        std::unordered_map<unsigned int, GameObjectPtr> objectIdToGameObjectMap_;
     };
 
     InputHandler inputHandler_;

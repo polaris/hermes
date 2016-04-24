@@ -3,23 +3,28 @@
 
 #include "GameObject.h"
 
-#include <vector>
+#include <unordered_map>
+
+using ObjectIdToGameObjectMap = std::unordered_map<unsigned int, GameObjectPtr>;
 
 class World : public GameObject {
 public:
     World();
 
-    void add(GameObjectPtr& gameObject);
-    void add(GameObjectPtr&& gameObject);
+    void add(unsigned int objectId, GameObjectPtr& gameObject);
 
-    void remove(GameObjectPtr& gameObject);
+    void remove(unsigned int objectId);
 
     void update(float elapsed) override;
 
     void draw(Renderer& renderer) override;
 
+    void write(Packet* packet) override;
+
+    void read(Packet* packet) override;
+
 private:
-    std::vector<GameObjectPtr> gameObjects;
+    ObjectIdToGameObjectMap gameObjects_;
 };
 
 #endif  // _World_H

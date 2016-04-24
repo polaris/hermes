@@ -4,6 +4,7 @@
 #include <memory>
 
 class Renderer;
+class Packet;
 
 class GameObject {
 public:
@@ -12,6 +13,10 @@ public:
     virtual void update(float elapsed) = 0;
 
     virtual void draw(Renderer &renderer) = 0;
+
+    virtual void write(Packet* packet) = 0;
+
+    virtual void read(Packet* packet) = 0;
 };
 
 using GameObjectPtr = std::shared_ptr<GameObject>;

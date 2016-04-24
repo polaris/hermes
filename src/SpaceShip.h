@@ -14,13 +14,13 @@ public:
 
     virtual ~SpaceShip() = default;
 
-    void update(float elapsed);
+    void update(float elapsed) override;
 
-    void draw(Renderer& renderer);
+    void draw(Renderer& renderer) override;
 
-    void write(Packet* packet);
+    void write(Packet* packet) override;
 
-    void read(Packet* packet);
+    void read(Packet* packet) override;
 
     unsigned int getPlayerId() const;
 
