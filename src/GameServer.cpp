@@ -118,7 +118,7 @@ void GameServer::handleDidUpdateWorld(const Clock&) {
 }
 
 void GameServer::createNewClientSession(const boost::asio::ip::udp::endpoint& endpoint, const Clock& clock) {
-    auto id = boost::lexical_cast<std::string>(endpoint);
+    const auto id = boost::lexical_cast<std::string>(endpoint);
     auto newClientSession = std::make_unique<ClientSession>(endpoint, clock.getTime());
     clientSessions_.insert(ClientSessionMap::value_type(id, std::move(newClientSession)));
 }
