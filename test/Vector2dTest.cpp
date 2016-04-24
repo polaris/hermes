@@ -120,9 +120,9 @@ TEST_CASE("Vector2d serialization") {
     Vector2d b;
 
     Packet packet(32);
-    a.write(packet);
+    a.write(&packet);
     packet.reset();
-    b.read(packet);
+    b.read(&packet);
 
     REQUIRE(a == b);
 }
