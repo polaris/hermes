@@ -13,7 +13,8 @@
 class Renderer;
 class Clock;
 
-using ClientSessionMap = std::unordered_map<std::string, std::unique_ptr<ClientSession>>;
+using PlayerIdToSessionMap = std::unordered_map<unsigned int, std::unique_ptr<ClientSession>>;
+using EndpointToPlayerIdMap = std::unordered_map<std::string, unsigned int>;
 
 class GameServer : public Game {
 public:
@@ -31,10 +32,14 @@ private:
 
     void checkForDisconnects(const Clock& clock);
 
-    ClientSessionMap clientSessions_;
-    void createNewClientSession(const boost::asio::ip::udp::endpoint& endpoint, const Clock& clock);
+    unsigned int nextPlayerId_;
+
+    PlayerIdToSessionMap clientSessions_;
+    EndpointToPlayerIdMap playerIds_;
+    void createNewClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint, const Clock& clock);
+    bool verifyClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint);
     bool hasClientSession(const boost::asio::ip::udp::endpoint& endpoint);
-    void removeClientSession(const boost::asio::ip::udp::endpoint& endpoint);
+    void removeClientSession(unsigned int playerId);
 
     Queue<Packet> packetPool_;
     Queue<Packet> incomingPackets_;

@@ -69,6 +69,8 @@ private:
     Transceiver transceiver_;
 
     boost::asio::ip::udp::endpoint serverEndpoint_;
+
+    unsigned int playerId_;
 };
 
 #endif  // _GameClient_H

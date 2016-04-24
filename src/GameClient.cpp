@@ -11,7 +11,8 @@ GameClient::GameClient(unsigned int frameRate, const char *address, unsigned sho
 , packetPool_(100 , [] () { return new Packet(1500); })
 , incomingPackets_(100)
 , transceiver_(packetPool_, incomingPackets_)
-, serverEndpoint_(boost::asio::ip::address::from_string(address), port) {
+, serverEndpoint_(boost::asio::ip::address::from_string(address), port)
+, playerId_(PROTOCOL_INVALID_CLIENT_ID) {
 }
 
 void GameClient::handleWillUpdateWorld(const Clock& clock) {
@@ -84,7 +85,8 @@ void GameClient::Connecting::handleIncomingPacket(Packet* packet) {
 }
 
 void GameClient::Connecting::handleWelcome(Packet* packet) {
-    BOOST_LOG_TRIVIAL(debug) << "Received a WELCOME from " << packet->getEndpoint();
+    packet->read(gameClient_->playerId_);
+    BOOST_LOG_TRIVIAL(debug) << "WELCOME from " << packet->getEndpoint() << ". Player ID is " << gameClient_->playerId_ << ".";
     auto newState = std::shared_ptr<State>(new Connected{gameClient_});
     gameClient_->setState(newState);
 }
@@ -137,7 +139,7 @@ void GameClient::Connected::sendInput() {
     if (moveList.getCount() > 0) {
         auto packet = gameClient_->packetPool_.pop();
         if (packet) {
-            createInputPacket(packet, gameClient_->serverEndpoint_, moveList);
+            createInputPacket(packet, gameClient_->playerId_, gameClient_->serverEndpoint_, moveList);
             moveList.clear();
             gameClient_->transceiver_.sendTo(packet);
         } else {
