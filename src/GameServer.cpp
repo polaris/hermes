@@ -3,6 +3,7 @@
 #include "Clock.h"
 #include "Protocol.h"
 #include "SpaceShip.h"
+#include "ClientSession.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/lexical_cast.hpp>
@@ -18,7 +19,7 @@ GameServer::GameServer(unsigned int frameRate, unsigned short port, Renderer& re
 
 void GameServer::handleWillUpdateWorld(const Clock& clock) {
     processIncomingPackets(clock);
-    checkForDisconnects(clock);
+    clientRegistry_.checkForDisconnects(clock.getTime());
 }
 
 void GameServer::processIncomingPackets(const Clock& clock) {
@@ -61,7 +62,7 @@ void GameServer::handlePacket(Packet* packet, const Clock& clock) {
 }
 
 void GameServer::handleHello(Packet* packet, const Clock& clock) {
-    if (!hasClientSession(packet->getEndpoint())) {
+    if (!clientRegistry_.hasClientSession(packet->getEndpoint())) {
         BOOST_LOG_TRIVIAL(debug) << "HELLO from new client " << packet->getEndpoint();
         auto welcomePacket = packetPool_.pop();
         if (welcomePacket) {
@@ -69,7 +70,7 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
             const auto objectId = nextObjectId_++;
             GameObjectPtr gameObject(new SpaceShip(playerId, objectId, renderer_));
             world_.add(objectId, gameObject);
-            createNewClientSession(playerId, packet->getEndpoint(), clock);
+            clientRegistry_.addClientSession(playerId, packet->getEndpoint(), clock.getTime());
             createWelcomePacket(welcomePacket, playerId, packet->getEndpoint());
             transceiver_.sendTo(welcomePacket);
             BOOST_LOG_TRIVIAL(debug) << "WELCOME client " << playerId << " (" << welcomePacket->getEndpoint() << ")";
@@ -84,8 +85,9 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 void GameServer::handleInput(Packet* packet, const Clock& clock) {
     unsigned int playerId = PROTOCOL_INVALID_PLAYER_ID;
     packet->read(playerId);
-    if (verifyClientSession(playerId, packet->getEndpoint())) {
-        clientSessions_[playerId]->handleInput(packet, clock);
+    if (clientRegistry_.verifyClientSession(playerId, packet->getEndpoint())) {
+        auto clientSession = clientRegistry_.getClientSession(playerId);
+        clientSession->handleInput(packet, clock);
     } else {
         BOOST_LOG_TRIVIAL(warning) << "Received INPUT from unknown or invalid client " << packet->getEndpoint();
     }
@@ -94,25 +96,11 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
 void GameServer::handleGoodBye(Packet* packet) {
     unsigned int playerId = PROTOCOL_INVALID_PLAYER_ID;
     packet->read(playerId);
-    if (verifyClientSession(playerId, packet->getEndpoint())) {
+    if (clientRegistry_.verifyClientSession(playerId, packet->getEndpoint())) {
         BOOST_LOG_TRIVIAL(debug) << "Received GOODBYE from client " << playerId;
-        removeClientSession(playerId);
+        clientRegistry_.removeClientSession(playerId);
     } else {
         BOOST_LOG_TRIVIAL(warning) << "Received GOODBYE from unknown or invalid client " << packet->getEndpoint();
-    }
-}
-
-void GameServer::checkForDisconnects(const Clock& clock) {
-    std::vector<unsigned int> clientsToBeRemoved;
-    for (const auto& clientSession : clientSessions_) {
-        const auto now = clock.getTime();
-        if ((now - clientSession.second->getLastSeen()) > PROTOCOL_CLIENT_TIMEOUT) {
-            clientsToBeRemoved.push_back(clientSession.first);
-        }
-    }
-    for (const auto& playerId : clientsToBeRemoved) {
-        BOOST_LOG_TRIVIAL(debug) << "Remove disconnected client " << playerId;
-        removeClientSession(playerId);
     }
 }
 
@@ -128,12 +116,12 @@ void GameServer::renderWorld() {
 }
 
 void GameServer::sendOutgoingPackets() {
-    auto packet = packetPool_.pop();
-    if (packet) {
-        transceiver_.sendTo(packet);
-    } else {
-        BOOST_LOG_TRIVIAL(warning) << "Failed to WELCOME to client: empty packet pool";
-    }
+    // auto packet = packetPool_.pop();
+    // if (packet) {
+    //     transceiver_.sendTo(packet);
+    // } else {
+    //     BOOST_LOG_TRIVIAL(warning) << "Failed to WELCOME to client: empty packet pool";
+    // }
 }
 
 void GameServer::handleEvent(SDL_Event& event, bool& running) {
@@ -146,31 +134,4 @@ void GameServer::handleEvent(SDL_Event& event, bool& running) {
     default:
         break;
     }
-}
-
-void GameServer::createNewClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint, const Clock& clock) {
-    auto newClientSession = std::make_unique<ClientSession>(endpoint, playerId, clock.getTime());
-    clientSessions_.insert(PlayerIdToSessionMap::value_type(playerId, std::move(newClientSession)));
-
-    const auto endpointAsString = boost::lexical_cast<std::string>(endpoint);
-    playerIds_.insert(EndpointToPlayerIdMap::value_type(endpointAsString, playerId));
-}
-
-bool GameServer::verifyClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint) {
-    if (clientSessions_.find(playerId) != clientSessions_.end()) {
-        const auto endpointAsString = boost::lexical_cast<std::string>(endpoint);
-        return playerIds_[endpointAsString] == playerId;
-    }
-    return false;
-}
-
-bool GameServer::hasClientSession(const boost::asio::ip::udp::endpoint& endpoint) {
-    return playerIds_.find(boost::lexical_cast<std::string>(endpoint)) != playerIds_.end();
-}
-
-void GameServer::removeClientSession(unsigned int playerId) {
-    auto itr = clientSessions_.find(playerId);
-    const auto endpointAsString = boost::lexical_cast<std::string>(itr->second->getEndpoint());
-    playerIds_.erase(playerIds_.find(endpointAsString));
-    clientSessions_.erase(itr);
 }
