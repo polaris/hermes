@@ -33,6 +33,9 @@ private:
 
     void checkForDisconnects(const Clock& clock);
 
+    void renderWorld();
+    void sendOutgoingPackets();
+
     unsigned int nextPlayerId_;
     unsigned int nextObjectId_;
 

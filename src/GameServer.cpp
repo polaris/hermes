@@ -18,10 +18,7 @@ GameServer::GameServer(unsigned int frameRate, unsigned short port, Renderer& re
 
 void GameServer::handleWillUpdateWorld(const Clock& clock) {
     processIncomingPackets(clock);
-
     checkForDisconnects(clock);
-
-    // respawn cats
 }
 
 void GameServer::processIncomingPackets(const Clock& clock) {
@@ -120,11 +117,23 @@ void GameServer::checkForDisconnects(const Clock& clock) {
 }
 
 void GameServer::handleDidUpdateWorld(const Clock&) {
+    renderWorld();
+    sendOutgoingPackets();
+}
+
+void GameServer::renderWorld() {
     renderer_.clear(0.25f, 0.25f, 0.25f);
     world_.draw(renderer_);
     renderer_.present();
+}
 
-    // send outgoing packets
+void GameServer::sendOutgoingPackets() {
+    auto packet = packetPool_.pop();
+    if (packet) {
+        transceiver_.sendTo(packet);
+    } else {
+        BOOST_LOG_TRIVIAL(warning) << "Failed to WELCOME to client: empty packet pool";
+    }
 }
 
 void GameServer::handleEvent(SDL_Event& event, bool& running) {
