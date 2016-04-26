@@ -1,8 +1,7 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "GameServer.h"
-#include "InputHandler.h"
-#include "SpaceShip.h"
+#include "GameObjectRegistry.h"
 
 #include <boost/log/trivial.hpp>
 
@@ -17,6 +16,8 @@ int main() {
         
         Renderer renderer(window);
         
+        registerGameObjects();
+
         GameServer gameServer(60, 12345, renderer);
 
         gameServer.run();

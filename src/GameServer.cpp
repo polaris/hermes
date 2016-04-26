@@ -68,7 +68,7 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
         if (welcomePacket) {
             const auto playerId = nextPlayerId_++;
             const auto objectId = nextObjectId_++;
-            GameObjectPtr gameObject(new SpaceShip(playerId, objectId, renderer_));
+            GameObjectPtr gameObject(new SpaceShip(renderer_));
             world_.add(objectId, gameObject);
             clientRegistry_.addClientSession(playerId, packet->getEndpoint(), clock.getTime());
             createWelcomePacket(welcomePacket, playerId, packet->getEndpoint());

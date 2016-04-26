@@ -10,7 +10,7 @@ class Packet;
 
 class SpaceShip : public GameObject {
 public:
-    explicit SpaceShip(unsigned int playerId, unsigned int objectId, const Renderer& renderer);
+    explicit SpaceShip(const Renderer& renderer);
 
     virtual ~SpaceShip() = default;
 
@@ -22,18 +22,17 @@ public:
 
     void read(Packet* packet) override;
 
-    unsigned int getPlayerId() const;
-
-    unsigned int getObjectId() const;
+    unsigned int getClassId() const override;
 
     void rotate(float angle);
 
     void thrust(bool onOff);
 
-private:
-    const unsigned int playerId_;
-    const unsigned int objectId_;
+    static GameObjectPtr createInstance(const Renderer& renderer);
 
+    enum { ClassId = 1 };
+
+private:
     Sprite sprite_;
 
     Vector2d position_;

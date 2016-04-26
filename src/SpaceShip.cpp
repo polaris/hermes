@@ -3,22 +3,12 @@
 #include "InputHandler.h"
 #include "Packet.h"
 
-SpaceShip::SpaceShip(unsigned int playerId, unsigned int objectId, const Renderer &renderer)
-: playerId_(playerId)
-, objectId_(objectId)
-, sprite_("data/ship.png", renderer)
+SpaceShip::SpaceShip(const Renderer &renderer)
+: sprite_("data/ship.png", renderer)
 , position_(320, 240)
 , velocity_(0, 0)
 , lookat_(0, -1)
 , acceleration_(0) {
-}
-
-void SpaceShip::rotate(float angle) {
-    lookat_.rotate(angle);
-}
-
-void SpaceShip::thrust(bool onOff) {
-    acceleration_ = onOff ? 50.0f : 0.0f;
 }
 
 void SpaceShip::update(float elapsed) {
@@ -42,8 +32,6 @@ void SpaceShip::draw(Renderer &renderer) {
 }
 
 void SpaceShip::write(Packet* packet) {
-    packet->write(playerId_);
-    packet->write(objectId_);
     position_.write(packet);
     velocity_.write(packet);
     lookat_.write(packet);
@@ -57,10 +45,18 @@ void SpaceShip::read(Packet* packet) {
     packet->read(acceleration_);
 }
 
-unsigned int SpaceShip::getPlayerId() const {
-    return playerId_;
+unsigned int SpaceShip::getClassId() const {
+    return ClassId;
 }
 
-unsigned int SpaceShip::getObjectId() const {
-    return objectId_;
+void SpaceShip::rotate(float angle) {
+    lookat_.rotate(angle);
+}
+
+void SpaceShip::thrust(bool onOff) {
+    acceleration_ = onOff ? 50.0f : 0.0f;
+}
+
+GameObjectPtr SpaceShip::createInstance(const Renderer& renderer) {
+    return GameObjectPtr(new SpaceShip(renderer));
 }

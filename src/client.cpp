@@ -1,13 +1,9 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "GameClient.h"
-#include "InputHandler.h"
-#include "SpaceShip.h"
+#include "GameObjectRegistry.h"
 
 #include <boost/log/trivial.hpp>
-#include <boost/log/utility/setup/console.hpp>
-
-void initLogger();
 
 int main() {
     try {
@@ -20,6 +16,8 @@ int main() {
         
         Renderer renderer(window);
         
+        registerGameObjects();
+
         GameClient gameClient(60, "127.0.0.1", 12345, renderer);
 
         gameClient.run();

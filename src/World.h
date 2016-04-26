@@ -7,7 +7,7 @@
 
 using ObjectIdToGameObjectMap = std::unordered_map<unsigned int, GameObjectPtr>;
 
-class World : public GameObject {
+class World {
 public:
     World();
 
@@ -15,13 +15,13 @@ public:
 
     void remove(unsigned int objectId);
 
-    void update(float elapsed) override;
+    void update(float elapsed);
 
-    void draw(Renderer& renderer) override;
+    void draw(Renderer& renderer);
 
-    void write(Packet* packet) override;
+    void write(Packet* packet);
 
-    void read(Packet* packet) override;
+    void read(Packet* packet);
 
 private:
     ObjectIdToGameObjectMap gameObjects_;
