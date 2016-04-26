@@ -2,10 +2,13 @@
 #include "Packet.h"
 #include "Protocol.h"
 
+#include <cassert>
+
 World::World() {
 }
 
 void World::add(unsigned int objectId, GameObjectPtr& gameObject) {
+    assert(gameObjects_.find(objectId) == gameObjects_.end());
     gameObjects_.insert(ObjectIdToGameObjectMap::value_type(objectId, gameObject));
 }
 
