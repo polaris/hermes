@@ -2,7 +2,7 @@
 #include "Renderer.h"
 #include "Clock.h"
 #include "Protocol.h"
-#include "LocalSpaceShip.h"
+#include "SpaceShip.h"
 
 #include <boost/log/trivial.hpp>
 
@@ -15,12 +15,23 @@ GameClient::GameClient(unsigned int frameRate, const char *address, unsigned sho
 , transceiver_(packetPool_, incomingPackets_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
 , playerId_(PROTOCOL_INVALID_PLAYER_ID) {
-    GameObjectPtr gameObject(new LocalSpaceShip(0, 0, renderer_, inputHandler_));
+    localSpaceShip_.reset(new SpaceShip(0, 0, renderer_));
+    auto gameObject = std::dynamic_pointer_cast<GameObject>(localSpaceShip_);
     world_.add(0, gameObject);
 }
 
 void GameClient::handleWillUpdateWorld(const Clock& clock) {
     inputHandler_.update(clock.getGameTime());
+
+    if (localSpaceShip_) {
+        auto move = inputHandler_.getAndClearPendingMove();
+        if (move) {
+            const auto& inputState = move->getInputState();
+            localSpaceShip_->rotate(inputState.desiredRightAmount * 5 * frameDuration_);
+            localSpaceShip_->rotate(-inputState.desiredLeftAmount * 5 * frameDuration_);
+            localSpaceShip_->thrust(inputState.desiredForwardAmount > 0);
+        }
+    }
 }
 
 void GameClient::handleDidUpdateWorld(const Clock& clock) {

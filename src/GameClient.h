@@ -12,6 +12,7 @@
 
 class Renderer;
 class Clock;
+class SpaceShip;
 
 class GameClient : public Game {
 public:
@@ -68,6 +69,8 @@ private:
     };
 
     InputHandler inputHandler_;
+
+    std::shared_ptr<SpaceShip> localSpaceShip_;
 
     std::shared_ptr<State> currentState;
     std::shared_ptr<State> nextState;

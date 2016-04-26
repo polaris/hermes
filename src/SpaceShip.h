@@ -26,12 +26,9 @@ public:
 
     unsigned int getObjectId() const;
 
-protected:
     void rotate(float angle);
 
     void thrust(bool onOff);
-
-    virtual void beforeUpdate(float) {}
 
 private:
     const unsigned int playerId_;

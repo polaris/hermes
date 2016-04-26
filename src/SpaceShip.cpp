@@ -22,8 +22,6 @@ void SpaceShip::thrust(bool onOff) {
 }
 
 void SpaceShip::update(float elapsed) {
-    beforeUpdate(elapsed);
-
     velocity_ *= 0.995f;
     velocity_ += (elapsed * (acceleration_ * lookat_));
     position_ += (elapsed * velocity_);

@@ -28,10 +28,11 @@ protected:
 
     World world_;
 
+protected:
+    const float frameDuration_;
+
 private:
     void processEvent(SDL_Event &event, bool& running);
-
-    const float frameDuration_;
 };
 
 #endif  // _Game_H
