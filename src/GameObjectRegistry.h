@@ -3,6 +3,7 @@
 
 #include "GameObject.h"
 
+#include <cassert>
 #include <unordered_map>
 #include <functional>
 

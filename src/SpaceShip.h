@@ -24,6 +24,10 @@ public:
 
     unsigned int getClassId() const override;
 
+    void setPlayerId(unsigned int playerId);
+
+    unsigned int getPlayerId() const;
+
     void rotate(float angle);
 
     void thrust(bool onOff);
@@ -33,6 +37,8 @@ public:
     enum { ClassId = 1 };
 
 private:
+    unsigned int playerId_;
+
     Sprite sprite_;
 
     Vector2d position_;
@@ -40,5 +46,7 @@ private:
     Vector2d lookat_;
     float acceleration_;
 };
+
+using SpaceShipPtr = std::shared_ptr<SpaceShip>;
 
 #endif  // _SpaceShip_H

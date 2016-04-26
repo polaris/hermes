@@ -28,6 +28,7 @@ void World::draw(Renderer& renderer) {
 void World::write(Packet* packet) {
     packet->write(gameObjects_.size());
     for (const auto& gameObject : gameObjects_) {
+        packet->write(gameObject.first);
         gameObject.second->write(packet);
     }
 }
@@ -36,10 +37,13 @@ void World::read(Packet* packet) {
     std::size_t stateCount = 0;
     packet->read(stateCount);
     for (std::size_t i = 0; i < stateCount; i++) {
-        unsigned int playerId = PROTOCOL_INVALID_PLAYER_ID;
-        packet->read(playerId);
         unsigned int objectId = PROTOCOL_INVALID_OBJECT_ID;
         packet->read(objectId);
+
+        // Check if we have this object already.
+
+        unsigned int classId = PROTOCOL_INVALID_CLASS_ID;
+        packet->read(classId);
 
         GameObjectPtr gameObject;
 
