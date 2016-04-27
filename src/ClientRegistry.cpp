@@ -56,3 +56,9 @@ void ClientRegistry::checkForDisconnects(float currentTime) {
         removeClientSession(playerId);
     }
 }
+
+void ClientRegistry::forEachSession(std::function<void (ClientSession*)> fun) {
+    for (auto& pair : clientSessions_) {
+        fun(pair.second.get());
+    }
+}

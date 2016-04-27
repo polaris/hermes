@@ -34,7 +34,6 @@ void SpaceShip::draw(Renderer &renderer) {
 }
 
 void SpaceShip::write(Packet* packet) {
-    packet->write(ClassId);
     packet->write(playerId_);
     position_.write(packet);
     velocity_.write(packet);

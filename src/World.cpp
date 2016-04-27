@@ -1,6 +1,4 @@
 #include "World.h"
-#include "Packet.h"
-#include "Protocol.h"
 
 #include <cassert>
 
@@ -16,6 +14,18 @@ void World::remove(unsigned int objectId) {
     gameObjects_.erase(gameObjects_.find(objectId));
 }
 
+GameObject* World::getGameObject(unsigned int objectId) {
+    auto itr = gameObjects_.find(objectId);
+    if (itr != gameObjects_.end()) {
+        return itr->second.get();
+    }
+    return nullptr;
+}
+
+std::size_t World::getGameObjectCount() const {
+    return gameObjects_.size();
+}
+
 void World::update(float elapsed) {
     for (auto& gameObject : gameObjects_) {
         gameObject.second->update(elapsed);
@@ -28,35 +38,41 @@ void World::draw(Renderer& renderer) {
     }
 }
 
-void World::write(Packet* packet) {
-    packet->write(gameObjects_.size());
-    for (const auto& gameObject : gameObjects_) {
-        packet->write(gameObject.first);
-        gameObject.second->write(packet);
+void World::forEachGameObject(std::function<void (unsigned int, GameObject*)> fun) {
+    for (auto& gameObject : gameObjects_) {
+        fun(gameObject.first, gameObject.second.get());
     }
 }
 
-void World::read(Packet* packet) {
-    std::size_t stateCount = 0;
-    packet->read(stateCount);
-    for (std::size_t i = 0; i < stateCount; i++) {
-        unsigned int objectId = PROTOCOL_INVALID_OBJECT_ID;
-        packet->read(objectId);
+// void World::write(Packet* packet) {
+//     packet->write(gameObjects_.size());
+//     for (const auto& gameObject : gameObjects_) {
+//         packet->write(gameObject.first);
+//         gameObject.second->write(packet);
+//     }
+// }
 
-        // Check if we have this object already.
+// void World::read(Packet* packet) {
+//     std::size_t stateCount = 0;
+//     packet->read(stateCount);
+//     for (std::size_t i = 0; i < stateCount; i++) {
+//         unsigned int objectId = PROTOCOL_INVALID_OBJECT_ID;
+//         packet->read(objectId);
 
-        unsigned int classId = PROTOCOL_INVALID_CLASS_ID;
-        packet->read(classId);
+//         // Check if we have this object already.
 
-        GameObjectPtr gameObject;
+//         unsigned int classId = PROTOCOL_INVALID_CLASS_ID;
+//         packet->read(classId);
 
-        auto itr = gameObjects_.find(objectId);
-        if (itr == gameObjects_.end()) {
+//         GameObjectPtr gameObject;
 
-        } else {
-            gameObject = itr->second;
-        }
+//         auto itr = gameObjects_.find(objectId);
+//         if (itr == gameObjects_.end()) {
 
-        gameObject->read(packet);
-    }
-}
+//         } else {
+//             gameObject = itr->second;
+//         }
+
+//         gameObject->read(packet);
+//     }
+// }

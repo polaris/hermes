@@ -118,12 +118,23 @@ void GameServer::renderWorld() {
 }
 
 void GameServer::sendOutgoingPackets() {
-    // auto packet = packetPool_.pop();
-    // if (packet) {
-    //     transceiver_.sendTo(packet);
-    // } else {
-    //     BOOST_LOG_TRIVIAL(warning) << "Failed to WELCOME to client: empty packet pool";
-    // }
+    clientRegistry_.forEachSession([this] (ClientSession* clientSession) {
+        auto packet = packetPool_.pop();
+        if (packet) {
+            createStatePacket(packet, clientSession->getEndpoint());
+
+            packet->write(world_.getGameObjectCount());
+            world_.forEachGameObject([this, packet] (unsigned int objectId, GameObject* gameObject) {
+                packet->write(objectId);
+                packet->write(gameObject->getClassId());
+                gameObject->write(packet);
+            });
+
+            transceiver_.sendTo(packet);
+        } else {
+            BOOST_LOG_TRIVIAL(warning) << "Failed to WELCOME to client: empty packet pool";
+        }
+    });
 }
 
 void GameServer::handleEvent(SDL_Event& event, bool& running) {

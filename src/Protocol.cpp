@@ -24,3 +24,8 @@ void createInputPacket(Packet* packet, unsigned int playerId, const boost::asio:
     packet->write(playerId);
     moveList.write(packet);
 }
+
+void createStatePacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint) {
+    createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_STATE);
+    // packet->write(playerId);
+}

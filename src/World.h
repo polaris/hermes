@@ -4,6 +4,7 @@
 #include "GameObject.h"
 
 #include <unordered_map>
+#include <functional>
 
 using ObjectIdToGameObjectMap = std::unordered_map<unsigned int, GameObjectPtr>;
 
@@ -15,13 +16,15 @@ public:
 
     void remove(unsigned int objectId);
 
+    GameObject* getGameObject(unsigned int objectId);
+
+    std::size_t getGameObjectCount() const;
+
     void update(float elapsed);
 
     void draw(Renderer& renderer);
 
-    void write(Packet* packet);
-
-    void read(Packet* packet);
+    void forEachGameObject(std::function<void (unsigned int, GameObject*)> fun);
 
 private:
     ObjectIdToGameObjectMap gameObjects_;

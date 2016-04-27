@@ -7,6 +7,7 @@
 
 #include <unordered_map>
 #include <memory>
+#include <functional>
 
 class ClientRegistry {
 public:
@@ -23,6 +24,8 @@ public:
     bool hasClientSession(const boost::asio::ip::udp::endpoint& endpoint);
 
     void checkForDisconnects(float currentTime);
+
+    void forEachSession(std::function<void (ClientSession*)> fun);
 
 private:
     std::unordered_map<unsigned int, std::unique_ptr<ClientSession>> clientSessions_;

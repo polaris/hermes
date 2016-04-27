@@ -29,5 +29,6 @@ const float          PROTOCOL_CLIENT_TIMEOUT        = 1.0f;
 void createHelloPacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint);
 void createWelcomePacket(Packet* packet, unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint);
 void createInputPacket(Packet* packet, unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint, const MoveList& moveList);
+void createStatePacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint);
 
 #endif  // _Protocol_H

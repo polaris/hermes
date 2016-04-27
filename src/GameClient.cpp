@@ -16,10 +16,9 @@ GameClient::GameClient(unsigned int frameRate, const char *address, unsigned sho
 , transceiver_(packetPool_, incomingPackets_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
 , playerId_(PROTOCOL_INVALID_PLAYER_ID) {
-    auto gameObject = GameObjectRegistry::get().createGameObject(1, renderer_);
-    world_.add(0, gameObject);
-
-    localSpaceShip_ = std::dynamic_pointer_cast<SpaceShip>(gameObject);
+    // auto gameObject = GameObjectRegistry::get().createGameObject(1, renderer_);
+    // world_.add(0, gameObject);
+    // localSpaceShip_ = std::dynamic_pointer_cast<SpaceShip>(gameObject);
 }
 
 void GameClient::handleWillUpdateWorld(const Clock& clock) {
@@ -164,7 +163,20 @@ void GameClient::Connected::handleIncomingPacket(Packet* packet) {
 }
 
 void GameClient::Connected::handleState(Packet* packet) {
-    gameClient_->world_.read(packet);
+    std::size_t gameObjectCount = 0;
+    packet->read(gameObjectCount);
+    for (std::size_t i = 0; i < gameObjectCount; i++) {
+        unsigned int objectId = 0, classId = 0;
+        packet->read(objectId);
+        packet->read(classId);
+        GameObject* gameObject = gameClient_->world_.getGameObject(objectId);
+        if (gameObject == nullptr) {
+            auto gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, gameClient_->renderer_);
+            gameClient_->world_.add(objectId, gameObjectPtr);
+            gameObject = gameObjectPtr.get();
+        }
+        gameObject->read(packet);
+    }
 }
 
 void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {
