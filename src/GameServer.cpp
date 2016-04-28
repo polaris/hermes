@@ -19,7 +19,14 @@ GameServer::GameServer(unsigned int frameRate, unsigned short port, Renderer& re
 
 void GameServer::handleWillUpdateWorld(const Clock& clock) {
     processIncomingPackets(clock);
-    clientRegistry_.checkForDisconnects(clock.getTime());
+    clientRegistry_.checkForDisconnects(clock.getTime(), [this] (unsigned int playerId) {
+        auto itr = playerToObjectMap_.find(playerId);
+        if (itr != playerToObjectMap_.end()) {
+            const unsigned int objectId = itr->second;
+            world_.remove(objectId);
+            playerToObjectMap_.erase(itr);
+        }
+    });
 }
 
 void GameServer::processIncomingPackets(const Clock& clock) {
@@ -68,11 +75,15 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
         if (welcomePacket) {
             const auto playerId = nextPlayerId_++;
             const auto objectId = nextObjectId_++;
+
             SpaceShipPtr newSpaceShip(new SpaceShip(renderer_));
             newSpaceShip->setPlayerId(playerId);
+
             auto gameObject = std::dynamic_pointer_cast<GameObject>(newSpaceShip);
             world_.add(objectId, gameObject);
             clientRegistry_.addClientSession(playerId, packet->getEndpoint(), clock.getTime());
+            playerToObjectMap_[playerId] = objectId;
+
             createWelcomePacket(welcomePacket, playerId, packet->getEndpoint());
             transceiver_.sendTo(welcomePacket);
             BOOST_LOG_TRIVIAL(debug) << "WELCOME client " << playerId << " (" << welcomePacket->getEndpoint() << ")";
@@ -89,7 +100,15 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
     packet->read(playerId);
     if (clientRegistry_.verifyClientSession(playerId, packet->getEndpoint())) {
         auto clientSession = clientRegistry_.getClientSession(playerId);
-        clientSession->handleInput(packet, clock);
+        clientSession->setLastSeen(clock.getTime());
+        MoveList& moveList = clientSession->getMoveList();
+        unsigned int count = 0;
+        packet->read(count);
+        for (unsigned int i = 0; i < count; i++) {
+            Move move;
+            move.read(packet);
+            // moveList.addMove(move);
+        }
     } else {
         BOOST_LOG_TRIVIAL(warning) << "Received INPUT from unknown or invalid client " << packet->getEndpoint();
     }

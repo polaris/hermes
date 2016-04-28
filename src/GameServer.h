@@ -7,6 +7,8 @@
 #include "ClientRegistry.h"
 #include "Transceiver.h"
 
+#include <unordered_map>
+
 class Renderer;
 class Clock;
 
@@ -36,6 +38,8 @@ private:
     Queue<Packet> packetPool_;
     Queue<Packet> incomingPackets_;
     Transceiver transceiver_;
+
+    std::unordered_map<unsigned int, unsigned int> playerToObjectMap_;
 };
 
 #endif  // _GameServer_H

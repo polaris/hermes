@@ -13,18 +13,22 @@ ClientSession::ClientSession(const boost::asio::ip::udp::endpoint& clientEndpoin
 ClientSession::~ClientSession() {
 }
 
-void ClientSession::handleInput(Packet*, const Clock& clock) {
-    lastSeen_ = clock.getTime();
-}
-
 const boost::asio::ip::udp::endpoint ClientSession::getEndpoint() const {
     return clientEndpoint_;
 }
 
-float ClientSession::getLastSeen() const {
-    return lastSeen_;
-}
-
 unsigned int ClientSession::getPlayerId() const {
     return playerId_;
+}
+
+MoveList& ClientSession::getMoveList() {
+    return moveList_;
+}
+
+void ClientSession::setLastSeen(float timeStamp) {
+    lastSeen_ = timeStamp;
+}
+
+float ClientSession::getLastSeen() const {
+    return lastSeen_;
 }

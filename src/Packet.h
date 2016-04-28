@@ -4,6 +4,7 @@
 #include "ByteSwap.h"
 
 #include <boost/asio.hpp>
+#include <boost/format.hpp>
 
 #include <cstring>
 #include <stdexcept>
@@ -41,7 +42,7 @@ public:
 
     void setSize(std::size_t size) {
         if (size > capacity_) {
-            throw std::out_of_range("size is out of range");
+            throw std::out_of_range(boost::str(boost::format("%1%:%2%: size is out of range") % __FILE__ % __LINE__));
         }
         size_ = size;
     }
@@ -97,7 +98,7 @@ public:
 
     void write(const void *data, std::size_t size) {
         if (size_ + size > capacity_) {
-            throw std::out_of_range("size is out of range");
+            throw std::out_of_range(boost::str(boost::format("%1%:%2%: size is out of range") % __FILE__ % __LINE__));
         }
         memcpy(data_ + size_, data, size);
         size_ += size;
@@ -125,7 +126,7 @@ public:
 
     void read(void *out, std::size_t size) {
         if (head_ + size > size_) {
-            throw std::out_of_range("size is out of range");
+            throw std::out_of_range(boost::str(boost::format("%1%:%2%: size is out of range") % __FILE__ % __LINE__));
         }
         memcpy(out, data_ + head_, size);
         head_ += size;

@@ -22,17 +22,7 @@ GameClient::GameClient(unsigned int frameRate, const char *address, unsigned sho
 }
 
 void GameClient::handleWillUpdateWorld(const Clock& clock) {
-    inputHandler_.update(clock.getGameTime());
-
-    if (localSpaceShip_) {
-        auto move = inputHandler_.getAndClearPendingMove();
-        if (move) {
-            const auto& inputState = move->getInputState();
-            localSpaceShip_->rotate(inputState.desiredRightAmount * 5 * frameDuration_);
-            localSpaceShip_->rotate(-inputState.desiredLeftAmount * 5 * frameDuration_);
-            localSpaceShip_->thrust(inputState.desiredForwardAmount > 0);
-        }
-    }
+    currentState->handleWillUpdateWorld(clock);
 }
 
 void GameClient::handleDidUpdateWorld(const Clock& clock) {
@@ -104,6 +94,9 @@ GameClient::Connecting::Connecting(GameClient* gameClient)
 , lastHelloTime_(0) {
 }
 
+void GameClient::Connecting::handleWillUpdateWorld(const Clock&) {
+}
+
 void GameClient::Connecting::handleIncomingPacket(Packet* packet) {
     unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
     packet->read(packetType);
@@ -149,6 +142,21 @@ GameClient::Connected::Connected(GameClient* gameClient)
 , lastInputTime_(0) {
 }
 
+void GameClient::Connected::handleWillUpdateWorld(const Clock& clock) {
+    gameClient_->inputHandler_.update(clock.getGameTime());
+
+    if (gameClient_->localSpaceShip_) {
+        auto move = gameClient_->inputHandler_.getAndClearPendingMove();
+        if (move) {
+            const auto& inputState = move->getInputState();
+            BOOST_LOG_TRIVIAL(debug) << inputState.desiredRightAmount << ", " << inputState.desiredLeftAmount << ", " << inputState.desiredForwardAmount;
+            gameClient_->localSpaceShip_->rotate(inputState.desiredRightAmount * 5 * gameClient_->frameDuration_);
+            gameClient_->localSpaceShip_->rotate(-inputState.desiredLeftAmount * 5 * gameClient_->frameDuration_);
+            gameClient_->localSpaceShip_->thrust(inputState.desiredForwardAmount > 0);
+        }
+    }
+}
+
 void GameClient::Connected::handleIncomingPacket(Packet* packet) {
     unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
     packet->read(packetType);
@@ -174,6 +182,7 @@ void GameClient::Connected::handleState(Packet* packet) {
             auto gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, gameClient_->renderer_);
             gameClient_->world_.add(objectId, gameObjectPtr);
             gameObject = gameObjectPtr.get();
+            gameClient_->localSpaceShip_ = std::dynamic_pointer_cast<SpaceShip>(gameObjectPtr);
         }
         gameObject->read(packet);
     }

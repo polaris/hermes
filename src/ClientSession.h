@@ -1,10 +1,9 @@
 #ifndef _ClientSession_H
 #define _ClientSession_H
 
-#include <boost/asio.hpp>
+#include "MoveList.h"
 
-class Clock;
-class Packet;
+#include <boost/asio.hpp>
 
 class ClientSession {
 public:
@@ -12,18 +11,22 @@ public:
 
     ~ClientSession();
 
-    void handleInput(Packet* packet, const Clock& clock);
-
     const boost::asio::ip::udp::endpoint getEndpoint() const;
 
-    float getLastSeen() const;
-
     unsigned int getPlayerId() const;
+
+    MoveList& getMoveList();
+
+    void setLastSeen(float timeStamp);
+
+    float getLastSeen() const;
 
 private:
     const boost::asio::ip::udp::endpoint clientEndpoint_;
 
     const unsigned int playerId_;
+
+    MoveList moveList_;
 
     float lastSeen_;
 };

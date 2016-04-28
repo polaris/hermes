@@ -44,7 +44,7 @@ bool ClientRegistry::hasClientSession(const boost::asio::ip::udp::endpoint& endp
     return playerIds_.find(boost::lexical_cast<std::string>(endpoint)) != playerIds_.end();
 }
 
-void ClientRegistry::checkForDisconnects(float currentTime) {
+void ClientRegistry::checkForDisconnects(float currentTime, std::function<void (unsigned int)> fun) {
     std::vector<unsigned int> clientsToBeRemoved;
     for (const auto& clientSession : clientSessions_) {
         if ((currentTime - clientSession.second->getLastSeen()) > PROTOCOL_CLIENT_TIMEOUT) {
@@ -54,6 +54,7 @@ void ClientRegistry::checkForDisconnects(float currentTime) {
     for (const auto& playerId : clientsToBeRemoved) {
         BOOST_LOG_TRIVIAL(debug) << "Remove disconnected client " << playerId;
         removeClientSession(playerId);
+        fun(playerId);
     }
 }
 

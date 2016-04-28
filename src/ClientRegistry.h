@@ -23,7 +23,7 @@ public:
 
     bool hasClientSession(const boost::asio::ip::udp::endpoint& endpoint);
 
-    void checkForDisconnects(float currentTime);
+    void checkForDisconnects(float currentTime, std::function<void (unsigned int)> fun);
 
     void forEachSession(std::function<void (ClientSession*)> fun);
 
