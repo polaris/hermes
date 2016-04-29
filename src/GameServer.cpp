@@ -2,7 +2,7 @@
 #include "Renderer.h"
 #include "Clock.h"
 #include "Protocol.h"
-#include "SpaceShip.h"
+#include "ServerSpaceShip.h"
 #include "ClientSession.h"
 
 #include <boost/log/trivial.hpp>
@@ -56,9 +56,6 @@ void GameServer::handlePacket(Packet* packet, const Clock& clock) {
         case PROTOCOL_PACKET_TYPE_INPUT:
             handleInput(packet, clock);
             break;
-        case PROTOCOL_PACKET_TYPE_GOODBYE:
-            handleGoodBye(packet);
-            break;
         default:
             BOOST_LOG_TRIVIAL(warning) << "Received a packet with unexpected packet type " << static_cast<unsigned int>(packetType) << " from " << packet->getEndpoint();
             break;
@@ -76,12 +73,13 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
             const auto playerId = nextPlayerId_++;
             const auto objectId = nextObjectId_++;
 
-            SpaceShipPtr newSpaceShip(new SpaceShip(renderer_));
+            ClientSession* clientSession = clientRegistry_.addClientSession(playerId, packet->getEndpoint(), clock.getTime());
+
+            SpaceShipPtr newSpaceShip(new ServerSpaceShip(renderer_, clientSession));
             newSpaceShip->setPlayerId(playerId);
 
             auto gameObject = std::dynamic_pointer_cast<GameObject>(newSpaceShip);
             world_.add(objectId, gameObject);
-            clientRegistry_.addClientSession(playerId, packet->getEndpoint(), clock.getTime());
             playerToObjectMap_[playerId] = objectId;
 
             createWelcomePacket(welcomePacket, playerId, packet->getEndpoint());
@@ -102,26 +100,16 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
         auto clientSession = clientRegistry_.getClientSession(playerId);
         clientSession->setLastSeen(clock.getTime());
         MoveList& moveList = clientSession->getMoveList();
-        unsigned int count = 0;
+        std::size_t count = 0;
         packet->read(count);
-        for (unsigned int i = 0; i < count; i++) {
+        BOOST_LOG_TRIVIAL(debug) << "Received input packet with " << count << " moves";
+        for (std::size_t i = 0; i < count; i++) {
             Move move;
             move.read(packet);
-            // moveList.addMove(move);
+            moveList.addMove(move);
         }
     } else {
         BOOST_LOG_TRIVIAL(warning) << "Received INPUT from unknown or invalid client " << packet->getEndpoint();
-    }
-}
-
-void GameServer::handleGoodBye(Packet* packet) {
-    unsigned int playerId = PROTOCOL_INVALID_PLAYER_ID;
-    packet->read(playerId);
-    if (clientRegistry_.verifyClientSession(playerId, packet->getEndpoint())) {
-        BOOST_LOG_TRIVIAL(debug) << "Received GOODBYE from client " << playerId;
-        clientRegistry_.removeClientSession(playerId);
-    } else {
-        BOOST_LOG_TRIVIAL(warning) << "Received GOODBYE from unknown or invalid client " << packet->getEndpoint();
     }
 }
 

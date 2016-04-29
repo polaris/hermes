@@ -149,9 +149,8 @@ void GameClient::Connected::handleWillUpdateWorld(const Clock& clock) {
         auto move = gameClient_->inputHandler_.getAndClearPendingMove();
         if (move) {
             const auto& inputState = move->getInputState();
-            BOOST_LOG_TRIVIAL(debug) << inputState.desiredRightAmount << ", " << inputState.desiredLeftAmount << ", " << inputState.desiredForwardAmount;
-            gameClient_->localSpaceShip_->rotate(inputState.desiredRightAmount * 5 * gameClient_->frameDuration_);
-            gameClient_->localSpaceShip_->rotate(-inputState.desiredLeftAmount * 5 * gameClient_->frameDuration_);
+            gameClient_->localSpaceShip_->rotate(inputState.desiredRightAmount * gameClient_->frameDuration_);
+            gameClient_->localSpaceShip_->rotate(-inputState.desiredLeftAmount * gameClient_->frameDuration_);
             gameClient_->localSpaceShip_->thrust(inputState.desiredForwardAmount > 0);
         }
     }

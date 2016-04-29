@@ -11,13 +11,13 @@ InputHandler::InputHandler(float sampleRate)
 void InputHandler::handleInput(KeyAction keyAction, int keyCode) {
     if (SDLK_RIGHT == keyCode) {
         if (keyAction == KeyAction::Down) {
-            inputState_.desiredRightAmount = 1;
+            inputState_.desiredRightAmount = 5;
         } else {
             inputState_.desiredRightAmount = 0;
         }
     } else if (SDLK_LEFT == keyCode) {
         if (keyAction == KeyAction::Down) {
-            inputState_.desiredLeftAmount = 1;
+            inputState_.desiredLeftAmount = 5;
         } else {
             inputState_.desiredLeftAmount = 0;
         }

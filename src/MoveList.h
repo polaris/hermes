@@ -9,6 +9,8 @@ class Packet;
 
 class MoveList {
 public:
+    typedef std::deque<Move>::const_iterator const_iterator;
+
     MoveList();
 
     std::size_t getCount() const;
@@ -26,6 +28,14 @@ public:
     void write(Packet* packet) const;
 
     void read(Packet* packet);
+
+    const_iterator begin() const {
+        return moves_.begin();
+    }
+    
+    const_iterator end() const {
+        return moves_.end();
+    }
 
 private:
     float lastMoveTime_;

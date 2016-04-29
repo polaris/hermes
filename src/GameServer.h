@@ -25,7 +25,6 @@ private:
     void handlePacket(Packet* packet, const Clock& clock);
     void handleHello(Packet* packet, const Clock& clock);
     void handleInput(Packet* packet, const Clock& clock);
-    void handleGoodBye(Packet* packet);
 
     void renderWorld();
     void sendOutgoingPackets();

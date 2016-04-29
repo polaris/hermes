@@ -33,6 +33,7 @@ void ClientRegistry::removeClientSession(unsigned int playerId) {
 }
 
 bool ClientRegistry::verifyClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint) {
+    // BOOST_LOG_TRIVIAL(debug) << "Verifying player " << playerId << " @ " << endpoint << ". " << clientSessions_.size() << " sessions available";
     if (clientSessions_.find(playerId) != clientSessions_.end()) {
         const auto s = boost::lexical_cast<std::string>(endpoint);
         return playerIds_[s] == playerId;

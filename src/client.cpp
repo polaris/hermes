@@ -6,13 +6,13 @@
 #include <boost/log/trivial.hpp>
 
 int main() {
-    //try {
+    try {
         if (SDL_Init(SDL_INIT_VIDEO) < 0) {
             throw std::runtime_error(SDL_GetError());
         }
         atexit(SDL_Quit);
 
-        Window window("Handle Latency", 640, 480);
+        Window window("Handle Latency - Client", 640, 480);
         
         Renderer renderer(window);
         
@@ -23,8 +23,8 @@ int main() {
         gameClient.run();
         
         return 0;
-    //} catch (const std::exception &ex) {
-    //    BOOST_LOG_TRIVIAL(fatal) << "Exception: " << ex.what();
-    //    return 1;
-    //}
+    } catch (const std::exception &ex) {
+       BOOST_LOG_TRIVIAL(fatal) << "Exception: " << ex.what();
+       return 1;
+    }
 }

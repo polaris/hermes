@@ -12,7 +12,7 @@ int main() {
         }
         atexit(SDL_Quit);
 
-        Window window("Handle Latency", 640, 480);
+        Window window("Handle Latency - Server", 640, 480);
         
         Renderer renderer(window);
         

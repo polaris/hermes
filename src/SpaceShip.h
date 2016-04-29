@@ -14,7 +14,7 @@ public:
 
     virtual ~SpaceShip() = default;
 
-    void update(float elapsed) override;
+    virtual void update(float elapsed) override;
 
     void draw(Renderer& renderer) override;
 
