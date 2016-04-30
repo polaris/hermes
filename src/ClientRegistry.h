@@ -13,23 +13,23 @@ class ClientRegistry {
 public:
     ClientRegistry();
 
-    ClientSession* addClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint, float timeStamp);
+    ClientSession* addClientSession(uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, float timeStamp);
 
-    ClientSession* getClientSession(unsigned int playerId);
+    ClientSession* getClientSession(uint32_t playerId);
 
-    void removeClientSession(unsigned int playerId);
+    void removeClientSession(uint32_t playerId);
 
-    bool verifyClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint);
+    bool verifyClientSession(uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint);
 
     bool hasClientSession(const boost::asio::ip::udp::endpoint& endpoint);
 
-    void checkForDisconnects(float currentTime, std::function<void (unsigned int)> fun);
+    void checkForDisconnects(float currentTime, std::function<void (uint32_t)> fun);
 
     void forEachSession(std::function<void (ClientSession*)> fun);
 
 private:
-    std::unordered_map<unsigned int, std::unique_ptr<ClientSession>> clientSessions_;
-    std::unordered_map<std::string, unsigned int> playerIds_;
+    std::unordered_map<uint32_t, std::unique_ptr<ClientSession>> clientSessions_;
+    std::unordered_map<std::string, uint32_t> playerIds_;
 };
 
 #endif  // _ClientRegistry_H

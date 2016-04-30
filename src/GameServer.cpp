@@ -8,7 +8,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/lexical_cast.hpp>
 
-GameServer::GameServer(unsigned int frameRate, unsigned short port, Renderer& renderer)
+GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , nextPlayerId_(1)
 , nextObjectId_(1)
@@ -19,10 +19,10 @@ GameServer::GameServer(unsigned int frameRate, unsigned short port, Renderer& re
 
 void GameServer::handleWillUpdateWorld(const Clock& clock) {
     processIncomingPackets(clock);
-    clientRegistry_.checkForDisconnects(clock.getTime(), [this] (unsigned int playerId) {
+    clientRegistry_.checkForDisconnects(clock.getTime(), [this] (uint32_t playerId) {
         auto itr = playerToObjectMap_.find(playerId);
         if (itr != playerToObjectMap_.end()) {
-            const unsigned int objectId = itr->second;
+            const uint32_t objectId = itr->second;
             world_.remove(objectId);
             playerToObjectMap_.erase(itr);
         }
@@ -32,7 +32,7 @@ void GameServer::handleWillUpdateWorld(const Clock& clock) {
 void GameServer::processIncomingPackets(const Clock& clock) {
     auto packet = incomingPackets_.pop();
     if (packet) {
-        unsigned int magicNumber = 0;
+        uint32_t magicNumber = 0;
         packet->read(magicNumber);
         if (magicNumber == PROTOCOL_MAGIC_NUMBER) {
             handlePacket(packet, clock);
@@ -94,16 +94,16 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 }
 
 void GameServer::handleInput(Packet* packet, const Clock& clock) {
-    unsigned int playerId = PROTOCOL_INVALID_PLAYER_ID;
+    uint32_t playerId = PROTOCOL_INVALID_PLAYER_ID;
     packet->read(playerId);
     if (clientRegistry_.verifyClientSession(playerId, packet->getEndpoint())) {
         auto clientSession = clientRegistry_.getClientSession(playerId);
         clientSession->setLastSeen(clock.getTime());
         MoveList& moveList = clientSession->getMoveList();
-        std::size_t count = 0;
+        uint32_t count = 0;
         packet->read(count);
         BOOST_LOG_TRIVIAL(debug) << "Received input packet with " << count << " moves";
-        for (std::size_t i = 0; i < count; i++) {
+        for (uint32_t i = 0; i < count; i++) {
             Move move;
             move.read(packet);
             moveList.addMove(move);
@@ -131,7 +131,7 @@ void GameServer::sendOutgoingPackets() {
             createStatePacket(packet, clientSession->getEndpoint());
 
             packet->write(world_.getGameObjectCount());
-            world_.forEachGameObject([this, packet] (unsigned int objectId, GameObject* gameObject) {
+            world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
                 packet->write(objectId);
                 packet->write(gameObject->getClassId());
                 gameObject->write(packet);

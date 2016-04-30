@@ -9,15 +9,15 @@
 template <typename T>
 class Queue {
 public:
-    explicit Queue(std::size_t size)
+    explicit Queue(uint32_t size)
     : size_(size)
     , queue_(size_) {
     }
 
-    Queue(std::size_t size, std::function<T* ()> create)
+    Queue(uint32_t size, std::function<T* ()> create)
     : size_(size)
     , queue_(size_) {
-        for (std::size_t i = 0; i < size_; ++i) {
+        for (uint32_t i = 0; i < size_; ++i) {
             push(create());
         }
     }
@@ -46,12 +46,12 @@ public:
         return nullptr;
     }
 
-    std::size_t getSize() const {
+    uint32_t getSize() const {
         return size_;
     }
 
 private:
-    const std::size_t size_;
+    const uint32_t size_;
     boost::lockfree::queue<T*> queue_;
 };
 

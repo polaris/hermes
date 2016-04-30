@@ -7,7 +7,7 @@
 
 #include <boost/log/trivial.hpp>
 
-GameClient::GameClient(unsigned int frameRate, const char *address, unsigned short port, Renderer& renderer)
+GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , inputHandler_(frameRate)
 , currentState(new GameClient::Connecting{this})
@@ -62,7 +62,7 @@ void GameClient::setState(std::shared_ptr<State>& newState) {
 void GameClient::processIncomingPackets(const Clock&) {
     auto packet = incomingPackets_.pop();
     if (packet) {
-        unsigned int magicNumber = 0;
+        uint32_t magicNumber = 0;
         packet->read(magicNumber);
         if (magicNumber == PROTOCOL_MAGIC_NUMBER) {
             unsigned char protocolVersion = 0;
@@ -170,10 +170,10 @@ void GameClient::Connected::handleIncomingPacket(Packet* packet) {
 }
 
 void GameClient::Connected::handleState(Packet* packet) {
-    std::size_t gameObjectCount = 0;
+    uint32_t gameObjectCount = 0;
     packet->read(gameObjectCount);
-    for (std::size_t i = 0; i < gameObjectCount; i++) {
-        unsigned int objectId = 0, classId = 0;
+    for (uint32_t i = 0; i < gameObjectCount; i++) {
+        uint32_t objectId = 0, classId = 0;
         packet->read(objectId);
         packet->read(classId);
         GameObject* gameObject = gameClient_->world_.getGameObject(objectId);

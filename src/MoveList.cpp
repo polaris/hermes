@@ -5,8 +5,8 @@ MoveList::MoveList()
 : lastMoveTime_(0) {
 }
 
-std::size_t MoveList::getCount() const {
-    return moves_.size();
+uint32_t MoveList::getCount() const {
+    return static_cast<uint32_t>(moves_.size());
 }
 
 const Move& MoveList::addMove(const InputState& inputState, float timeStamp) {
@@ -55,9 +55,9 @@ void MoveList::write(Packet* packet) const {
 }
 
 void MoveList::read(Packet* packet) {
-    std::size_t count = 0;
+    uint32_t count = 0;
     packet->read(count);
-    for (std::size_t i = 0; i < count; i++) {
+    for (uint32_t i = 0; i < count; i++) {
         Move move;
         move.read(packet);
         addMove(move);

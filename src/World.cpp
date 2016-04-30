@@ -5,16 +5,16 @@
 World::World() {
 }
 
-void World::add(unsigned int objectId, GameObjectPtr& gameObject) {
+void World::add(uint32_t objectId, GameObjectPtr& gameObject) {
     assert(gameObjects_.find(objectId) == gameObjects_.end());
     gameObjects_.insert(ObjectIdToGameObjectMap::value_type(objectId, gameObject));
 }
 
-void World::remove(unsigned int objectId) {
+void World::remove(uint32_t objectId) {
     gameObjects_.erase(gameObjects_.find(objectId));
 }
 
-GameObject* World::getGameObject(unsigned int objectId) {
+GameObject* World::getGameObject(uint32_t objectId) {
     auto itr = gameObjects_.find(objectId);
     if (itr != gameObjects_.end()) {
         return itr->second.get();
@@ -22,8 +22,8 @@ GameObject* World::getGameObject(unsigned int objectId) {
     return nullptr;
 }
 
-std::size_t World::getGameObjectCount() const {
-    return gameObjects_.size();
+uint32_t World::getGameObjectCount() const {
+    return static_cast<uint32_t>(gameObjects_.size());
 }
 
 void World::update(float elapsed) {
@@ -38,7 +38,7 @@ void World::draw(Renderer& renderer) {
     }
 }
 
-void World::forEachGameObject(std::function<void (unsigned int, GameObject*)> fun) {
+void World::forEachGameObject(std::function<void (uint32_t, GameObject*)> fun) {
     for (auto& gameObject : gameObjects_) {
         fun(gameObject.first, gameObject.second.get());
     }
@@ -56,12 +56,12 @@ void World::forEachGameObject(std::function<void (unsigned int, GameObject*)> fu
 //     std::size_t stateCount = 0;
 //     packet->read(stateCount);
 //     for (std::size_t i = 0; i < stateCount; i++) {
-//         unsigned int objectId = PROTOCOL_INVALID_OBJECT_ID;
+//         uint32_t objectId = PROTOCOL_INVALID_OBJECT_ID;
 //         packet->read(objectId);
 
 //         // Check if we have this object already.
 
-//         unsigned int classId = PROTOCOL_INVALID_CLASS_ID;
+//         uint32_t classId = PROTOCOL_INVALID_CLASS_ID;
 //         packet->read(classId);
 
 //         GameObjectPtr gameObject;

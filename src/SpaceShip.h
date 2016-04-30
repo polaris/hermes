@@ -22,11 +22,11 @@ public:
 
     void read(Packet* packet) override;
 
-    unsigned int getClassId() const override;
+    uint32_t getClassId() const override;
 
-    void setPlayerId(unsigned int playerId);
+    void setPlayerId(uint32_t playerId);
 
-    unsigned int getPlayerId() const;
+    uint32_t getPlayerId() const;
 
     void rotate(float angle);
 
@@ -37,7 +37,7 @@ public:
     enum { ClassId = 1 };
 
 private:
-    unsigned int playerId_;
+    uint32_t playerId_;
 
     Sprite sprite_;
 

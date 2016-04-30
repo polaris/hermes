@@ -4,7 +4,7 @@
 
 #include <boost/log/trivial.hpp>
 
-ClientSession::ClientSession(const boost::asio::ip::udp::endpoint& clientEndpoint, unsigned int playerId, float currenTime)
+ClientSession::ClientSession(const boost::asio::ip::udp::endpoint& clientEndpoint, uint32_t playerId, float currenTime)
 : clientEndpoint_(clientEndpoint)
 , playerId_(playerId)
 , lastSeen_(currenTime) {
@@ -17,7 +17,7 @@ const boost::asio::ip::udp::endpoint ClientSession::getEndpoint() const {
     return clientEndpoint_;
 }
 
-unsigned int ClientSession::getPlayerId() const {
+uint32_t ClientSession::getPlayerId() const {
     return playerId_;
 }
 

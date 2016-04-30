@@ -14,7 +14,7 @@ class Clock;
 
 class GameServer : public Game {
 public:
-    GameServer(unsigned int frameRate, unsigned short port, Renderer& renderer);
+    GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer);
 
 private:
     void handleWillUpdateWorld(const Clock& clock) override;
@@ -29,8 +29,8 @@ private:
     void renderWorld();
     void sendOutgoingPackets();
 
-    unsigned int nextPlayerId_;
-    unsigned int nextObjectId_;
+    uint32_t nextPlayerId_;
+    uint32_t nextObjectId_;
 
     ClientRegistry clientRegistry_;
 
@@ -38,7 +38,7 @@ private:
     Queue<Packet> incomingPackets_;
     Transceiver transceiver_;
 
-    std::unordered_map<unsigned int, unsigned int> playerToObjectMap_;
+    std::unordered_map<uint32_t, uint32_t> playerToObjectMap_;
 };
 
 #endif  // _GameServer_H

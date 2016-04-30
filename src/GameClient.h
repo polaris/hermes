@@ -16,7 +16,7 @@ class SpaceShip;
 
 class GameClient : public Game {
 public:
-    GameClient(unsigned int frameRate, const char *address, unsigned short port, Renderer& renderer);
+    GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer);
 
 private:
     void handleWillUpdateWorld(const Clock& clock) override;
@@ -68,7 +68,7 @@ private:
 
         float lastInputTime_;
 
-        std::unordered_map<unsigned int, GameObjectPtr> objectIdToGameObjectMap_;
+        std::unordered_map<uint32_t, GameObjectPtr> objectIdToGameObjectMap_;
     };
 
     InputHandler inputHandler_;
@@ -84,7 +84,7 @@ private:
 
     boost::asio::ip::udp::endpoint serverEndpoint_;
 
-    unsigned int playerId_;
+    uint32_t playerId_;
 };
 
 #endif  // _GameClient_H

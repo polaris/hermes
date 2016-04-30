@@ -2,7 +2,7 @@
 
 #include <boost/log/trivial.hpp>
 
-Transceiver::Transceiver(unsigned short port, Queue<Packet>& packetPool, Queue<Packet>& incomingPackets)
+Transceiver::Transceiver(uint16_t port, Queue<Packet>& packetPool, Queue<Packet>& incomingPackets)
 : packetPool_(packetPool)
 , incomingPackets_(incomingPackets)
 , io_service_()
@@ -42,7 +42,7 @@ void Transceiver::receiveFrom(Packet* packet) {
             } else {
                 auto newBuffer = packetPool_.pop();
                 if (newBuffer) {
-                    packet->setSize(bytesReceived);
+                    packet->setSize(static_cast<uint32_t>(bytesReceived));
                     incomingPackets_.push(packet);
                     newBuffer->clear();
                     receiveFrom(newBuffer);

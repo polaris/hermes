@@ -19,7 +19,7 @@ public:
         createInstanceFunctionMap_[T::ClassId] = T::createInstance;
     }
 
-    GameObjectPtr createGameObject(unsigned int classId, const Renderer& renderer) const {
+    GameObjectPtr createGameObject(uint32_t classId, const Renderer& renderer) const {
         auto itr = createInstanceFunctionMap_.find(classId);
         if (itr != createInstanceFunctionMap_.end()) {
             return (*itr).second(renderer);
@@ -34,7 +34,7 @@ public:
 
 private:
     GameObjectRegistry() {}
-    std::unordered_map<unsigned int, CreateInstanceFunction> createInstanceFunctionMap_;
+    std::unordered_map<uint32_t, CreateInstanceFunction> createInstanceFunctionMap_;
 };
 
 void registerGameObjects();

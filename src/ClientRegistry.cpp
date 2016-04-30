@@ -9,14 +9,14 @@
 ClientRegistry::ClientRegistry() {
 }
 
-ClientSession* ClientRegistry::addClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint, float timeStamp) {
+ClientSession* ClientRegistry::addClientSession(uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, float timeStamp) {
     auto newClientSession = std::make_unique<ClientSession>(endpoint, playerId, timeStamp);
     clientSessions_.insert(std::make_pair(playerId, std::move(newClientSession)));
     playerIds_.insert(std::make_pair(boost::lexical_cast<std::string>(endpoint), playerId));
     return clientSessions_[playerId].get();
 }
 
-ClientSession* ClientRegistry::getClientSession(unsigned int playerId) {
+ClientSession* ClientRegistry::getClientSession(uint32_t playerId) {
     auto itr = clientSessions_.find(playerId);
     if (itr != clientSessions_.end()) {
         return (*itr).second.get();
@@ -24,7 +24,7 @@ ClientSession* ClientRegistry::getClientSession(unsigned int playerId) {
     return nullptr;
 }
 
-void ClientRegistry::removeClientSession(unsigned int playerId) {
+void ClientRegistry::removeClientSession(uint32_t playerId) {
     auto itr = clientSessions_.find(playerId);
     if (itr != clientSessions_.end()) {
         playerIds_.erase(playerIds_.find(boost::lexical_cast<std::string>(itr->second->getEndpoint())));
@@ -32,7 +32,7 @@ void ClientRegistry::removeClientSession(unsigned int playerId) {
     }
 }
 
-bool ClientRegistry::verifyClientSession(unsigned int playerId, const boost::asio::ip::udp::endpoint& endpoint) {
+bool ClientRegistry::verifyClientSession(uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint) {
     // BOOST_LOG_TRIVIAL(debug) << "Verifying player " << playerId << " @ " << endpoint << ". " << clientSessions_.size() << " sessions available";
     if (clientSessions_.find(playerId) != clientSessions_.end()) {
         const auto s = boost::lexical_cast<std::string>(endpoint);
@@ -45,8 +45,8 @@ bool ClientRegistry::hasClientSession(const boost::asio::ip::udp::endpoint& endp
     return playerIds_.find(boost::lexical_cast<std::string>(endpoint)) != playerIds_.end();
 }
 
-void ClientRegistry::checkForDisconnects(float currentTime, std::function<void (unsigned int)> fun) {
-    std::vector<unsigned int> clientsToBeRemoved;
+void ClientRegistry::checkForDisconnects(float currentTime, std::function<void (uint32_t)> fun) {
+    std::vector<uint32_t> clientsToBeRemoved;
     for (const auto& clientSession : clientSessions_) {
         if ((currentTime - clientSession.second->getLastSeen()) > PROTOCOL_CLIENT_TIMEOUT) {
             clientsToBeRemoved.push_back(clientSession.first);

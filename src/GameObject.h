@@ -18,7 +18,7 @@ public:
 
     virtual void read(Packet* packet) = 0;
 
-    virtual unsigned int getClassId() const = 0;
+    virtual uint32_t getClassId() const = 0;
 };
 
 using GameObjectPtr = std::shared_ptr<GameObject>;

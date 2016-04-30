@@ -7,13 +7,13 @@
 
 class ClientSession {
 public:
-    ClientSession(const boost::asio::ip::udp::endpoint& clientEndpoint, unsigned int playerId, float currenTime);
+    ClientSession(const boost::asio::ip::udp::endpoint& clientEndpoint, uint32_t playerId, float currenTime);
 
     ~ClientSession();
 
     const boost::asio::ip::udp::endpoint getEndpoint() const;
 
-    unsigned int getPlayerId() const;
+    uint32_t getPlayerId() const;
 
     MoveList& getMoveList();
 
@@ -24,7 +24,7 @@ public:
 private:
     const boost::asio::ip::udp::endpoint clientEndpoint_;
 
-    const unsigned int playerId_;
+    const uint32_t playerId_;
 
     MoveList moveList_;
 

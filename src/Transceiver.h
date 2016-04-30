@@ -9,7 +9,7 @@
 
 class Transceiver {
 public:
-    Transceiver(unsigned short port, Queue<Packet>& packetPool, Queue<Packet>& incomingPackets);
+    Transceiver(uint16_t port, Queue<Packet>& packetPool, Queue<Packet>& incomingPackets);
 
     Transceiver(Queue<Packet>& packetPool, Queue<Packet>& incomingPackets);
 

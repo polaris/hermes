@@ -13,7 +13,7 @@ public:
 
     MoveList();
 
-    std::size_t getCount() const;
+    uint32_t getCount() const;
 
     const Move& addMove(const InputState& inputState, float timeStamp);
 

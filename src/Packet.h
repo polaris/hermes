@@ -12,7 +12,7 @@
 
 class Packet {
 public:
-    explicit Packet(std::size_t capacity)
+    explicit Packet(uint32_t capacity)
     : capacity_(capacity)
     , size_(0)
     , head_(0)
@@ -36,22 +36,22 @@ public:
         endpoint_ = udp::endpoint(address::from_string("0.0.0.0"), 0);
     }
 
-    std::size_t getCapacity() const {
+    uint32_t getCapacity() const {
         return capacity_;
     }
 
-    void setSize(std::size_t size) {
+    void setSize(uint32_t size) {
         if (size > capacity_) {
             throw std::out_of_range(boost::str(boost::format("%1%:%2%: size is out of range") % __FILE__ % __LINE__));
         }
         size_ = size;
     }
 
-    std::size_t getSize() const {
+    uint32_t getSize() const {
         return size_;
     }
 
-    std::size_t getHead() const {
+    uint32_t getHead() const {
         return head_;
     }
 
@@ -63,7 +63,7 @@ public:
         return data_;
     }
 
-    void setEndpoint(const char* address, unsigned short port) {
+    void setEndpoint(const char* address, uint16_t port) {
         using namespace boost::asio::ip;
         endpoint_ = udp::endpoint(address::from_string(address), port);
     }
@@ -96,7 +96,7 @@ public:
         }
     }
 
-    void write(const void *data, std::size_t size) {
+    void write(const void *data, uint32_t size) {
         if (size_ + size > capacity_) {
             throw std::out_of_range(boost::str(boost::format("%1%:%2%: size is out of range") % __FILE__ % __LINE__));
         }
@@ -114,17 +114,17 @@ public:
 
     template<typename T>
     void read(std::vector<T> &data) {
-        std::size_t count{0};
+        uint32_t count{0};
         read(count);
         data.reserve(count);
         T t{};
-        for (std::size_t i = 0; i < count; ++i) {
+        for (uint32_t i = 0; i < count; ++i) {
             read(t);
             data.push_back(t);
         }
     }
 
-    void read(void *out, std::size_t size) {
+    void read(void *out, uint32_t size) {
         if (head_ + size > size_) {
             throw std::out_of_range(boost::str(boost::format("%1%:%2%: size is out of range") % __FILE__ % __LINE__));
         }
@@ -133,9 +133,9 @@ public:
     }
 
 private:
-    const std::size_t capacity_;
-    std::size_t size_;
-    std::size_t head_;
+    const uint32_t capacity_;
+    uint32_t size_;
+    uint32_t head_;
     char* data_;
 
     boost::asio::ip::udp::endpoint endpoint_;

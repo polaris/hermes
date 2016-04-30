@@ -49,15 +49,15 @@ void SpaceShip::read(Packet* packet) {
     packet->read(acceleration_);
 }
 
-unsigned int SpaceShip::getClassId() const {
+uint32_t SpaceShip::getClassId() const {
     return ClassId;
 }
 
-void SpaceShip::setPlayerId(unsigned int playerId) {
+void SpaceShip::setPlayerId(uint32_t playerId) {
     playerId_ = playerId;
 }
 
-unsigned int SpaceShip::getPlayerId() const {
+uint32_t SpaceShip::getPlayerId() const {
     return playerId_;
 }
 
