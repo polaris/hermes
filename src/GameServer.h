@@ -31,14 +31,13 @@ private:
 
     uint32_t nextPlayerId_;
     uint32_t nextObjectId_;
-
-    ClientRegistry clientRegistry_;
+    std::unordered_map<uint32_t, uint32_t> playerToObjectMap_;
 
     Queue<Packet> packetPool_;
     Queue<Packet> incomingPackets_;
     Transceiver transceiver_;
 
-    std::unordered_map<uint32_t, uint32_t> playerToObjectMap_;
+    ClientRegistry clientRegistry_;
 };
 
 #endif  // _GameServer_H
