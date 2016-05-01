@@ -2,7 +2,8 @@
 #include "Packet.h"
 
 Move::Move()
-: timeStamp_(0)
+: inputState_()
+, timeStamp_(0)
 , deltaTime_(0) {
 }
 

@@ -10,6 +10,10 @@ class ServerSpaceShip : public SpaceShip {
 public:
     ServerSpaceShip(const Renderer& renderer, ClientSession* clientSession);
 
+    ServerSpaceShip(const ServerSpaceShip&) = delete;
+
+    ServerSpaceShip& operator =(const ServerSpaceShip&) = delete;
+
     void update(float elapsed) override;
 
 private:

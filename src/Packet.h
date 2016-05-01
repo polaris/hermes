@@ -16,10 +16,12 @@ public:
     : capacity_(capacity)
     , size_(0)
     , head_(0)
-    , data_(new char [capacity_]) {
+    , data_(new char [capacity_])
+    , endpoint_() {
     }
 
     Packet(const Packet&) = delete;
+    Packet& operator= (const Packet&) = delete;
 
     ~Packet() {
         delete [] data_;

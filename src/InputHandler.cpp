@@ -3,10 +3,12 @@
 
 #include <SDL2/SDL.h>
 
-InputHandler::InputHandler(float sampleRate)
-: sampleInterval_(1.0f / sampleRate)
+InputHandler::InputHandler(unsigned int sampleRate)
+: sampleInterval_(1.0f / static_cast<float>(sampleRate))
 , nextTimeToSample_(0)
-, pendingMove_(nullptr) {
+, inputState_()
+, pendingMove_(nullptr)
+, moveList_() {
 }
 
 void InputHandler::handleInput(KeyAction keyAction, int keyCode) {

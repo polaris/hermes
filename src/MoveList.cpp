@@ -2,7 +2,8 @@
 #include "Packet.h"
 
 MoveList::MoveList()
-: lastMoveTime_(0) {
+: lastMoveTime_(0)
+, moves_() {
 }
 
 uint32_t MoveList::getCount() const {

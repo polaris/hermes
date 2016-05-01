@@ -14,7 +14,7 @@ class Move;
 
 class InputHandler {
 public:
-    explicit InputHandler(float sampleRate);
+    explicit InputHandler(unsigned int sampleRate);
 
     void handleInput(KeyAction keyAction, int keyCode);
 

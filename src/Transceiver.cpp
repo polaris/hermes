@@ -1,6 +1,7 @@
 #include "Transceiver.h"
 
-#include <boost/log/trivial.hpp>
+#include <spdlog/spdlog.h>
+#include <boost/format.hpp>
 
 Transceiver::Transceiver(uint16_t port, Queue<Packet>& packetPool, Queue<Packet>& incomingPackets)
 : packetPool_(packetPool)
@@ -25,7 +26,8 @@ void Transceiver::sendTo(Packet* packet) {
     socket_.async_send_to(boost::asio::buffer(packet->getData(), packet->getSize()), packet->getEndpoint(),
         [this, packet] (const boost::system::error_code &ec, std::size_t bytesTransferred) {
             if (ec) {
-                BOOST_LOG_TRIVIAL(error) << "Failed to send a packet: " << ec.message();
+                const auto logMessage = boost::str(boost::format("Failed to send a packet: %1%") % ec.message());
+                spdlog::get("console")->error(logMessage);
             } else {
                 assert(bytesTransferred == packet->getSize());
             }
@@ -37,7 +39,8 @@ void Transceiver::receiveFrom(Packet* packet) {
     socket_.async_receive_from(boost::asio::buffer(packet->getData(), packet->getCapacity()), packet->getEndpoint(),
         [this, packet] (const boost::system::error_code &ec, std::size_t bytesReceived) {
             if (ec) {
-                BOOST_LOG_TRIVIAL(error) << "Failed to receive a packet: " << ec.message();
+                const auto logMessage = boost::str(boost::format("Failed to receive a packet: %1%") % ec.message());
+                spdlog::get("console")->error(logMessage);
                 packetPool_.push(packet);
             } else {
                 auto newBuffer = packetPool_.pop();
@@ -47,7 +50,7 @@ void Transceiver::receiveFrom(Packet* packet) {
                     newBuffer->clear();
                     receiveFrom(newBuffer);
                 } else {
-                    BOOST_LOG_TRIVIAL(error) << "Packet pool is empty. Discard the received packet.";
+                    spdlog::get("console")->error("Packet pool is empty. Discard the received packet.");
                     packet->clear();
                     receiveFrom(packet);
                 }

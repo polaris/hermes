@@ -4,6 +4,7 @@
 #include "Move.h"
 
 #include <deque>
+#include <stdint.h>
 
 class Packet;
 

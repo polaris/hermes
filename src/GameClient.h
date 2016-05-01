@@ -18,6 +18,10 @@ class GameClient : public Game {
 public:
     GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer);
 
+    GameClient(const GameClient&) = delete;
+
+    GameClient& operator =(const GameClient&) = delete;
+
 private:
     void handleWillUpdateWorld(const Clock& clock) override;
     void handleDidUpdateWorld(const Clock& clock) override;
@@ -31,6 +35,8 @@ private:
     public:
         explicit State(GameClient* gameClient);
         virtual ~State() = default;
+        State(const GameClient::State&) = delete;
+        GameClient::State& operator =(const GameClient::State&) = delete;
         virtual void handleWillUpdateWorld(const Clock& clock) = 0;
         virtual void handleIncomingPacket(Packet* packet) = 0;
         virtual void sendOutgoingPackets(const Clock& clock) = 0;

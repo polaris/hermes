@@ -7,6 +7,7 @@
 ClientSession::ClientSession(const boost::asio::ip::udp::endpoint& clientEndpoint, uint32_t playerId, float currenTime)
 : clientEndpoint_(clientEndpoint)
 , playerId_(playerId)
+, moveList_()
 , lastSeen_(currenTime) {
 }
 

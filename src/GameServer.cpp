@@ -6,16 +6,18 @@
 #include "ClientSession.h"
 #include "Packet.h"
 
-#include <boost/log/trivial.hpp>
-#include <boost/lexical_cast.hpp>
+#include <spdlog/spdlog.h>
+#include <boost/format.hpp>
 
 GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , nextPlayerId_(1)
 , nextObjectId_(1)
+, playerToObjectMap_()
 , packetPool_(100, [] () { return new Packet(1500); })
 , incomingPackets_(100)
-, transceiver_(port, packetPool_, incomingPackets_) {
+, transceiver_(port, packetPool_, incomingPackets_)
+, clientRegistry_() {
 }
 
 void GameServer::handleWillUpdateWorld(const Clock& clock) {
@@ -38,7 +40,8 @@ void GameServer::processIncomingPackets(const Clock& clock) {
         if (magicNumber == PROTOCOL_MAGIC_NUMBER) {
             handlePacket(packet, clock);
         } else {
-            BOOST_LOG_TRIVIAL(info) << "Received invalid packet from " << packet->getEndpoint();
+            const auto logMessage = boost::str(boost::format("Receive invalid packet from %1%") % packet->getEndpoint());
+            spdlog::get("console")->warn(logMessage);
         }
         packetPool_.push(packet);
     }
@@ -58,17 +61,19 @@ void GameServer::handlePacket(Packet* packet, const Clock& clock) {
             handleInput(packet, clock);
             break;
         default:
-            BOOST_LOG_TRIVIAL(warning) << "Received a packet with unexpected packet type " << static_cast<unsigned int>(packetType) << " from " << packet->getEndpoint();
+            const auto logMessage = boost::str(boost::format("Received a packet with unexpected packet type %1% from %2%.") % static_cast<unsigned int>(packetType) % packet->getEndpoint());
+            spdlog::get("console")->warn(logMessage);
             break;
         }
     } else {
-        BOOST_LOG_TRIVIAL(warning) << "Received a packet from client with invalid protocol version " << static_cast<unsigned int>(protocolVersion);
+        const auto logMessage = boost::str(boost::format("Received a packet with invalid protocol version %1% from %2%.") % static_cast<unsigned int>(protocolVersion) % packet->getEndpoint());
+        spdlog::get("console")->warn(logMessage);
     }
 }
 
 void GameServer::handleHello(Packet* packet, const Clock& clock) {
     if (!clientRegistry_.hasClientSession(packet->getEndpoint())) {
-        BOOST_LOG_TRIVIAL(debug) << "HELLO from new client " << packet->getEndpoint();
+        spdlog::get("console")->debug("HELLO from new client ...");
         auto welcomePacket = packetPool_.pop();
         if (welcomePacket) {
             const auto playerId = nextPlayerId_++;
@@ -85,12 +90,16 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 
             createWelcomePacket(welcomePacket, playerId, packet->getEndpoint());
             transceiver_.sendTo(welcomePacket);
-            BOOST_LOG_TRIVIAL(debug) << "WELCOME client " << playerId << " (" << welcomePacket->getEndpoint() << ")";
+
+            const auto logMessage = boost::str(boost::format("WELCOME client %1% from %2%.") % playerId % packet->getEndpoint());
+            spdlog::get("console")->debug(logMessage);
         } else {
-            BOOST_LOG_TRIVIAL(warning) << "Failed to WELCOME to client: empty packet pool";
+            spdlog::get("console")->warn("Failed to WELCOME to client: empty packet pool.");
+            //LOG(WARNING) << "Failed to WELCOME to client: empty packet pool";
         }
     } else {
-        BOOST_LOG_TRIVIAL(warning) << "HELLO from already welcomed client " << packet->getEndpoint();
+        spdlog::get("console")->warn("HELLO from already welcomed client ...");
+        // LOG(WARNING) << "HELLO from already welcomed client " << packet->getEndpoint();
     }
 }
 
@@ -109,7 +118,8 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
             moveList.addMove(move);
         }
     } else {
-        BOOST_LOG_TRIVIAL(warning) << "Received INPUT from unknown or invalid client " << packet->getEndpoint();
+        spdlog::get("console")->warn("Received INPUT from unknown or invalid client ...");
+        //LOG(WARNING) << "Received INPUT from unknown or invalid client " << packet->getEndpoint();
     }
 }
 
@@ -139,7 +149,8 @@ void GameServer::sendOutgoingPackets() {
 
             transceiver_.sendTo(packet);
         } else {
-            BOOST_LOG_TRIVIAL(warning) << "Failed to WELCOME to client: empty packet pool";
+            spdlog::get("console")->warn("Failed to WELCOME to client: empty packet pool.");
+            //LOG(WARNING) << "Failed to WELCOME to client: empty packet pool";
         }
     });
 }

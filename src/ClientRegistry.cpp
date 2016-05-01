@@ -1,10 +1,16 @@
 #include "ClientRegistry.h"
 #include "Protocol.h"
 
+#include <spdlog/spdlog.h>
+#include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/log/trivial.hpp>
 
 #include <vector>
+
+ClientRegistry::ClientRegistry()
+: clientSessions_()
+, playerIds_() {
+}
 
 ClientSession* ClientRegistry::addClientSession(uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, float timeStamp) {
     auto newClientSession = std::make_unique<ClientSession>(endpoint, playerId, timeStamp);
@@ -49,7 +55,8 @@ void ClientRegistry::checkForDisconnects(float currentTime, std::function<void (
         }
     }
     for (const auto& playerId : clientsToBeRemoved) {
-        BOOST_LOG_TRIVIAL(debug) << "Remove disconnected client " << playerId;
+        const auto logMessage = boost::str(boost::format("Remove disconnected client %1%") % playerId);
+        spdlog::get("console")->debug(logMessage);
         removeClientSession(playerId);
         fun(playerId);
     }

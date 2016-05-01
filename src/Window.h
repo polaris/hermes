@@ -9,6 +9,10 @@ public:
 
     ~Window();
 
+    Window(const Window&) = delete;
+
+    Window& operator =(const Window&) = delete;
+
     SDL_Window* getSDLWindow() const {
         return window_;
     }

@@ -2,7 +2,8 @@
 
 #include <cassert>
 
-World::World() {
+World::World()
+: gameObjects_() {
 }
 
 void World::add(uint32_t objectId, GameObjectPtr& gameObject) {

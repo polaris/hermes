@@ -12,6 +12,10 @@ public:
 
     ~Renderer();
 
+    Renderer(const Renderer&) = delete;
+
+    Renderer& operator =(const Renderer&) = delete;
+
     void clear(float r, float g, float b);
 
     void setDrawColor(float r, float g, float b, float a);

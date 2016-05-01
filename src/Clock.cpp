@@ -9,13 +9,13 @@ Clock::Clock()
 
 void Clock::update() {
     currentTime = std::chrono::high_resolution_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count() / 1000.0f;
+    elapsed = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count()) / 1000.0f;
     lastTime = currentTime;
 }
 
 float Clock::getTime() const {
     const auto now = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() / 1000.0f;
+    return static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count()) / 1000.0f;
 }
 
 float Clock::getElapsed() const {
@@ -23,10 +23,10 @@ float Clock::getElapsed() const {
 }
 
 float Clock::getGameTime() const {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
+    return static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count()) / 1000.0f;
 }
 
 float Clock::getFrameDuration() const {
     const auto now = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - currentTime).count() / 1000.0f;
+    return static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(now - currentTime).count()) / 1000.0f;
 }

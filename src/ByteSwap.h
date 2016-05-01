@@ -6,8 +6,7 @@
 #include <cstddef>
 
 inline uint16_t ByteSwap2(uint16_t data) {
-    return ((data >> 8) & 0x00ff) | 
-           ((data << 8) & 0xff00);
+    return static_cast<uint16_t>(((data >> 8) & 0x00ff) | ((data << 8) & 0xff00));
 }
 
 inline uint32_t ByteSwap4(uint32_t data) {

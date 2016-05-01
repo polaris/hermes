@@ -26,7 +26,6 @@ private:
     boost::asio::io_service io_service_;
     boost::asio::io_service::work work_;
     boost::asio::ip::udp::socket socket_;
-    boost::asio::ip::udp::endpoint senderEndpoint_;
     std::thread thread_;
 };
 

@@ -6,7 +6,8 @@
 
 Game::Game(unsigned int frameRate, Renderer& renderer)
 : renderer_(renderer)
-, frameDuration_(1.0f / frameRate) {
+, world_()
+, frameDuration_(1.0f / static_cast<float>(frameRate)) {
 }
 
 void Game::run() {

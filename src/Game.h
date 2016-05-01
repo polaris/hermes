@@ -12,6 +12,8 @@ class Game {
 public:
     Game(unsigned int frameRate, Renderer& renderer);
 
+    virtual ~Game() = default;
+
     void run();
 
 protected:    

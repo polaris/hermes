@@ -7,9 +7,19 @@ CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
             -Wold-style-cast -Woverloaded-virtual -Wredundant-decls \
             -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 \
             -Wswitch-default -Wundef -Werror -Wno-unused -Wconversion \
-            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O0 -g -DBOOST_LOG_DYN_LINK
-LDFLAGS := -lstdc++ -lm -lsdl2 -lsdl2_image -lboost_system -lboost_log-mt -lboost_log_setup-mt -lboost_thread-mt
-INC := -Isrc
+            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O0 -g
+LDFLAGS := -lstdc++ -lm -lboost_system
+
+OS_NAME := $(shell uname -s | tr A-Z a-z)
+
+ifeq ($(OS_NAME),linux)
+    LDFLAGS += -lSDL2 -lSDL2_image -lboost_thread -pthread
+endif
+ifeq ($(OS_NAME),darwin)
+    LDFLAGS += -lsdl2 -lsdl2_image -lboost_thread-mt
+endif
+
+INC := -Isrc -isystem 3rdparty
 
 MAIN := src/client.cpp src/server.cpp
 SRC := $(filter-out $(addsuffix %,$(MAIN)),$(wildcard src/*.cpp))
@@ -22,15 +32,15 @@ all: $(BINDIR)/server $(BINDIR)/client $(BINDIR)/test
 
 $(BINDIR)/server: $(OBJ) $(OBJDIR)/server.o
 	@mkdir -p $(BINDIR)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 $(BINDIR)/client: $(OBJ) $(OBJDIR)/client.o
 	@mkdir -p $(BINDIR)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 $(BINDIR)/test: $(TEST_OBJ) $(OBJ)
 	@mkdir -p $(BINDIR)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 $(OBJDIR)/server.o: src/server.cpp
 	@mkdir -p obj
