@@ -43,11 +43,6 @@ void MoveList::clear() {
 }
 
 void MoveList::write(Packet* packet) const {
-    // const auto moveCount = getCount();
-    // auto firstMoveIndex = moveCount - 3;
-    // if (firstMoveIndex < 3) {
-    //     firstMoveIndex = 0;
-    // }
     packet->write(getCount());
     for (const auto& move : moves_) {
         move.write(packet);

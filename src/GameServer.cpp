@@ -102,7 +102,6 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
         MoveList& moveList = clientSession->getMoveList();
         uint32_t count = 0;
         packet->read(count);
-        BOOST_LOG_TRIVIAL(debug) << "Received input packet with " << count << " moves";
         for (uint32_t i = 0; i < count; i++) {
             Move move;
             move.read(packet);
