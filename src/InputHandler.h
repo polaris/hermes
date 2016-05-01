@@ -2,7 +2,6 @@
 #define _InputHandler_H
 
 #include "InputState.h"
-#include "Move.h"
 #include "MoveList.h"
 
 #include <memory>
@@ -10,6 +9,8 @@
 enum class KeyAction {
     Down, Up
 };
+
+class Move;
 
 class InputHandler {
 public:

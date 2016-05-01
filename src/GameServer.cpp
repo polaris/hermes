@@ -4,6 +4,7 @@
 #include "Protocol.h"
 #include "ServerSpaceShip.h"
 #include "ClientSession.h"
+#include "Packet.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/lexical_cast.hpp>

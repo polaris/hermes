@@ -5,7 +5,6 @@
 
 #include <SDL2/SDL.h>
 
-class GameObject;
 class Renderer;
 class Clock;
 

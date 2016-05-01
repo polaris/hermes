@@ -3,7 +3,6 @@
 
 #include "Game.h"
 #include "Queue.h"
-#include "Packet.h"
 #include "ClientRegistry.h"
 #include "Transceiver.h"
 
@@ -11,6 +10,7 @@
 
 class Renderer;
 class Clock;
+class Packet;
 
 class GameServer : public Game {
 public:

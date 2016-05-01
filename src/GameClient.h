@@ -3,7 +3,6 @@
 
 #include "Game.h"
 #include "Queue.h"
-#include "Packet.h"
 #include "InputHandler.h"
 #include "Transceiver.h"
 
@@ -13,6 +12,7 @@
 class Renderer;
 class Clock;
 class SpaceShip;
+class Packet;
 
 class GameClient : public Game {
 public:

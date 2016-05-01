@@ -1,4 +1,5 @@
 #include "InputHandler.h"
+#include "Move.h"
 
 #include <SDL2/SDL.h>
 
