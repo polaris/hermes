@@ -11,7 +11,7 @@
 
 class ClientRegistry {
 public:
-    ClientRegistry();
+    ClientRegistry() = default;
 
     ClientSession* addClientSession(uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, float timeStamp);
 

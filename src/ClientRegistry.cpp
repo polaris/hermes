@@ -6,9 +6,6 @@
 
 #include <vector>
 
-ClientRegistry::ClientRegistry() {
-}
-
 ClientSession* ClientRegistry::addClientSession(uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, float timeStamp) {
     auto newClientSession = std::make_unique<ClientSession>(endpoint, playerId, timeStamp);
     clientSessions_.insert(std::make_pair(playerId, std::move(newClientSession)));
