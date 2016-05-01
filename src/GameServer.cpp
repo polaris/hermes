@@ -95,11 +95,10 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
             spdlog::get("console")->debug(logMessage);
         } else {
             spdlog::get("console")->warn("Failed to WELCOME to client: empty packet pool.");
-            //LOG(WARNING) << "Failed to WELCOME to client: empty packet pool";
         }
     } else {
-        spdlog::get("console")->warn("HELLO from already welcomed client ...");
-        // LOG(WARNING) << "HELLO from already welcomed client " << packet->getEndpoint();
+        const auto logMessage = boost::str(boost::format("HELLO from known client %1%.") % packet->getEndpoint());
+        spdlog::get("console")->warn(logMessage);
     }
 }
 
@@ -118,8 +117,8 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
             moveList.addMove(move);
         }
     } else {
-        spdlog::get("console")->warn("Received INPUT from unknown or invalid client ...");
-        //LOG(WARNING) << "Received INPUT from unknown or invalid client " << packet->getEndpoint();
+        const auto logMessage = boost::str(boost::format("Received INPUT from unknown client %1%.") % packet->getEndpoint());
+        spdlog::get("console")->warn(logMessage);
     }
 }
 
@@ -149,8 +148,7 @@ void GameServer::sendOutgoingPackets() {
 
             transceiver_.sendTo(packet);
         } else {
-            spdlog::get("console")->warn("Failed to WELCOME to client: empty packet pool.");
-            //LOG(WARNING) << "Failed to WELCOME to client: empty packet pool";
+            spdlog::get("console")->warn("Failed to WELCOME a client: empty packet pool.");
         }
     });
 }
