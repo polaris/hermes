@@ -1,7 +1,7 @@
 #include "ClientSession.h"
 #include "catch.hpp"
 
-TEST_CASE("construction") {
+TEST_CASE("ClientSession construction") {
     const boost::asio::ip::udp::endpoint endpoint;
     const uint32_t playerId = 12;
     const float timeStamp = 34.56f;
