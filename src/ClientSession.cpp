@@ -11,9 +11,6 @@ ClientSession::ClientSession(const boost::asio::ip::udp::endpoint& clientEndpoin
 , lastSeen_(currenTime) {
 }
 
-ClientSession::~ClientSession() {
-}
-
 const boost::asio::ip::udp::endpoint ClientSession::getEndpoint() const {
     return clientEndpoint_;
 }

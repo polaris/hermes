@@ -9,8 +9,6 @@ class ClientSession {
 public:
     ClientSession(const boost::asio::ip::udp::endpoint& clientEndpoint, uint32_t playerId, float currenTime);
 
-    ~ClientSession();
-
     const boost::asio::ip::udp::endpoint getEndpoint() const;
 
     uint32_t getPlayerId() const;
