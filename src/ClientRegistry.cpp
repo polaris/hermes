@@ -62,7 +62,7 @@ void ClientRegistry::checkForDisconnects(float currentTime, std::function<void (
     }
 }
 
-void ClientRegistry::forEachSession(std::function<void (ClientSession*)> fun) {
+void ClientRegistry::forEachClientSession(std::function<void (ClientSession*)> fun) {
     for (auto& pair : clientSessions_) {
         fun(pair.second.get());
     }

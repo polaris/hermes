@@ -25,7 +25,7 @@ public:
 
     void checkForDisconnects(float currentTime, std::function<void (uint32_t)> fun);
 
-    void forEachSession(std::function<void (ClientSession*)> fun);
+    void forEachClientSession(std::function<void (ClientSession*)> fun);
 
 private:
     std::unordered_map<uint32_t, std::unique_ptr<ClientSession>> clientSessions_;

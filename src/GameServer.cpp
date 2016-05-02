@@ -134,7 +134,7 @@ void GameServer::renderWorld() {
 }
 
 void GameServer::sendOutgoingPackets() {
-    clientRegistry_.forEachSession([this] (ClientSession* clientSession) {
+    clientRegistry_.forEachClientSession([this] (ClientSession* clientSession) {
         auto packet = packetPool_.pop();
         if (packet) {
             createStatePacket(packet, clientSession->getEndpoint());
