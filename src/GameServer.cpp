@@ -23,6 +23,9 @@ GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer
 void GameServer::handleWillUpdateWorld(const Clock& clock) {
     processIncomingPackets(clock);
     clientRegistry_.checkForDisconnects(clock.getTime(), [this] (uint32_t playerId) {
+        const auto logMessage = boost::str(boost::format("Remove disconnected client %1%") % playerId);
+        spdlog::get("console")->debug(logMessage);
+
         auto itr = playerToObjectMap_.find(playerId);
         if (itr != playerToObjectMap_.end()) {
             const uint32_t objectId = itr->second;

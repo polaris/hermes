@@ -1,8 +1,6 @@
 #include "ClientRegistry.h"
 #include "Protocol.h"
 
-#include <spdlog/spdlog.h>
-#include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <vector>
@@ -55,8 +53,6 @@ void ClientRegistry::checkForDisconnects(float currentTime, std::function<void (
         }
     }
     for (const auto& playerId : clientsToBeRemoved) {
-        const auto logMessage = boost::str(boost::format("Remove disconnected client %1%") % playerId);
-        spdlog::get("console")->debug(logMessage);
         removeClientSession(playerId);
         fun(playerId);
     }
