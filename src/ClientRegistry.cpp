@@ -18,7 +18,7 @@ ClientSession* ClientRegistry::addClientSession(uint32_t playerId, const boost::
 }
 
 ClientSession* ClientRegistry::getClientSession(uint32_t playerId) {
-    auto itr = clientSessions_.find(playerId);
+    const auto itr = clientSessions_.find(playerId);
     if (itr != clientSessions_.end()) {
         return (*itr).second.get();
     }
@@ -26,7 +26,7 @@ ClientSession* ClientRegistry::getClientSession(uint32_t playerId) {
 }
 
 void ClientRegistry::removeClientSession(uint32_t playerId) {
-    auto itr = clientSessions_.find(playerId);
+    const auto itr = clientSessions_.find(playerId);
     if (itr != clientSessions_.end()) {
         playerIds_.erase(playerIds_.find(boost::lexical_cast<std::string>(itr->second->getEndpoint())));
         clientSessions_.erase(itr);
