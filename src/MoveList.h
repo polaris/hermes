@@ -16,11 +16,11 @@ public:
 
     uint32_t getCount() const;
 
-    const Move& addMove(const InputState& inputState, float timeStamp);
+    const Move* addMove(const InputState& inputState, float timeStamp);
 
     void addMove(const Move& move);
 
-    const Move& getLatestMove() const;
+    const Move* getLatestMove() const;
 
     void removeMovesUntil(float timeStamp);
 
@@ -39,6 +39,7 @@ public:
     }
 
 private:
+    InputState lastInputState_;
     float lastMoveTime_;
     std::deque<Move> moves_;
 };

@@ -19,6 +19,9 @@ struct InputState {
     void write(Packet* packet) const;
 
     void read(Packet* packet);
+
+    friend bool operator ==(const InputState& lhs, const InputState& rhs);
+    friend bool operator !=(const InputState& lhs, const InputState& rhs);
 };
 
 #endif  // _InputState_H

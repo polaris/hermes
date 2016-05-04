@@ -16,13 +16,17 @@ class InputHandler {
 public:
     explicit InputHandler(unsigned int sampleRate);
 
+    InputHandler(const InputHandler&) = delete;
+
+    InputHandler& operator =(const InputHandler&) = delete;
+
     void handleInput(KeyAction keyAction, int keyCode);
 
     void update(float currentTime);
 
     float getSampleInterval() const;
 
-    std::shared_ptr<Move> getAndClearPendingMove();
+    const Move* getAndClearPendingMove();
 
     MoveList& getMoveList();
 
@@ -33,7 +37,7 @@ private:
 
     InputState inputState_;
 
-    std::shared_ptr<Move> pendingMove_;
+    const Move* pendingMove_;
 
     MoveList moveList_;
 };

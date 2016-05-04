@@ -35,7 +35,7 @@ void InputHandler::handleInput(KeyAction keyAction, int keyCode) {
 
 void InputHandler::update(float currentTime) {
     if (currentTime >= nextTimeToSample_) {
-        pendingMove_.reset(new Move(moveList_.addMove(inputState_, currentTime)));
+        pendingMove_ = moveList_.addMove(inputState_, currentTime);
         nextTimeToSample_ += sampleInterval_;
     }
 }
@@ -44,9 +44,9 @@ float InputHandler::getSampleInterval() const {
     return sampleInterval_;
 }
 
-std::shared_ptr<Move> InputHandler::getAndClearPendingMove() {
+const Move* InputHandler::getAndClearPendingMove() {
     auto result = pendingMove_;
-    pendingMove_.reset();
+    pendingMove_ = nullptr;
     return result;
 }
 
