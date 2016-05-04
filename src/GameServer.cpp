@@ -63,6 +63,9 @@ void GameServer::handlePacket(Packet* packet, const Clock& clock) {
         case PROTOCOL_PACKET_TYPE_INPUT:
             handleInput(packet, clock);
             break;
+        case PROTOCOL_PACKET_TYPE_TICK:
+            handleTick(packet, clock);
+            break;
         default:
             const auto logMessage = boost::str(boost::format("Received a packet with unexpected packet type %1% from %2%.") % static_cast<unsigned int>(packetType) % packet->getEndpoint());
             spdlog::get("console")->warn(logMessage);
@@ -119,6 +122,19 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
             move.read(packet);
             moveList.addMove(move);
         }
+    } else {
+        const auto logMessage = boost::str(boost::format("Received INPUT from unknown client %1%.") % packet->getEndpoint());
+        spdlog::get("console")->warn(logMessage);
+    }
+}
+
+void GameServer::handleTick(Packet* packet, const Clock& clock) {
+    spdlog::get("console")->warn("Received tick");
+    uint32_t playerId = PROTOCOL_INVALID_PLAYER_ID;
+    packet->read(playerId);
+    if (clientRegistry_.verifyClientSession(playerId, packet->getEndpoint())) {
+        auto clientSession = clientRegistry_.getClientSession(playerId);
+        clientSession->setLastSeen(clock.getTime());
     } else {
         const auto logMessage = boost::str(boost::format("Received INPUT from unknown client %1%.") % packet->getEndpoint());
         spdlog::get("console")->warn(logMessage);

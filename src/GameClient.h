@@ -69,10 +69,12 @@ private:
         void sendOutgoingPackets(const Clock& clock) override;
 
     private:
-        void sendInput();
+        bool sendInput();
+        bool sendTick();
         void handleState(Packet* packet);
 
         float lastInputTime_;
+        float lastTickTime_;
 
         std::unordered_map<uint32_t, GameObjectPtr> objectIdToGameObjectMap_;
     };

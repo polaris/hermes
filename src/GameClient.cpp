@@ -146,6 +146,7 @@ void GameClient::Connecting::sendHello(const Clock& clock) {
 GameClient::Connected::Connected(GameClient* gameClient)
 : State(gameClient)
 , lastInputTime_(0)
+, lastTickTime_(0)
 , objectIdToGameObjectMap_() {
 }
 
@@ -198,12 +199,19 @@ void GameClient::Connected::handleState(Packet* packet) {
 void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {
     const auto now = clock.getTime();
     if (now > lastInputTime_ + gameClient_->inputHandler_.getSampleInterval()) {
-        sendInput();
-        lastInputTime_ = now;
+        if (sendInput()) {
+            lastInputTime_ = now;
+        }
+    }
+
+    if (now > lastInputTime_ + 0.5f && now > lastTickTime_ + 0.5f) {
+        if (sendTick()) {
+            lastTickTime_ = now;
+        }
     }
 }
 
-void GameClient::Connected::sendInput() {
+bool GameClient::Connected::sendInput() {
     auto& moveList = gameClient_->inputHandler_.getMoveList();
     if (moveList.getCount() > 0) {
         auto packet = gameClient_->packetPool_.pop();
@@ -211,9 +219,24 @@ void GameClient::Connected::sendInput() {
             createInputPacket(packet, gameClient_->playerId_, gameClient_->serverEndpoint_, moveList);
             moveList.clear();
             gameClient_->transceiver_.sendTo(packet);
+            return true;
         } else {
             // TODO: Count failures and go to error state after a reasonable number of tries.
             spdlog::get("console")->warn("Failed to send INPUT to server: empty packet pool.");
         }
     }
+    return false;
+}
+
+bool GameClient::Connected::sendTick() {
+    auto packet = gameClient_->packetPool_.pop();
+    if (packet) {
+        createTickPacket(packet, gameClient_->playerId_, gameClient_->serverEndpoint_);
+        gameClient_->transceiver_.sendTo(packet);
+        return true;
+    } else {
+        // TODO: Count failures and go to error state after a reasonable number of tries.
+        spdlog::get("console")->warn("Failed to send INPUT to server: empty packet pool.");
+    }
+    return false;
 }
