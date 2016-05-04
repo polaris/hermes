@@ -40,7 +40,7 @@ void MoveList::removeMovesUntil(float timeStamp) {
 }
 
 void MoveList::clear() {
-    moves_.clear();
+    moves_.erase(moves_.begin(), moves_.end());
 }
 
 void MoveList::write(Packet* packet) const {
