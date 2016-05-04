@@ -28,3 +28,8 @@ void createInputPacket(Packet* packet, uint32_t playerId, const boost::asio::ip:
 void createStatePacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint) {
     createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_STATE);
 }
+
+void createTickPacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint) {
+    createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_TICK);
+    packet->write(playerId);
+}
