@@ -5,6 +5,8 @@
 
 class Window {
 public:
+    Window(const char *title, unsigned int xpos, unsigned int ypos, unsigned int width, unsigned int height);
+
     Window(const char *title, unsigned int width, unsigned int height);
 
     ~Window();
