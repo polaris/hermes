@@ -31,6 +31,11 @@ public:
         return y_;
     }
 
+    void reset() {
+        x_ = 0.0f;
+        y_ = 0.0f;
+    }
+
     Vector2d operator -() const {
         return Vector2d(-x_, -y_);
     }
