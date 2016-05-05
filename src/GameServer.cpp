@@ -14,7 +14,7 @@ GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer
 , nextPlayerId_(1)
 , nextObjectId_(1)
 , playerToObjectMap_()
-, bufferedQueue_(100)
+, bufferedQueue_(4000)
 , transceiver_(port, bufferedQueue_)
 , clientRegistry_() {
 }

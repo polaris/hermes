@@ -15,7 +15,7 @@ GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t por
 , localSpaceShip_(nullptr)
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
-, bufferedQueue_(100)
+, bufferedQueue_(1000)
 , transceiver_(bufferedQueue_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
 , playerId_(PROTOCOL_INVALID_PLAYER_ID) {
