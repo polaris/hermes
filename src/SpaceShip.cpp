@@ -7,6 +7,8 @@
 SpaceShip::SpaceShip(const Renderer &renderer)
 : playerId_(PROTOCOL_INVALID_PLAYER_ID)
 , sprite_("data/ship.png", renderer)
+, thrustOn_(false)
+, angle_(0)
 , position_(320, 240)
 , velocity_(0, 0)
 , lookat_(0, -1)
@@ -14,9 +16,24 @@ SpaceShip::SpaceShip(const Renderer &renderer)
 }
 
 void SpaceShip::update(float elapsed) {
-    velocity_ *= 0.995f;
+    const auto oldVelocity = velocity_;
+    const auto oldPosition = position_;
+    const auto oldLookAt = lookat_;
+    const auto oldAcceleration = acceleration_;
+
+    lookat_.rotate(angle_);
+    angle_ = 0;
+    acceleration_ = thrustOn_ ? 50.0f : 0.0f;
+    velocity_ *= 0.99f;
+    if (velocity_.length() < 0.8f) {
+        velocity_.reset();
+    }
     velocity_ += (elapsed * (acceleration_ * lookat_));
     position_ += (elapsed * velocity_);
+
+    if (oldVelocity != velocity_ || oldPosition != position_ || oldLookAt != lookat_ || oldAcceleration != acceleration_) {
+        setDirty();
+    }
 }
 
 void SpaceShip::draw(Renderer &renderer) {
@@ -38,7 +55,8 @@ void SpaceShip::write(Packet* packet) {
     position_.write(packet);
     velocity_.write(packet);
     lookat_.write(packet);
-    packet->write(acceleration_);
+    packet->write(angle_);
+    packet->write(thrustOn_);
 }
 
 void SpaceShip::read(Packet* packet) {
@@ -46,7 +64,8 @@ void SpaceShip::read(Packet* packet) {
     position_.read(packet);
     velocity_.read(packet);
     lookat_.read(packet);
-    packet->read(acceleration_);
+    packet->read(angle_);
+    packet->read(thrustOn_);
 }
 
 uint32_t SpaceShip::getClassId() const {
@@ -62,11 +81,11 @@ uint32_t SpaceShip::getPlayerId() const {
 }
 
 void SpaceShip::rotate(float angle) {
-    lookat_.rotate(angle);
+    angle_ += angle;
 }
 
 void SpaceShip::thrust(bool onOff) {
-    acceleration_ = onOff ? 50.0f : 0.0f;
+    thrustOn_ = onOff;
 }
 
 GameObjectPtr SpaceShip::createInstance(const Renderer& renderer) {

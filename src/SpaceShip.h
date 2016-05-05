@@ -41,6 +41,10 @@ private:
 
     Sprite sprite_;
 
+    bool thrustOn_;
+
+    float angle_;
+
     Vector2d position_;
     Vector2d velocity_;
     Vector2d lookat_;
