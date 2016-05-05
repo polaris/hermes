@@ -1,16 +1,17 @@
 #include "Transceiver.h"
 #include "Packet.h"
+#include "PacketSink.h"
 
 #include <spdlog/spdlog.h>
 #include <boost/format.hpp>
 
-Transceiver::Transceiver(uint16_t port, BufferedQueue& bufferedQueue)
-: bufferedQueue_(bufferedQueue)
+Transceiver::Transceiver(uint16_t port, PacketSink& packetSink)
+: packetSink_(packetSink)
 , io_service_()
 , work_(io_service_)
 , socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))
 , thread_([this] () { io_service_.run(); }) {
-    auto packet = bufferedQueue_.pop();
+    auto packet = packetSink_.pop();
     assert(packet != nullptr);
     if (packet) {
         packet->clear();
@@ -18,8 +19,8 @@ Transceiver::Transceiver(uint16_t port, BufferedQueue& bufferedQueue)
     }
 }
 
-Transceiver::Transceiver(BufferedQueue& bufferedQueue)
-: Transceiver(0, bufferedQueue) {
+Transceiver::Transceiver(PacketSink& packetSink)
+: Transceiver(0, packetSink) {
 }
 
 void Transceiver::sendTo(Packet* packet) {
@@ -31,7 +32,7 @@ void Transceiver::sendTo(Packet* packet) {
             } else {
                 assert(bytesTransferred == packet->getSize());
             }
-            bufferedQueue_.push(packet);
+            packetSink_.push(packet);
         });
 }
 
@@ -41,12 +42,12 @@ void Transceiver::receiveFrom(Packet* packet) {
             if (ec) {
                 const auto logMessage = boost::str(boost::format("Failed to receive a packet: %1%") % ec.message());
                 spdlog::get("console")->error(logMessage);
-                bufferedQueue_.push(packet);
+                packetSink_.push(packet);
             } else {
-                auto newBuffer = bufferedQueue_.pop();
+                auto newBuffer = packetSink_.pop();
                 if (newBuffer) {
                     packet->setSize(static_cast<uint32_t>(bytesReceived));
-                    bufferedQueue_.enqueue(packet);
+                    packetSink_.enqueue(packet);
                     newBuffer->clear();
                     receiveFrom(newBuffer);
                 } else {
