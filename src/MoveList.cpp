@@ -2,8 +2,7 @@
 #include "Packet.h"
 
 MoveList::MoveList()
-: lastInputState_()
-, lastMoveTime_(0)
+: lastMoveTime_(0)
 , moves_() {
 }
 
@@ -12,14 +11,10 @@ uint32_t MoveList::getCount() const {
 }
 
 const Move* MoveList::addMove(const InputState& inputState, float timeStamp) {
-    if (inputState != lastInputState_) {
-        const auto deltaTime = timeStamp - lastMoveTime_;
-        moves_.emplace_back(inputState, timeStamp, deltaTime);
-        lastInputState_ = inputState;
-        lastMoveTime_ = timeStamp;
-        return &moves_.back();
-    }
-    return nullptr;
+    const auto deltaTime = timeStamp - lastMoveTime_;
+    moves_.emplace_back(inputState, timeStamp, deltaTime);
+    lastMoveTime_ = timeStamp;
+    return &moves_.back();
 }
 
 void MoveList::addMove(const Move& move) {

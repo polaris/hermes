@@ -39,7 +39,6 @@ public:
     }
 
 private:
-    InputState lastInputState_;
     float lastMoveTime_;
     std::deque<Move> moves_;
 };
