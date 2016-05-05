@@ -111,6 +111,9 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
     uint32_t playerId = PROTOCOL_INVALID_PLAYER_ID;
     packet->read(playerId);
     if (clientRegistry_.verifyClientSession(playerId, packet->getEndpoint())) {
+        const auto logMessage = boost::str(boost::format("Received INPUT from client %1%.") % playerId);
+        spdlog::get("console")->debug(logMessage);
+
         auto clientSession = clientRegistry_.getClientSession(playerId);
         clientSession->setLastSeen(clock.getTime());
         MoveList& moveList = clientSession->getMoveList();
@@ -128,7 +131,6 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
 }
 
 void GameServer::handleTick(Packet* packet, const Clock& clock) {
-    spdlog::get("console")->warn("Received tick");
     uint32_t playerId = PROTOCOL_INVALID_PLAYER_ID;
     packet->read(playerId);
     if (clientRegistry_.verifyClientSession(playerId, packet->getEndpoint())) {
@@ -153,20 +155,33 @@ void GameServer::renderWorld() {
 
 void GameServer::sendOutgoingPackets() {
     clientRegistry_.forEachClientSession([this] (ClientSession* clientSession) {
-        auto packet = bufferedQueue_.pop();
-        if (packet) {
-            createStatePacket(packet, clientSession->getEndpoint());
 
-            packet->write(world_.getGameObjectCount());
-            world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
-                packet->write(objectId);
-                packet->write(gameObject->getClassId());
-                gameObject->write(packet);
-            });
+        uint32_t dirtyGameObjectCount = 0;
+        world_.forEachGameObject([this, &dirtyGameObjectCount] (uint32_t, GameObject* gameObject) {
+            if (gameObject->isDirty()) {
+                dirtyGameObjectCount += 1;
+            }
+        });
 
-            transceiver_.sendTo(packet);
-        } else {
-            spdlog::get("console")->warn("Failed to WELCOME a client: empty packet pool.");
+        if (dirtyGameObjectCount > 0) {
+            auto packet = bufferedQueue_.pop();
+            if (packet) {
+                createStatePacket(packet, clientSession->getEndpoint());
+
+                packet->write(dirtyGameObjectCount);
+                world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
+                    if (gameObject->isDirty()) {
+                        packet->write(objectId);
+                        packet->write(gameObject->getClassId());
+                        gameObject->write(packet);
+                        gameObject->resetDirty();
+                    }
+                });
+
+                transceiver_.sendTo(packet);
+            } else {
+                spdlog::get("console")->warn("Failed to WELCOME a client: empty packet pool.");
+            }
         }
     });
 }
