@@ -5,6 +5,7 @@
 #include "BufferedQueue.h"
 #include "ClientRegistry.h"
 #include "Transceiver.h"
+#include "LatencyEmulator.h"
 
 #include <unordered_map>
 
@@ -35,6 +36,7 @@ private:
     std::unordered_map<uint32_t, uint32_t> playerToObjectMap_;
 
     BufferedQueue bufferedQueue_;
+    LatencyEmulator latencyEmulator_;
     Transceiver transceiver_;
 
     ClientRegistry clientRegistry_;

@@ -15,7 +15,8 @@ GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer
 , nextObjectId_(1)
 , playerToObjectMap_()
 , bufferedQueue_(4000)
-, transceiver_(port, bufferedQueue_)
+, latencyEmulator_(bufferedQueue_, 75)
+, transceiver_(port, latencyEmulator_)
 , clientRegistry_() {
 }
 

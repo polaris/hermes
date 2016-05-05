@@ -5,6 +5,7 @@
 #include "BufferedQueue.h"
 #include "InputHandler.h"
 #include "Transceiver.h"
+#include "LatencyEmulator.h"
 
 #include <memory>
 #include <unordered_map>
@@ -87,6 +88,7 @@ private:
     std::shared_ptr<State> nextState;
 
     BufferedQueue bufferedQueue_;
+    LatencyEmulator latencyEmulator_;
     Transceiver transceiver_;
 
     boost::asio::ip::udp::endpoint serverEndpoint_;

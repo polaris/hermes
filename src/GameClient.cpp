@@ -16,7 +16,8 @@ GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t por
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
 , bufferedQueue_(1000)
-, transceiver_(bufferedQueue_)
+, latencyEmulator_(bufferedQueue_, 75)
+, transceiver_(latencyEmulator_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
 , playerId_(PROTOCOL_INVALID_PLAYER_ID) {
 }
@@ -178,6 +179,7 @@ void GameClient::Connected::handleIncomingPacket(Packet* packet) {
 }
 
 void GameClient::Connected::handleState(Packet* packet) {
+    spdlog::get("console")->debug("Received STATE");
     uint32_t gameObjectCount = 0;
     packet->read(gameObjectCount);
     for (uint32_t i = 0; i < gameObjectCount; i++) {
