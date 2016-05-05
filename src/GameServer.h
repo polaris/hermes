@@ -2,7 +2,7 @@
 #define _GameServer_H
 
 #include "Game.h"
-#include "Queue.h"
+#include "BufferedQueue.h"
 #include "ClientRegistry.h"
 #include "Transceiver.h"
 
@@ -34,8 +34,7 @@ private:
     uint32_t nextObjectId_;
     std::unordered_map<uint32_t, uint32_t> playerToObjectMap_;
 
-    Queue<Packet> packetPool_;
-    Queue<Packet> incomingPackets_;
+    BufferedQueue bufferedQueue_;
     Transceiver transceiver_;
 
     ClientRegistry clientRegistry_;

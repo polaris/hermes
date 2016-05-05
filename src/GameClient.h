@@ -2,7 +2,7 @@
 #define _GameClient_H
 
 #include "Game.h"
-#include "Queue.h"
+#include "BufferedQueue.h"
 #include "InputHandler.h"
 #include "Transceiver.h"
 
@@ -86,8 +86,7 @@ private:
     std::shared_ptr<State> currentState;
     std::shared_ptr<State> nextState;
 
-    Queue<Packet> packetPool_;
-    Queue<Packet> incomingPackets_;
+    BufferedQueue bufferedQueue_;
     Transceiver transceiver_;
 
     boost::asio::ip::udp::endpoint serverEndpoint_;

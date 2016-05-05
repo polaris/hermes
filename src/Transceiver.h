@@ -1,17 +1,18 @@
 #ifndef _Transceiver_H
 #define _Transceiver_H
 
-#include "Queue.h"
-#include "Packet.h"
+#include "BufferedQueue.h"
 
 #include <boost/asio.hpp>
 #include <thread>
 
+class Packet;
+
 class Transceiver {
 public:
-    Transceiver(uint16_t port, Queue<Packet>& packetPool, Queue<Packet>& incomingPackets);
+    Transceiver(uint16_t port, BufferedQueue& bufferedQueue);
 
-    Transceiver(Queue<Packet>& packetPool, Queue<Packet>& incomingPackets);
+    Transceiver(BufferedQueue& bufferedQueue);
 
     ~Transceiver();
 
@@ -20,8 +21,7 @@ public:
 private:
     void receiveFrom(Packet* packet);
 
-    Queue<Packet>& packetPool_;
-    Queue<Packet>& incomingPackets_;
+    BufferedQueue& bufferedQueue_;
 
     boost::asio::io_service io_service_;
     boost::asio::io_service::work work_;

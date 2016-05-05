@@ -15,9 +15,8 @@ GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t por
 , localSpaceShip_(nullptr)
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
-, packetPool_(100 , [] () { return new Packet(1500); })
-, incomingPackets_(100)
-, transceiver_(packetPool_, incomingPackets_)
+, bufferedQueue_(100)
+, transceiver_(bufferedQueue_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
 , playerId_(PROTOCOL_INVALID_PLAYER_ID) {
 }
@@ -61,7 +60,7 @@ void GameClient::setState(std::shared_ptr<State>& newState) {
 }
 
 void GameClient::processIncomingPackets(const Clock&) {
-    auto packet = incomingPackets_.pop();
+    auto packet = bufferedQueue_.dequeue();
     if (packet) {
         uint32_t magicNumber = 0;
         packet->read(magicNumber);
@@ -78,7 +77,7 @@ void GameClient::processIncomingPackets(const Clock&) {
             const auto logMessage = boost::str(boost::format("Received an invalid packet from %1%.") % packet->getEndpoint());
             spdlog::get("console")->info(logMessage);
         }
-        packetPool_.push(packet);
+        bufferedQueue_.push(packet);
     }
 }
 
@@ -129,7 +128,7 @@ void GameClient::Connecting::sendOutgoingPackets(const Clock& clock) {
 void GameClient::Connecting::sendHello(const Clock& clock) {
     const auto now = clock.getTime();
     if (now > lastHelloTime_ + PROTOCOL_HELLO_INTERVAL) {
-        auto packet = gameClient_->packetPool_.pop();
+        auto packet = gameClient_->bufferedQueue_.pop();
         if (packet) {
             createHelloPacket(packet, gameClient_->serverEndpoint_);
             const auto logMessage = boost::str(boost::format("Send HELLO to %1%.") % packet->getEndpoint());
@@ -214,7 +213,7 @@ void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {
 bool GameClient::Connected::sendInput() {
     auto& moveList = gameClient_->inputHandler_.getMoveList();
     if (moveList.getCount() > 0) {
-        auto packet = gameClient_->packetPool_.pop();
+        auto packet = gameClient_->bufferedQueue_.pop();
         if (packet) {
             createInputPacket(packet, gameClient_->playerId_, gameClient_->serverEndpoint_, moveList);
             moveList.clear();
@@ -229,7 +228,7 @@ bool GameClient::Connected::sendInput() {
 }
 
 bool GameClient::Connected::sendTick() {
-    auto packet = gameClient_->packetPool_.pop();
+    auto packet = gameClient_->bufferedQueue_.pop();
     if (packet) {
         createTickPacket(packet, gameClient_->playerId_, gameClient_->serverEndpoint_);
         gameClient_->transceiver_.sendTo(packet);

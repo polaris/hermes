@@ -14,9 +14,8 @@ GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer
 , nextPlayerId_(1)
 , nextObjectId_(1)
 , playerToObjectMap_()
-, packetPool_(100, [] () { return new Packet(1500); })
-, incomingPackets_(100)
-, transceiver_(port, packetPool_, incomingPackets_)
+, bufferedQueue_(100)
+, transceiver_(port, bufferedQueue_)
 , clientRegistry_() {
 }
 
@@ -36,7 +35,7 @@ void GameServer::handleWillUpdateWorld(const Clock& clock) {
 }
 
 void GameServer::processIncomingPackets(const Clock& clock) {
-    auto packet = incomingPackets_.pop();
+    auto packet = bufferedQueue_.dequeue();
     if (packet) {
         uint32_t magicNumber = 0;
         packet->read(magicNumber);
@@ -46,7 +45,7 @@ void GameServer::processIncomingPackets(const Clock& clock) {
             const auto logMessage = boost::str(boost::format("Receive invalid packet from %1%") % packet->getEndpoint());
             spdlog::get("console")->warn(logMessage);
         }
-        packetPool_.push(packet);
+        bufferedQueue_.push(packet);
     }
 }
 
@@ -80,7 +79,7 @@ void GameServer::handlePacket(Packet* packet, const Clock& clock) {
 void GameServer::handleHello(Packet* packet, const Clock& clock) {
     if (!clientRegistry_.hasClientSession(packet->getEndpoint())) {
         spdlog::get("console")->debug("HELLO from new client ...");
-        auto welcomePacket = packetPool_.pop();
+        auto welcomePacket = bufferedQueue_.pop();
         if (welcomePacket) {
             const auto playerId = nextPlayerId_++;
             const auto objectId = nextObjectId_++;
@@ -154,7 +153,7 @@ void GameServer::renderWorld() {
 
 void GameServer::sendOutgoingPackets() {
     clientRegistry_.forEachClientSession([this] (ClientSession* clientSession) {
-        auto packet = packetPool_.pop();
+        auto packet = bufferedQueue_.pop();
         if (packet) {
             createStatePacket(packet, clientSession->getEndpoint());
 

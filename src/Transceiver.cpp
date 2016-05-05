@@ -1,16 +1,16 @@
 #include "Transceiver.h"
+#include "Packet.h"
 
 #include <spdlog/spdlog.h>
 #include <boost/format.hpp>
 
-Transceiver::Transceiver(uint16_t port, Queue<Packet>& packetPool, Queue<Packet>& incomingPackets)
-: packetPool_(packetPool)
-, incomingPackets_(incomingPackets)
+Transceiver::Transceiver(uint16_t port, BufferedQueue& bufferedQueue)
+: bufferedQueue_(bufferedQueue)
 , io_service_()
 , work_(io_service_)
 , socket_(io_service_, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))
 , thread_([this] () { io_service_.run(); }) {
-    auto packet = packetPool_.pop();
+    auto packet = bufferedQueue_.pop();
     assert(packet != nullptr);
     if (packet) {
         packet->clear();
@@ -18,8 +18,8 @@ Transceiver::Transceiver(uint16_t port, Queue<Packet>& packetPool, Queue<Packet>
     }
 }
 
-Transceiver::Transceiver(Queue<Packet>& packetPool, Queue<Packet>& incomingPackets)
-: Transceiver(0, packetPool, incomingPackets) {
+Transceiver::Transceiver(BufferedQueue& bufferedQueue)
+: Transceiver(0, bufferedQueue) {
 }
 
 void Transceiver::sendTo(Packet* packet) {
@@ -31,7 +31,7 @@ void Transceiver::sendTo(Packet* packet) {
             } else {
                 assert(bytesTransferred == packet->getSize());
             }
-            packetPool_.push(packet);
+            bufferedQueue_.push(packet);
         });
 }
 
@@ -41,12 +41,12 @@ void Transceiver::receiveFrom(Packet* packet) {
             if (ec) {
                 const auto logMessage = boost::str(boost::format("Failed to receive a packet: %1%") % ec.message());
                 spdlog::get("console")->error(logMessage);
-                packetPool_.push(packet);
+                bufferedQueue_.push(packet);
             } else {
-                auto newBuffer = packetPool_.pop();
+                auto newBuffer = bufferedQueue_.pop();
                 if (newBuffer) {
                     packet->setSize(static_cast<uint32_t>(bytesReceived));
-                    incomingPackets_.push(packet);
+                    bufferedQueue_.enqueue(packet);
                     newBuffer->clear();
                     receiveFrom(newBuffer);
                 } else {
