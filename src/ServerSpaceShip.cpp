@@ -7,6 +7,7 @@
 ServerSpaceShip::ServerSpaceShip(const Renderer& renderer, ClientSession* clientSession)
 : SpaceShip(renderer)
 , clientSession_(clientSession) {
+    setDirty();
 }
 
 void ServerSpaceShip::update(float elapsed) {
