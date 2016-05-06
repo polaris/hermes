@@ -11,7 +11,7 @@
 
 GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
-, inputHandler_(frameRate)
+, inputHandler_(30)
 , localSpaceShip_(nullptr)
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
@@ -86,6 +86,16 @@ void GameClient::renderFrame() {
     renderer_.clear(0.25f, 0.25f, 0.25f);
     world_.draw(renderer_);
     renderer_.present();
+}
+
+GameObject* GameClient::createNewGameObject(uint32_t classId, uint32_t objectId) {
+    auto gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
+    world_.add(objectId, gameObjectPtr);
+    const auto spaceShip = std::dynamic_pointer_cast<SpaceShip>(gameObjectPtr);
+    if (spaceShip->getPlayerId() == playerId_) {
+        localSpaceShip_ = spaceShip;
+    }
+    return gameObjectPtr.get();
 }
 
 GameClient::State::State(GameClient* gameClient)
@@ -179,19 +189,15 @@ void GameClient::Connected::handleIncomingPacket(Packet* packet) {
 }
 
 void GameClient::Connected::handleState(Packet* packet) {
-    spdlog::get("console")->debug("Received STATE");
     uint32_t gameObjectCount = 0;
     packet->read(gameObjectCount);
     for (uint32_t i = 0; i < gameObjectCount; i++) {
         uint32_t objectId = 0, classId = 0;
         packet->read(objectId);
         packet->read(classId);
-        GameObject* gameObject = gameClient_->world_.getGameObject(objectId);
+        auto gameObject = gameClient_->world_.getGameObject(objectId);
         if (gameObject == nullptr) {
-            auto gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, gameClient_->renderer_);
-            gameClient_->world_.add(objectId, gameObjectPtr);
-            gameObject = gameObjectPtr.get();
-            gameClient_->localSpaceShip_ = std::dynamic_pointer_cast<SpaceShip>(gameObjectPtr);
+            gameObject = gameClient_->createNewGameObject(classId, objectId);
         }
         gameObject->read(packet);
     }

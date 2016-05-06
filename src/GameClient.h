@@ -32,6 +32,8 @@ private:
     void processIncomingPackets(const Clock& clock);
     void renderFrame();
 
+    GameObject* createNewGameObject(uint32_t classId, uint32_t objectId);
+
     class State {
     public:
         explicit State(GameClient* gameClient);
