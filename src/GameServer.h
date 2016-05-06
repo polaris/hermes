@@ -8,6 +8,7 @@
 #include "LatencyEmulator.h"
 
 #include <unordered_map>
+#include <vector>
 
 class Renderer;
 class Clock;
@@ -30,10 +31,13 @@ private:
 
     void renderWorld();
     void sendOutgoingPackets();
+    void sendStateToNewClients();
+    void sendStateUpdate();
 
     uint32_t nextPlayerId_;
     uint32_t nextObjectId_;
     std::unordered_map<uint32_t, uint32_t> playerToObjectMap_;
+    std::vector<uint32_t> newClients_;
 
     BufferedQueue bufferedQueue_;
     LatencyEmulator latencyEmulator_;
