@@ -15,7 +15,7 @@ GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer
 , nextObjectId_(1)
 , playerToObjectMap_()
 , bufferedQueue_(4000)
-, latencyEmulator_(bufferedQueue_, 75)
+, latencyEmulator_(bufferedQueue_, 150)
 , transceiver_(port, latencyEmulator_)
 , clientRegistry_() {
 }
@@ -96,7 +96,7 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 
             newClients_.push_back(playerId);
 
-            createWelcomePacket(welcomePacket, playerId, packet->getEndpoint());
+            createWelcomePacket(welcomePacket, playerId, objectId, packet->getEndpoint());
             transceiver_.sendTo(welcomePacket);
 
             const auto logMessage = boost::str(boost::format("WELCOME client %1% from %2%.") % playerId % packet->getEndpoint());

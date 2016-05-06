@@ -16,10 +16,11 @@ GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t por
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
 , bufferedQueue_(1000)
-, latencyEmulator_(bufferedQueue_, 75)
+, latencyEmulator_(bufferedQueue_, 150)
 , transceiver_(latencyEmulator_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
-, playerId_(PROTOCOL_INVALID_PLAYER_ID) {
+, playerId_(PROTOCOL_INVALID_PLAYER_ID)
+, objectId_(PROTOCOL_INVALID_OBJECT_ID) {
 }
 
 void GameClient::handleWillUpdateWorld(const Clock& clock) {
@@ -91,9 +92,8 @@ void GameClient::renderFrame() {
 GameObject* GameClient::createNewGameObject(uint32_t classId, uint32_t objectId) {
     auto gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
     world_.add(objectId, gameObjectPtr);
-    const auto spaceShip = std::dynamic_pointer_cast<SpaceShip>(gameObjectPtr);
-    if (spaceShip->getPlayerId() == playerId_) {
-        localSpaceShip_ = spaceShip;
+    if (objectId == objectId_) {
+        localSpaceShip_ = std::dynamic_pointer_cast<SpaceShip>(gameObjectPtr);
     }
     return gameObjectPtr.get();
 }
@@ -126,6 +126,7 @@ void GameClient::Connecting::handleIncomingPacket(Packet* packet) {
 
 void GameClient::Connecting::handleWelcome(Packet* packet) {
     packet->read(gameClient_->playerId_);
+    packet->read(gameClient_->objectId_);
     const auto logMessage = boost::str(boost::format("WELCOME received from %1%. My player ID is %2%.") % packet->getEndpoint() % gameClient_->playerId_);
     spdlog::get("console")->debug(logMessage);
     auto newState = std::shared_ptr<State>(new Connected{gameClient_});

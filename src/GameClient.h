@@ -96,6 +96,7 @@ private:
     boost::asio::ip::udp::endpoint serverEndpoint_;
 
     uint32_t playerId_;
+    uint32_t objectId_;
 };
 
 #endif  // _GameClient_H

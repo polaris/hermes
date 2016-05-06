@@ -27,7 +27,7 @@ const float      PROTOCOL_INPUT_INTERVAL        = 0.033f;
 const float      PROTOCOL_CLIENT_TIMEOUT        = 1.0f;
 
 void createHelloPacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint);
-void createWelcomePacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint);
+void createWelcomePacket(Packet* packet, uint32_t playerId, uint32_t objectId, const boost::asio::ip::udp::endpoint& endpoint);
 void createInputPacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, const MoveList& moveList);
 void createStatePacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint);
 void createTickPacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint);

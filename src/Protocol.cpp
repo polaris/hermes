@@ -14,9 +14,10 @@ void createHelloPacket(Packet* packet, const boost::asio::ip::udp::endpoint& end
     createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_HELLO);
 }
 
-void createWelcomePacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint) {
+void createWelcomePacket(Packet* packet, uint32_t playerId, uint32_t objectId, const boost::asio::ip::udp::endpoint& endpoint) {
     createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_WELCOME);
     packet->write(playerId);
+    packet->write(objectId);
 }
 
 void createInputPacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, const MoveList& moveList) {
