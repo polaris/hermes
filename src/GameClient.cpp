@@ -3,7 +3,6 @@
 #include "Clock.h"
 #include "Protocol.h"
 #include "GameObjectRegistry.h"
-#include "SpaceShip.h"
 #include "Packet.h"
 
 #include <spdlog/spdlog.h>
@@ -57,7 +56,7 @@ void GameClient::finishFrame() {
     }
 }
 
-void GameClient::setState(std::shared_ptr<State>& newState) {
+void GameClient::setState(StatePtr& newState) {
     nextState = newState;
 }
 
@@ -129,7 +128,7 @@ void GameClient::Connecting::handleWelcome(Packet* packet) {
     packet->read(gameClient_->objectId_);
     const auto logMessage = boost::str(boost::format("WELCOME received from %1%. My player ID is %2%.") % packet->getEndpoint() % gameClient_->playerId_);
     spdlog::get("console")->debug(logMessage);
-    auto newState = std::shared_ptr<State>(new Connected{gameClient_});
+    auto newState = StatePtr(new Connected{gameClient_});
     gameClient_->setState(newState);
 }
 

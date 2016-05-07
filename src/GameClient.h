@@ -6,6 +6,7 @@
 #include "InputHandler.h"
 #include "Transceiver.h"
 #include "LatencyEmulator.h"
+#include "SpaceShip.h"
 
 #include <memory>
 #include <unordered_map>
@@ -48,7 +49,9 @@ private:
         GameClient* gameClient_;
     };
 
-    void setState(std::shared_ptr<State>& newState);
+    using StatePtr = std::shared_ptr<State>;
+
+    void setState(StatePtr& newState);
 
     class Connecting : public State {
     public:
@@ -84,10 +87,10 @@ private:
 
     InputHandler inputHandler_;
 
-    std::shared_ptr<SpaceShip> localSpaceShip_;
+    SpaceShipPtr localSpaceShip_;
 
-    std::shared_ptr<State> currentState;
-    std::shared_ptr<State> nextState;
+    StatePtr currentState;
+    StatePtr nextState;
 
     BufferedQueue bufferedQueue_;
     LatencyEmulator latencyEmulator_;
