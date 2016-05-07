@@ -7,6 +7,7 @@
 #include "Transceiver.h"
 #include "LatencyEmulator.h"
 #include "SpaceShip.h"
+#include "RollingMean.h"
 
 #include <memory>
 #include <unordered_map>
@@ -42,7 +43,7 @@ private:
         State(const GameClient::State&) = delete;
         GameClient::State& operator =(const GameClient::State&) = delete;
         virtual void handleWillUpdateWorld(const Clock& clock) = 0;
-        virtual void handleIncomingPacket(Packet* packet) = 0;
+        virtual void handleIncomingPacket(Packet* packet, const Clock& clock) = 0;
         virtual void sendOutgoingPackets(const Clock& clock) = 0;
 
     protected:
@@ -57,7 +58,7 @@ private:
     public:
         explicit Connecting(GameClient* gameClient);
         void handleWillUpdateWorld(const Clock& clock) override;
-        void handleIncomingPacket(Packet* packet) override;
+        void handleIncomingPacket(Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
 
     private:
@@ -71,18 +72,21 @@ private:
     public:
         explicit Connected(GameClient* gameClient);
         void handleWillUpdateWorld(const Clock& clock) override;
-        void handleIncomingPacket(Packet* packet) override;
+        void handleIncomingPacket(Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
 
     private:
         bool sendInput();
-        bool sendTick();
+        bool sendTick(const Clock& clock);
         void handleState(Packet* packet);
+        void handleTock(Packet* packet, const Clock& clock);
 
         float lastInputTime_;
         float lastTickTime_;
 
         std::unordered_map<uint32_t, GameObjectPtr> objectIdToGameObjectMap_;
+
+        RollingMean rollingMeanRrt_;
     };
 
     InputHandler inputHandler_;

@@ -126,6 +126,17 @@ void GameServer::handleTick(Packet* packet, const Clock& clock) {
     if (clientRegistry_.verifyClientSession(playerId, packet->getEndpoint())) {
         auto clientSession = clientRegistry_.getClientSession(playerId);
         clientSession->setLastSeen(clock.getTime());
+        float timeStamp = 0.0f;
+        packet->read(timeStamp);
+
+        auto replyPacket = bufferedQueue_.pop();
+        if (replyPacket) {
+            createTockPacket(replyPacket, timeStamp, clientSession->getEndpoint());
+            transceiver_.sendTo(replyPacket);
+        } else {
+            WARN("Failed to send TOCK to a client: empty packet pool.");
+        }
+
     } else {
         WARN("Received INPUT from unknown client {0}.", packet->getEndpoint());
     }

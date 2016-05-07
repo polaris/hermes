@@ -30,7 +30,13 @@ void createStatePacket(Packet* packet, const boost::asio::ip::udp::endpoint& end
     createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_STATE);
 }
 
-void createTickPacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint) {
+void createTickPacket(Packet* packet, uint32_t playerId, float timeStamp, const boost::asio::ip::udp::endpoint& endpoint) {
     createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_TICK);
     packet->write(playerId);
+    packet->write(timeStamp);
+}
+
+void createTockPacket(Packet* packet, float timeStamp, const boost::asio::ip::udp::endpoint& endpoint) {
+    createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_TOCK);
+    packet->write(timeStamp);
 }

@@ -58,7 +58,7 @@ void GameClient::setState(StatePtr& newState) {
     nextState = newState;
 }
 
-void GameClient::processIncomingPackets(const Clock&) {
+void GameClient::processIncomingPackets(const Clock& clock) {
     auto packet = bufferedQueue_.dequeue();
     if (packet) {
         uint32_t magicNumber = 0;
@@ -67,7 +67,7 @@ void GameClient::processIncomingPackets(const Clock&) {
             unsigned char protocolVersion = 0;
             packet->read(protocolVersion);
             if (protocolVersion == PROTOCOL_VERSION) {
-                currentState->handleIncomingPacket(packet);
+                currentState->handleIncomingPacket(packet, clock);
             } else {
                 WARN("Received a packet from server with invalid protocol version {0}.", protocolVersion);
             }
@@ -105,7 +105,7 @@ GameClient::Connecting::Connecting(GameClient* gameClient)
 void GameClient::Connecting::handleWillUpdateWorld(const Clock&) {
 }
 
-void GameClient::Connecting::handleIncomingPacket(Packet* packet) {
+void GameClient::Connecting::handleIncomingPacket(Packet* packet, const Clock&) {
     unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
     packet->read(packetType);
     switch (packetType) {
@@ -149,7 +149,8 @@ GameClient::Connected::Connected(GameClient* gameClient)
 : State(gameClient)
 , lastInputTime_(0)
 , lastTickTime_(0)
-, objectIdToGameObjectMap_() {
+, objectIdToGameObjectMap_()
+, rollingMeanRrt_(10) {
 }
 
 void GameClient::Connected::handleWillUpdateWorld(const Clock& clock) {
@@ -166,12 +167,15 @@ void GameClient::Connected::handleWillUpdateWorld(const Clock& clock) {
     }
 }
 
-void GameClient::Connected::handleIncomingPacket(Packet* packet) {
+void GameClient::Connected::handleIncomingPacket(Packet* packet, const Clock& clock) {
     unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
     packet->read(packetType);
     switch (packetType) {
     case PROTOCOL_PACKET_TYPE_STATE:
         handleState(packet);
+        break;
+    case PROTOCOL_PACKET_TYPE_TOCK:
+        handleTock(packet, clock);
         break;
     default:
         WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
@@ -191,8 +195,16 @@ void GameClient::Connected::handleState(Packet* packet) {
             gameObject = gameClient_->createNewGameObject(classId, objectId);
         }
         gameObject->read(packet);
-        gameObject->update(180.0f/1000.0f);
+        const auto latency = rollingMeanRrt_.getMean() / 2.0f;
+        gameObject->update(latency);
     }
+}
+
+void GameClient::Connected::handleTock(Packet* packet, const Clock& clock) {
+    float timeStamp = 0.0f;
+    packet->read(timeStamp);
+    const float roundTripTime = clock.getTime() - timeStamp;
+    rollingMeanRrt_.addValue(roundTripTime);
 }
 
 void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {
@@ -203,8 +215,8 @@ void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {
         }
     }
 
-    if (now > lastInputTime_ + 0.5f && now > lastTickTime_ + 0.5f) {
-        if (sendTick()) {
+    if (now > lastTickTime_ + 0.5f) {
+        if (sendTick(clock)) {
             lastTickTime_ = now;
         }
     }
@@ -226,10 +238,10 @@ bool GameClient::Connected::sendInput() {
     return false;
 }
 
-bool GameClient::Connected::sendTick() {
+bool GameClient::Connected::sendTick(const Clock& clock) {
     auto packet = gameClient_->bufferedQueue_.pop();
     if (packet) {
-        createTickPacket(packet, gameClient_->playerId_, gameClient_->serverEndpoint_);
+        createTickPacket(packet, gameClient_->playerId_, clock.getTime(), gameClient_->serverEndpoint_);
         gameClient_->transceiver_.sendTo(packet);
         return true;
     } else {
