@@ -5,9 +5,7 @@
 #include "ServerSpaceShip.h"
 #include "ClientSession.h"
 #include "Packet.h"
-
-#include <spdlog/spdlog.h>
-#include <boost/format.hpp>
+#include "Logging.h"
 
 GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
@@ -23,9 +21,7 @@ GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer
 void GameServer::handleWillUpdateWorld(const Clock& clock) {
     processIncomingPackets(clock);
     clientRegistry_.checkForDisconnects(clock.getTime(), [this] (uint32_t playerId) {
-        const auto logMessage = boost::str(boost::format("Remove disconnected client %1%") % playerId);
-        spdlog::get("console")->debug(logMessage);
-
+        DEBUG("Remove disconnected client {0}", playerId);
         auto itr = playerToObjectMap_.find(playerId);
         if (itr != playerToObjectMap_.end()) {
             const uint32_t objectId = itr->second;
@@ -43,8 +39,7 @@ void GameServer::processIncomingPackets(const Clock& clock) {
         if (magicNumber == PROTOCOL_MAGIC_NUMBER) {
             handlePacket(packet, clock);
         } else {
-            const auto logMessage = boost::str(boost::format("Receive invalid packet from %1%") % packet->getEndpoint());
-            spdlog::get("console")->warn(logMessage);
+            WARN("Receive invalid packet from {0}", packet->getEndpoint());
         }
         bufferedQueue_.push(packet);
     }
@@ -67,13 +62,11 @@ void GameServer::handlePacket(Packet* packet, const Clock& clock) {
             handleTick(packet, clock);
             break;
         default:
-            const auto logMessage = boost::str(boost::format("Received a packet with unexpected packet type %1% from %2%.") % static_cast<unsigned int>(packetType) % packet->getEndpoint());
-            spdlog::get("console")->warn(logMessage);
+            WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
             break;
         }
     } else {
-        const auto logMessage = boost::str(boost::format("Received a packet with invalid protocol version %1% from %2%.") % static_cast<unsigned int>(protocolVersion) % packet->getEndpoint());
-        spdlog::get("console")->warn(logMessage);
+        WARN("Received a packet with invalid protocol version {0} from {1}.", static_cast<unsigned int>(protocolVersion), packet->getEndpoint());
     }
 }
 
@@ -99,14 +92,12 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
             createWelcomePacket(welcomePacket, playerId, objectId, packet->getEndpoint());
             transceiver_.sendTo(welcomePacket);
 
-            const auto logMessage = boost::str(boost::format("WELCOME client %1% from %2%.") % playerId % packet->getEndpoint());
-            spdlog::get("console")->debug(logMessage);
+            INFO("WELCOME client {0} from {1}.", playerId, packet->getEndpoint());
         } else {
-            spdlog::get("console")->warn("Failed to WELCOME to client: empty packet pool.");
+            WARN("Failed to WELCOME to client: empty packet pool.");
         }
     } else {
-        const auto logMessage = boost::str(boost::format("HELLO from known client %1%.") % packet->getEndpoint());
-        spdlog::get("console")->warn(logMessage);
+        WARN("HELLO from known client {0}.", packet->getEndpoint());
     }
 }
 
@@ -125,8 +116,7 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
             moveList.addMove(move);
         }
     } else {
-        const auto logMessage = boost::str(boost::format("Received INPUT from unknown client %1%.") % packet->getEndpoint());
-        spdlog::get("console")->warn(logMessage);
+        WARN("Received INPUT from unknown client {0}.", packet->getEndpoint());
     }
 }
 
@@ -137,8 +127,7 @@ void GameServer::handleTick(Packet* packet, const Clock& clock) {
         auto clientSession = clientRegistry_.getClientSession(playerId);
         clientSession->setLastSeen(clock.getTime());
     } else {
-        const auto logMessage = boost::str(boost::format("Received INPUT from unknown client %1%.") % packet->getEndpoint());
-        spdlog::get("console")->warn(logMessage);
+        WARN("Received INPUT from unknown client {0}.", packet->getEndpoint());
     }
 }
 
@@ -174,7 +163,7 @@ void GameServer::sendStateToNewClients() {
 
             transceiver_.sendTo(packet);
         } else {
-            spdlog::get("console")->warn("Failed to send STATE to a client: empty packet pool.");
+            WARN("Failed to send STATE to a client: empty packet pool.");
         }
     }
     newClients_.clear();
@@ -205,7 +194,7 @@ void GameServer::sendStateUpdate() {
 
                     transceiver_.sendTo(packet);
                 } else {
-                    spdlog::get("console")->warn("Failed send STATE update to a client: empty packet pool.");
+                    WARN("Failed send STATE update to a client: empty packet pool.");
                 }
             });
     }

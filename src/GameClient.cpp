@@ -4,9 +4,7 @@
 #include "Protocol.h"
 #include "GameObjectRegistry.h"
 #include "Packet.h"
-
-#include <spdlog/spdlog.h>
-#include <boost/format.hpp>
+#include "Logging.h"
 
 GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
@@ -71,12 +69,10 @@ void GameClient::processIncomingPackets(const Clock&) {
             if (protocolVersion == PROTOCOL_VERSION) {
                 currentState->handleIncomingPacket(packet);
             } else {
-                const auto logMessage = boost::str(boost::format("Received a packet from server with invalid protocol version %1%.") % protocolVersion);
-                spdlog::get("console")->warn(logMessage);
+                WARN("Received a packet from server with invalid protocol version {0}.", protocolVersion);
             }
         } else {
-            const auto logMessage = boost::str(boost::format("Received an invalid packet from %1%.") % packet->getEndpoint());
-            spdlog::get("console")->info(logMessage);
+            WARN("Received an invalid packet from {0}.", packet->getEndpoint());
         }
         bufferedQueue_.push(packet);
     }
@@ -117,8 +113,7 @@ void GameClient::Connecting::handleIncomingPacket(Packet* packet) {
         handleWelcome(packet);
         break;
     default:
-        const auto logMessage = boost::str(boost::format("Received a packet with unexpected packet type %1% from %2%.") % static_cast<unsigned int>(packetType) % packet->getEndpoint());
-        spdlog::get("console")->warn(logMessage);
+        WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
         break;
     }
 }
@@ -126,8 +121,7 @@ void GameClient::Connecting::handleIncomingPacket(Packet* packet) {
 void GameClient::Connecting::handleWelcome(Packet* packet) {
     packet->read(gameClient_->playerId_);
     packet->read(gameClient_->objectId_);
-    const auto logMessage = boost::str(boost::format("WELCOME received from %1%. My player ID is %2%.") % packet->getEndpoint() % gameClient_->playerId_);
-    spdlog::get("console")->debug(logMessage);
+    DEBUG("WELCOME received from {0}. My player ID is {1}.", packet->getEndpoint(), gameClient_->playerId_);
     auto newState = StatePtr(new Connected{gameClient_});
     gameClient_->setState(newState);
 }
@@ -142,12 +136,10 @@ void GameClient::Connecting::sendHello(const Clock& clock) {
         auto packet = gameClient_->bufferedQueue_.pop();
         if (packet) {
             createHelloPacket(packet, gameClient_->serverEndpoint_);
-            const auto logMessage = boost::str(boost::format("Send HELLO to %1%.") % packet->getEndpoint());
-            spdlog::get("console")->debug(logMessage);
+            INFO("Send HELLO to {0}.", packet->getEndpoint());
             gameClient_->transceiver_.sendTo(packet);
         } else {
-            // TODO: Count failures and go to error state after a reasonable number of tries.
-            spdlog::get("console")->warn("Failed to send HELLO to server: empty packet pool.");
+            WARN("Failed to send HELLO to server: empty packet pool.");
         }
         lastHelloTime_ = now;
     }
@@ -182,8 +174,7 @@ void GameClient::Connected::handleIncomingPacket(Packet* packet) {
         handleState(packet);
         break;
     default:
-        const auto logMessage = boost::str(boost::format("Received a packet with unexpected packet type %1% from %2%.") % static_cast<unsigned int>(packetType) % packet->getEndpoint());
-        spdlog::get("console")->warn(logMessage);
+        WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
         break;
     }
 }
@@ -200,6 +191,7 @@ void GameClient::Connected::handleState(Packet* packet) {
             gameObject = gameClient_->createNewGameObject(classId, objectId);
         }
         gameObject->read(packet);
+        gameObject->update(180.0f/1000.0f);
     }
 }
 
@@ -228,8 +220,7 @@ bool GameClient::Connected::sendInput() {
             gameClient_->transceiver_.sendTo(packet);
             return true;
         } else {
-            // TODO: Count failures and go to error state after a reasonable number of tries.
-            spdlog::get("console")->warn("Failed to send INPUT to server: empty packet pool.");
+            WARN("Failed to send INPUT to server: empty packet pool.");
         }
     }
     return false;
@@ -242,8 +233,7 @@ bool GameClient::Connected::sendTick() {
         gameClient_->transceiver_.sendTo(packet);
         return true;
     } else {
-        // TODO: Count failures and go to error state after a reasonable number of tries.
-        spdlog::get("console")->warn("Failed to send INPUT to server: empty packet pool.");
+        WARN("Failed to send INPUT to server: empty packet pool.");
     }
     return false;
 }
