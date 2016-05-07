@@ -21,8 +21,8 @@ void SpaceShip::update(float elapsed) {
     const auto oldLookAt = lookat_;
     const auto oldAcceleration = acceleration_;
 
-    lookat_.rotate(angle_);
-    angle_ = 0;
+    angle_ *= 0.99f;
+    lookat_.rotate(angle_ * elapsed);
     acceleration_ = thrustOn_ ? 50.0f : 0.0f;
     velocity_ *= 0.99f;
     if (velocity_.length() < 0.8f) {
