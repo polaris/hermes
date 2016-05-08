@@ -53,9 +53,9 @@ TEST_CASE("MoveList::getCount() returns the correct count of Move instances in t
     REQUIRE(moveList.getCount() == 1);
 }
 
-TEST_CASE("using MoveList::getLatestMove() throws an exception if the list empty") {
+TEST_CASE("using MoveList::getLatestMove() returns nullptr if the list empty") {
     MoveList moveList;
-    REQUIRE_THROWS_AS(moveList.getLatestMove(), std::logic_error);
+    REQUIRE(moveList.getLatestMove() == nullptr);
 }
 
 TEST_CASE("MoveList::clear() removes all Move objects from the MoveList") {
