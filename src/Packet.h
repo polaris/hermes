@@ -27,6 +27,16 @@ public:
         delete [] data_;
     }
 
+    void copyDataFrom(const Packet& packet) {
+        if (capacity_ >= packet.size_) {
+            head_ = 0;
+            size_ = packet.size_;
+            memcpy(data_, packet.data_, packet.size_);
+        } else {
+            throw std::out_of_range("capacity is smaller than size");
+        }
+    }
+
     void reset() {
         head_ = 0;
     }

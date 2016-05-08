@@ -141,3 +141,30 @@ TEST_CASE("Packet can be written", "[Packet]") {
         REQUIRE(*(reinterpret_cast<const uint64_t*>(packet.getData())) == 0xF0DEBC9A78563412);
     }
 }
+
+TEST_CASE("Packets can copy their data from other packets") {
+    Packet packet1(32);
+    Packet packet2(32);
+
+    const float org1 = 123.45f;
+    const unsigned int org2 = 987;
+    const bool org3 = true;
+
+    packet1.write(org1);
+    packet1.write(org2);
+    packet1.write(org3);
+
+    packet2.copyDataFrom(packet1);
+
+    float val1 = 0.0f;
+    unsigned int val2 = 0;
+    bool val3 = false;
+
+    packet2.read(val1);
+    packet2.read(val2);
+    packet2.read(val3);
+
+    REQUIRE(org1 == val1);
+    REQUIRE(org2 == val2);
+    REQUIRE(org3 == val3);
+}
