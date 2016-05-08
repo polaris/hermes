@@ -21,3 +21,7 @@ void BufferedQueue::enqueue(Packet* packet) {
 Packet* BufferedQueue::dequeue() {
     return queue_.pop();
 }
+
+uint32_t BufferedQueue::getNumEnqueued() {
+    return queue_.getCount();
+}

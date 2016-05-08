@@ -17,6 +17,8 @@ public:
 
     Packet* dequeue() override;
 
+    uint32_t getNumEnqueued();
+
 private:
     Queue<Packet> pool_;
 
