@@ -24,7 +24,7 @@ int main() {
         
         registerGameObjects();
 
-        GameServer gameServer(60, 12345, renderer);
+        GameServer gameServer(60, 30, 12345, renderer);
 
         gameServer.run();
         

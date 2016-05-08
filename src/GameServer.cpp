@@ -7,15 +7,17 @@
 #include "Packet.h"
 #include "Logging.h"
 
-GameServer::GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer)
+GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
+, updateInterval_(1.0f/static_cast<float>(updateRate))
 , nextPlayerId_(1)
 , nextObjectId_(1)
 , playerToObjectMap_()
 , bufferedQueue_(4000)
 , latencyEmulator_(bufferedQueue_, 150)
 , transceiver_(port, latencyEmulator_)
-, clientRegistry_() {
+, clientRegistry_()
+, lastStateUpdate_(0) {
 }
 
 void GameServer::handleWillUpdateWorld(const Clock& clock) {
@@ -142,9 +144,9 @@ void GameServer::handleTick(Packet* packet, const Clock& clock) {
     }
 }
 
-void GameServer::handleDidUpdateWorld(const Clock&) {
+void GameServer::handleDidUpdateWorld(const Clock& clock) {
     renderWorld();
-    sendOutgoingPackets();
+    sendOutgoingPackets(clock);
 }
 
 void GameServer::renderWorld() {
@@ -153,9 +155,9 @@ void GameServer::renderWorld() {
     renderer_.present();
 }
 
-void GameServer::sendOutgoingPackets() {
+void GameServer::sendOutgoingPackets(const Clock& clock) {
     sendStateToNewClients();
-    sendStateUpdate();
+    sendStateUpdate(clock);
 }
 
 void GameServer::sendStateToNewClients() {
@@ -180,39 +182,43 @@ void GameServer::sendStateToNewClients() {
     newClients_.clear();
 }
 
-void GameServer::sendStateUpdate() {
-    uint32_t dirtyGameObjectCount = 0;
-    world_.forEachGameObject([&dirtyGameObjectCount] (uint32_t, GameObject* gameObject) {
-        if (gameObject->isDirty()) {
-            dirtyGameObjectCount += 1;
+void GameServer::sendStateUpdate(const Clock& clock) {
+    const auto now = clock.getTime();
+    if (now > lastStateUpdate_ + updateInterval_) {
+        uint32_t dirtyGameObjectCount = 0;
+        world_.forEachGameObject([&dirtyGameObjectCount] (uint32_t, GameObject* gameObject) {
+            if (gameObject->isDirty()) {
+                dirtyGameObjectCount += 1;
+            }
+        });
+
+        if (dirtyGameObjectCount > 0) {
+            clientRegistry_.forEachClientSession([this, dirtyGameObjectCount] (ClientSession* clientSession) {
+                    auto packet = bufferedQueue_.pop();
+                    if (packet) {
+                        createStatePacket(packet, clientSession->getEndpoint());
+
+                        packet->write(dirtyGameObjectCount);
+                        world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
+                            if (gameObject->isDirty()) {
+                                packet->write(objectId);
+                                packet->write(gameObject->getClassId());
+                                gameObject->write(packet);
+                            }
+                        });
+
+                        transceiver_.sendTo(packet);
+                    } else {
+                        WARN("Failed send STATE update to a client: empty packet pool.");
+                    }
+                });
         }
-    });
 
-    if (dirtyGameObjectCount > 0) {
-        clientRegistry_.forEachClientSession([this, dirtyGameObjectCount] (ClientSession* clientSession) {
-                auto packet = bufferedQueue_.pop();
-                if (packet) {
-                    createStatePacket(packet, clientSession->getEndpoint());
-
-                    packet->write(dirtyGameObjectCount);
-                    world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
-                        if (gameObject->isDirty()) {
-                            packet->write(objectId);
-                            packet->write(gameObject->getClassId());
-                            gameObject->write(packet);
-                        }
-                    });
-
-                    transceiver_.sendTo(packet);
-                } else {
-                    WARN("Failed send STATE update to a client: empty packet pool.");
-                }
-            });
+        world_.forEachGameObject([] (uint32_t, GameObject* gameObject) {
+            gameObject->resetDirty();
+        });
+        lastStateUpdate_ = now;
     }
-
-    world_.forEachGameObject([] (uint32_t, GameObject* gameObject) {
-        gameObject->resetDirty();
-    });
 }
 
 void GameServer::handleEvent(SDL_Event& event, bool& running) {

@@ -16,7 +16,7 @@ class Packet;
 
 class GameServer : public Game {
 public:
-    GameServer(unsigned int frameRate, uint16_t port, Renderer& renderer);
+    GameServer(unsigned int frameRate, unsigned int updateRate, uint16_t port, Renderer& renderer);
 
 private:
     void handleWillUpdateWorld(const Clock& clock) override;
@@ -30,9 +30,11 @@ private:
     void handleTick(Packet* packet, const Clock& clock);
 
     void renderWorld();
-    void sendOutgoingPackets();
+    void sendOutgoingPackets(const Clock& clock);
     void sendStateToNewClients();
-    void sendStateUpdate();
+    void sendStateUpdate(const Clock& clock);
+
+    const float updateInterval_;
 
     uint32_t nextPlayerId_;
     uint32_t nextObjectId_;
@@ -44,6 +46,8 @@ private:
     Transceiver transceiver_;
 
     ClientRegistry clientRegistry_;
+
+    float lastStateUpdate_;
 };
 
 #endif  // _GameServer_H
