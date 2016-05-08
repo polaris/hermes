@@ -7,7 +7,7 @@
 
 class RollingMean {
 public:
-    RollingMean(unsigned int windowSize);
+    explicit RollingMean(unsigned int windowSize);
 
     void addValue(float value);
 
