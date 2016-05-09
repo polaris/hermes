@@ -23,14 +23,14 @@ GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, uint16_t
 void GameServer::handleWillUpdateWorld(const Clock& clock) {
     processIncomingPackets(clock);
     clientRegistry_.checkForDisconnects(clock.getTime(), [this] (uint32_t playerId) {
-        DEBUG("Remove disconnected client {0}", playerId);
-        auto itr = playerToObjectMap_.find(playerId);
-        if (itr != playerToObjectMap_.end()) {
-            const uint32_t objectId = itr->second;
-            world_.remove(objectId);
-            playerToObjectMap_.erase(itr);
-        }
-    });
+            DEBUG("Remove disconnected client {0}", playerId);
+            auto itr = playerToObjectMap_.find(playerId);
+            if (itr != playerToObjectMap_.end()) {
+                const uint32_t objectId = itr->second;
+                world_.remove(objectId);
+                playerToObjectMap_.erase(itr);
+            }
+        });
 }
 
 void GameServer::processIncomingPackets(const Clock& clock) {
@@ -41,7 +41,7 @@ void GameServer::processIncomingPackets(const Clock& clock) {
         if (magicNumber == PROTOCOL_MAGIC_NUMBER) {
             handlePacket(packet, clock);
         } else {
-            WARN("Receive invalid packet from {0}", packet->getEndpoint());
+            WARN("Received an invalid packet from {0}: wrong magic number.", packet->getEndpoint());
         }
         bufferedQueue_.push(packet);
     }
@@ -74,7 +74,7 @@ void GameServer::handlePacket(Packet* packet, const Clock& clock) {
 
 void GameServer::handleHello(Packet* packet, const Clock& clock) {
     if (!clientRegistry_.hasClientSession(packet->getEndpoint())) {
-        spdlog::get("console")->debug("HELLO from new client ...");
+        INFO("HELLO received from new client at {0}", packet->getEndpoint());
         auto welcomePacket = bufferedQueue_.pop();
         if (welcomePacket) {
             const auto playerId = nextPlayerId_++;
