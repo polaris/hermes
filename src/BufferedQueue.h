@@ -7,7 +7,7 @@
 
 class BufferedQueue : public PacketSink {
 public:
-    BufferedQueue(uint32_t size);
+    explicit BufferedQueue(uint32_t size);
 
     void push(Packet* packet) override;
 

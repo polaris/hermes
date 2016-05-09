@@ -11,7 +11,7 @@ class Transceiver {
 public:
     Transceiver(uint16_t port, PacketSink& packetSink);
 
-    Transceiver(PacketSink& packetSink);
+    explicit Transceiver(PacketSink& packetSink);
 
     ~Transceiver();
 

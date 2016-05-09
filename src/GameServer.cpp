@@ -13,6 +13,7 @@ GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, uint16_t
 , nextPlayerId_(1)
 , nextObjectId_(1)
 , playerToObjectMap_()
+, newClients_()
 , bufferedQueue_(4000)
 , latencyEmulator_(bufferedQueue_, 150)
 , transceiver_(port, latencyEmulator_)
