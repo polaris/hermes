@@ -20,7 +20,7 @@ public:
 
     void write(Packet* packet) override;
 
-    void read(Packet* packet) override;
+    virtual void read(Packet* packet) override;
 
     uint32_t getClassId() const override;
 

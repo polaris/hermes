@@ -5,11 +5,11 @@
 #include "GameObjectRegistry.h"
 #include "Packet.h"
 #include "Logging.h"
+#include "LocalSpaceShip.h"
 
 GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , inputHandler_(30)
-, localSpaceShip_(nullptr)
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
 , bufferedQueue_(1000)
@@ -85,11 +85,13 @@ void GameClient::renderFrame() {
 }
 
 GameObject* GameClient::createNewGameObject(uint32_t classId, uint32_t objectId) {
-    auto gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
-    world_.add(objectId, gameObjectPtr);
+    GameObjectPtr gameObjectPtr;
     if (objectId == objectId_) {
-        localSpaceShip_ = std::dynamic_pointer_cast<SpaceShip>(gameObjectPtr);
+        gameObjectPtr = std::shared_ptr<GameObject>(new LocalSpaceShip(renderer_, inputHandler_));
+    } else {
+        gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
     }
+    world_.add(objectId, gameObjectPtr);
     return gameObjectPtr.get();
 }
 
@@ -155,16 +157,6 @@ GameClient::Connected::Connected(GameClient* gameClient)
 
 void GameClient::Connected::handleWillUpdateWorld(const Clock& clock) {
     gameClient_->inputHandler_.update(clock.getGameTime());
-
-    if (gameClient_->localSpaceShip_) {
-        auto move = gameClient_->inputHandler_.getAndClearPendingMove();
-        if (move) {
-            const auto& inputState = move->getInputState();
-            gameClient_->localSpaceShip_->rotate(inputState.desiredRightAmount * gameClient_->frameDuration_);
-            gameClient_->localSpaceShip_->rotate(-inputState.desiredLeftAmount * gameClient_->frameDuration_);
-            gameClient_->localSpaceShip_->thrust(inputState.desiredForwardAmount > 0);
-        }
-    }
 }
 
 void GameClient::Connected::handleIncomingPacket(Packet* packet, const Clock& clock) {

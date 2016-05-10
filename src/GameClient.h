@@ -6,7 +6,6 @@
 #include "InputHandler.h"
 #include "Transceiver.h"
 #include "LatencyEmulator.h"
-#include "SpaceShip.h"
 #include "RollingMean.h"
 
 #include <memory>
@@ -14,7 +13,6 @@
 
 class Renderer;
 class Clock;
-class SpaceShip;
 class Packet;
 
 class GameClient : public Game {
@@ -90,8 +88,6 @@ private:
     };
 
     InputHandler inputHandler_;
-
-    SpaceShipPtr localSpaceShip_;
 
     StatePtr currentState;
     StatePtr nextState;
