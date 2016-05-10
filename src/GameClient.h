@@ -40,7 +40,7 @@ private:
         virtual ~State() = default;
         State(const GameClient::State&) = delete;
         GameClient::State& operator =(const GameClient::State&) = delete;
-        virtual void handleWillUpdateWorld(const Clock& clock) = 0;
+        virtual void handleWillUpdateWorld(const Clock&) {}
         virtual void handleIncomingPacket(Packet* packet, const Clock& clock) = 0;
         virtual void sendOutgoingPackets(const Clock& clock) = 0;
 
@@ -55,7 +55,6 @@ private:
     class Connecting : public State {
     public:
         explicit Connecting(GameClient* gameClient);
-        void handleWillUpdateWorld(const Clock& clock) override;
         void handleIncomingPacket(Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
 

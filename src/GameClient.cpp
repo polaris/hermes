@@ -104,9 +104,6 @@ GameClient::Connecting::Connecting(GameClient* gameClient)
 , lastHelloTime_(0) {
 }
 
-void GameClient::Connecting::handleWillUpdateWorld(const Clock&) {
-}
-
 void GameClient::Connecting::handleIncomingPacket(Packet* packet, const Clock&) {
     unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
     packet->read(packetType);
