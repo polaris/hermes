@@ -184,8 +184,17 @@ void GameClient::Connected::handleState(Packet* packet) {
             gameObject = gameClient_->createNewGameObject(classId, objectId);
         }
         gameObject->read(packet);
-        const auto latency = rollingMeanRrt_.getMean() / 2.0f;
-        gameObject->update(latency);
+
+        auto latency = rollingMeanRrt_.getMean() / 2.0f;
+        while (true) {
+            if (latency < gameClient_->frameDuration_) {
+                gameObject->update(latency);
+                break;
+            } else {
+                gameObject->update(gameClient_->frameDuration_);
+                latency -= gameClient_->frameDuration_;
+            }
+        }
     }
 }
 
