@@ -1,7 +1,6 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "GameServer.h"
-#include "GameObjectRegistry.h"
 
 #include <spdlog/spdlog.h>
 #include <boost/format.hpp>
@@ -22,8 +21,6 @@ int main() {
         
         Renderer renderer(window);
         
-        registerGameObjects();
-
         GameServer gameServer(60, 30, 12345, renderer);
 
         gameServer.run();
