@@ -8,7 +8,8 @@ ClientSession::ClientSession(const boost::asio::ip::udp::endpoint& clientEndpoin
 : clientEndpoint_(clientEndpoint)
 , playerId_(playerId)
 , moveList_()
-, lastSeen_(currenTime) {
+, lastSeen_(currenTime)
+, latestInputTime_(0.0f) {
 }
 
 const boost::asio::ip::udp::endpoint ClientSession::getEndpoint() const {
@@ -29,4 +30,12 @@ void ClientSession::setLastSeen(float timeStamp) {
 
 float ClientSession::getLastSeen() const {
     return lastSeen_;
+}
+
+void ClientSession::setLatestInputTime(float timeStamp) {
+    latestInputTime_ = timeStamp;
+}
+
+float ClientSession::getLatestInputTime() const {
+    return latestInputTime_;
 }

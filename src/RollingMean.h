@@ -11,7 +11,7 @@ public:
 
     void addValue(float value);
 
-    float getMean();
+    float getMean() const;
 
 private:
     boost::accumulators::accumulator_set<float, boost::accumulators::stats<boost::accumulators::tag::rolling_mean>> accu_;

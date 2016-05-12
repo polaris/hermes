@@ -82,11 +82,10 @@ private:
         float lastTickTime_;
 
         std::unordered_map<uint32_t, GameObjectPtr> objectIdToGameObjectMap_;
-
-        RollingMean rollingMeanRrt_;
     };
 
     InputHandler inputHandler_;
+    RollingMean rollingMeanRrt_;
 
     StatePtr currentState;
     StatePtr nextState;

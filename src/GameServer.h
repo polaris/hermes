@@ -31,7 +31,6 @@ private:
 
     void renderWorld();
     void sendOutgoingPackets(const Clock& clock);
-    void sendStateToNewClients();
     void sendStateUpdate(const Clock& clock);
 
     const float updateInterval_;
@@ -39,7 +38,6 @@ private:
     uint32_t nextPlayerId_;
     uint32_t nextObjectId_;
     std::unordered_map<uint32_t, uint32_t> playerToObjectMap_;
-    std::vector<uint32_t> newClients_;
 
     BufferedQueue bufferedQueue_;
     LatencyEmulator latencyEmulator_;

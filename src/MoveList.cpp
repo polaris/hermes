@@ -44,7 +44,9 @@ void MoveList::clear() {
 }
 
 void MoveList::write(Packet* packet) const {
-    packet->write(getCount());
+    packet->write(moves_.back().getTimeStamp());
+    const auto count = getCount();
+    packet->write(count);
     for (const auto& move : moves_) {
         move.write(packet);
     }

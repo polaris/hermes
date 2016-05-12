@@ -13,7 +13,6 @@ GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, uint16_t
 , nextPlayerId_(1)
 , nextObjectId_(1)
 , playerToObjectMap_()
-, newClients_()
 , bufferedQueue_(4000)
 , latencyEmulator_(bufferedQueue_, 150)
 , transceiver_(port, latencyEmulator_)
@@ -90,8 +89,6 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
             world_.add(objectId, gameObject);
             playerToObjectMap_[playerId] = objectId;
 
-            newClients_.push_back(playerId);
-
             createWelcomePacket(welcomePacket, playerId, objectId, packet->getEndpoint());
             transceiver_.sendTo(welcomePacket);
 
@@ -111,6 +108,9 @@ void GameServer::handleInput(Packet* packet, const Clock& clock) {
         auto clientSession = clientRegistry_.getClientSession(playerId);
         clientSession->setLastSeen(clock.getTime());
         MoveList& moveList = clientSession->getMoveList();
+        float timeStamp = 0.0f;
+        packet->read(timeStamp);
+        clientSession->setLatestInputTime(timeStamp);
         uint32_t count = 0;
         packet->read(count);
         for (uint32_t i = 0; i < count; i++) {
@@ -157,67 +157,31 @@ void GameServer::renderWorld() {
 }
 
 void GameServer::sendOutgoingPackets(const Clock& clock) {
-    sendStateToNewClients();
     sendStateUpdate(clock);
-}
-
-void GameServer::sendStateToNewClients() {
-    for (const auto& playerId : newClients_) {
-        auto packet = bufferedQueue_.pop();
-        if (packet) {
-            const auto clientSession = clientRegistry_.getClientSession(playerId);
-            createStatePacket(packet, clientSession->getEndpoint());
-
-            packet->write(world_.getGameObjectCount());
-            world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
-                packet->write(objectId);
-                packet->write(gameObject->getClassId());
-                gameObject->write(packet);
-            });
-
-            transceiver_.sendTo(packet);
-        } else {
-            WARN("Failed to send STATE to a client: empty packet pool.");
-        }
-    }
-    newClients_.clear();
 }
 
 void GameServer::sendStateUpdate(const Clock& clock) {
     const auto now = clock.getTime();
     if (now > lastStateUpdate_ + updateInterval_) {
-        uint32_t dirtyGameObjectCount = 0;
-        world_.forEachGameObject([&dirtyGameObjectCount] (uint32_t, GameObject* gameObject) {
-            if (gameObject->isDirty()) {
-                dirtyGameObjectCount += 1;
-            }
-        });
+        clientRegistry_.forEachClientSession(
+            [this] (ClientSession* clientSession) {
+                auto packet = bufferedQueue_.pop();
+                if (packet) {
+                    createStatePacket(packet, clientSession->getEndpoint());
+                    packet->write(clientSession->getLatestInputTime());
+                    packet->write(world_.getGameObjectCount());
+                    world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
+                        packet->write(objectId);
+                        packet->write(gameObject->getClassId());
+                        gameObject->write(packet);
+                    });
 
-        if (dirtyGameObjectCount > 0) {
-            clientRegistry_.forEachClientSession([this, dirtyGameObjectCount] (ClientSession* clientSession) {
-                    auto packet = bufferedQueue_.pop();
-                    if (packet) {
-                        createStatePacket(packet, clientSession->getEndpoint());
+                    transceiver_.sendTo(packet);
+                } else {
+                    WARN("Failed send STATE update to a client: empty packet pool.");
+                }
+            });
 
-                        packet->write(dirtyGameObjectCount);
-                        world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
-                            if (gameObject->isDirty()) {
-                                packet->write(objectId);
-                                packet->write(gameObject->getClassId());
-                                gameObject->write(packet);
-                            }
-                        });
-
-                        transceiver_.sendTo(packet);
-                    } else {
-                        WARN("Failed send STATE update to a client: empty packet pool.");
-                    }
-                });
-        }
-
-        world_.forEachGameObject([] (uint32_t, GameObject* gameObject) {
-            gameObject->resetDirty();
-        });
         lastStateUpdate_ = now;
     }
 }

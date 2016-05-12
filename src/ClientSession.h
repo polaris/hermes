@@ -19,6 +19,10 @@ public:
 
     float getLastSeen() const;
 
+    void setLatestInputTime(float timeStamp);
+
+    float getLatestInputTime() const;
+
 private:
     const boost::asio::ip::udp::endpoint clientEndpoint_;
 
@@ -27,6 +31,8 @@ private:
     MoveList moveList_;
 
     float lastSeen_;
+
+    float latestInputTime_;
 };
 
 #endif  // _ClientSession_H

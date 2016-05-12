@@ -6,10 +6,12 @@
 #include "Packet.h"
 #include "Logging.h"
 #include "LocalSpaceShip.h"
+#include "RemoteSpaceShip.h"
 
 GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , inputHandler_(30)
+, rollingMeanRrt_(10)
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
 , bufferedQueue_(1000)
@@ -84,12 +86,13 @@ void GameClient::renderFrame() {
     renderer_.present();
 }
 
-GameObject* GameClient::createNewGameObject(uint32_t classId, uint32_t objectId) {
+GameObject* GameClient::createNewGameObject(uint32_t, uint32_t objectId) {
     GameObjectPtr gameObjectPtr;
     if (objectId == objectId_) {
         gameObjectPtr = std::shared_ptr<GameObject>(new LocalSpaceShip(renderer_, inputHandler_));
     } else {
-        gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
+        gameObjectPtr = std::shared_ptr<GameObject>(new RemoteSpaceShip(renderer_, rollingMeanRrt_, frameDuration_));
+//        gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
     }
     world_.add(objectId, gameObjectPtr);
     return gameObjectPtr.get();
@@ -148,8 +151,7 @@ GameClient::Connected::Connected(GameClient* gameClient)
 : State(gameClient)
 , lastInputTime_(0)
 , lastTickTime_(0)
-, objectIdToGameObjectMap_()
-, rollingMeanRrt_(10) {
+, objectIdToGameObjectMap_() {
 }
 
 void GameClient::Connected::handleWillUpdateWorld(const Clock& clock) {
@@ -173,6 +175,12 @@ void GameClient::Connected::handleIncomingPacket(Packet* packet, const Clock& cl
 }
 
 void GameClient::Connected::handleState(Packet* packet) {
+    float latestInputTime = 0.0f;
+    packet->read(latestInputTime);
+
+    auto& moveList = gameClient_->inputHandler_.getMoveList();
+    moveList.removeMovesUntil(latestInputTime);
+
     uint32_t gameObjectCount = 0;
     packet->read(gameObjectCount);
     for (uint32_t i = 0; i < gameObjectCount; i++) {
@@ -184,17 +192,6 @@ void GameClient::Connected::handleState(Packet* packet) {
             gameObject = gameClient_->createNewGameObject(classId, objectId);
         }
         gameObject->read(packet);
-
-        auto latency = rollingMeanRrt_.getMean() / 2.0f;
-        while (true) {
-            if (latency < gameClient_->frameDuration_) {
-                gameObject->update(latency);
-                break;
-            } else {
-                gameObject->update(gameClient_->frameDuration_);
-                latency -= gameClient_->frameDuration_;
-            }
-        }
     }
 }
 
@@ -202,7 +199,7 @@ void GameClient::Connected::handleTock(Packet* packet, const Clock& clock) {
     float timeStamp = 0.0f;
     packet->read(timeStamp);
     const float roundTripTime = clock.getTime() - timeStamp;
-    rollingMeanRrt_.addValue(roundTripTime);
+    gameClient_->rollingMeanRrt_.addValue(roundTripTime);
 }
 
 void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {
@@ -226,7 +223,7 @@ bool GameClient::Connected::sendInput() {
         auto packet = gameClient_->bufferedQueue_.pop();
         if (packet) {
             createInputPacket(packet, gameClient_->playerId_, gameClient_->serverEndpoint_, moveList);
-            moveList.clear();
+            // moveList.clear();
             gameClient_->transceiver_.sendTo(packet);
             return true;
         } else {

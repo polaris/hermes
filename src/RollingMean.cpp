@@ -8,6 +8,6 @@ void RollingMean::addValue(float value) {
     accu_(value);
 }
 
-float RollingMean::getMean() {
+float RollingMean::getMean() const {
     return boost::accumulators::rolling_mean(accu_);
 }
