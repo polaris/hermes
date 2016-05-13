@@ -1,6 +1,5 @@
 #include "LocalSpaceShip.h"
 #include "InputHandler.h"
-#include "Logging.h"
 
 LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler)
 : SpaceShip(renderer)
@@ -29,5 +28,6 @@ void LocalSpaceShip::read(Packet* packet) {
         rotate(inputState.desiredRightAmount * deltaTime);
         rotate(-inputState.desiredLeftAmount * deltaTime);
         thrust(inputState.desiredForwardAmount > 0);
+        SpaceShip::update(deltaTime);
     }
 }
