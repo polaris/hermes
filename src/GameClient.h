@@ -6,7 +6,7 @@
 #include "InputHandler.h"
 #include "Transceiver.h"
 #include "LatencyEmulator.h"
-#include "RollingMean.h"
+#include "LatencyEstimator.h"
 
 #include <memory>
 #include <unordered_map>
@@ -85,7 +85,7 @@ private:
     };
 
     InputHandler inputHandler_;
-    RollingMean rollingMeanRrt_;
+    LatencyEstimator latencyEstimator_;
 
     StatePtr currentState;
     StatePtr nextState;

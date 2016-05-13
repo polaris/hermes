@@ -1,9 +1,9 @@
 #include "RemoteSpaceShip.h"
-#include "RollingMean.h"
+#include "LatencyEstimator.h"
 
-RemoteSpaceShip::RemoteSpaceShip(const Renderer& renderer, const RollingMean& rollingMean, float frameDuration)
+RemoteSpaceShip::RemoteSpaceShip(const Renderer& renderer, const LatencyEstimator& latencyEstimator, float frameDuration)
 : SpaceShip(renderer)
-, rollingMeanRrt_(rollingMean)
+, latencyEstimator_(latencyEstimator)
 , frameDuration_(frameDuration) {
 }
 
@@ -14,7 +14,7 @@ void RemoteSpaceShip::update(float elapsed) {
 void RemoteSpaceShip::read(Packet* packet) {
     SpaceShip::read(packet);
 
-    auto latency = rollingMeanRrt_.getMean();
+    auto latency = latencyEstimator_.getMean();
     while (true) {
         if (latency < frameDuration_) {
             update(latency);

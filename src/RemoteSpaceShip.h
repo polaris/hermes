@@ -1,22 +1,22 @@
-#ifndef __RemoteSpaceShip_H
-#define __RemoteSpaceShip_H
+#ifndef _RemoteSpaceShip_H
+#define _RemoteSpaceShip_H
 
 #include "SpaceShip.h"
 
-class RollingMean;
+class LatencyEstimator;
 
 class RemoteSpaceShip : public SpaceShip {
 public:
-    RemoteSpaceShip(const Renderer& renderer, const RollingMean& rollingMean, float frameDuration);
+    RemoteSpaceShip(const Renderer& renderer, const LatencyEstimator& latencyEstimator, float frameDuration);
 
     void update(float elapsed) override;
 
     void read(Packet* packet) override;
 
 private:
-    const RollingMean& rollingMeanRrt_;
+    const LatencyEstimator& latencyEstimator_;
 
     const float frameDuration_;
 };
 
-#endif  // __RemoteSpaceShip_H
+#endif  // _RemoteSpaceShip_H

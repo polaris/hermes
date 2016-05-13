@@ -11,7 +11,7 @@
 GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , inputHandler_(30)
-, rollingMeanRrt_(10)
+, latencyEstimator_(10)
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
 , bufferedQueue_(1000)
@@ -91,7 +91,7 @@ GameObject* GameClient::createNewGameObject(uint32_t, uint32_t objectId) {
     if (objectId == objectId_) {
         gameObjectPtr = std::shared_ptr<GameObject>(new LocalSpaceShip(renderer_, inputHandler_));
     } else {
-        gameObjectPtr = std::shared_ptr<GameObject>(new RemoteSpaceShip(renderer_, rollingMeanRrt_, frameDuration_));
+        gameObjectPtr = std::shared_ptr<GameObject>(new RemoteSpaceShip(renderer_, latencyEstimator_, frameDuration_));
 //        gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
     }
     world_.add(objectId, gameObjectPtr);
@@ -199,7 +199,7 @@ void GameClient::Connected::handleTock(Packet* packet, const Clock& clock) {
     float timeStamp = 0.0f;
     packet->read(timeStamp);
     const float roundTripTime = clock.getTime() - timeStamp;
-    gameClient_->rollingMeanRrt_.addValue(roundTripTime);
+    gameClient_->latencyEstimator_.addValue(roundTripTime);
 }
 
 void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {
