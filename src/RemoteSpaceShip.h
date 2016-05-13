@@ -15,7 +15,8 @@ public:
 
 private:
     const RollingMean& rollingMeanRrt_;
-    float frameDuration_;
+
+    const float frameDuration_;
 };
 
 #endif  // __RemoteSpaceShip_H
