@@ -22,6 +22,8 @@ public:
 
     const Move* getLatestMove() const;
 
+    float getLatestTimeStamp() const;
+
     void removeMovesUntil(float timeStamp);
 
     void clear();

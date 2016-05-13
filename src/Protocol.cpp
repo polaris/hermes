@@ -23,6 +23,7 @@ void createWelcomePacket(Packet* packet, uint32_t playerId, uint32_t objectId, c
 void createInputPacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, const MoveList& moveList) {
     createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_INPUT);
     packet->write(playerId);
+    packet->write(moveList.getLatestTimeStamp());
     moveList.write(packet);
 }
 

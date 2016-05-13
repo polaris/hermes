@@ -33,6 +33,10 @@ const Move* MoveList::getLatestMove() const {
     return &moves_.back();
 }
 
+float MoveList::getLatestTimeStamp() const {
+    return moves_.back().getTimeStamp();
+}
+
 void MoveList::removeMovesUntil(float timeStamp) {
     moves_.erase(std::remove_if(moves_.begin(), moves_.end(), [timeStamp] (const Move& move) {
         return move.getTimeStamp() <= timeStamp;
@@ -44,7 +48,6 @@ void MoveList::clear() {
 }
 
 void MoveList::write(Packet* packet) const {
-    packet->write(moves_.back().getTimeStamp());
     const auto count = getCount();
     packet->write(count);
     for (const auto& move : moves_) {
