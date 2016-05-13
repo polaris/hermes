@@ -223,7 +223,6 @@ bool GameClient::Connected::sendInput() {
         auto packet = gameClient_->bufferedQueue_.pop();
         if (packet) {
             createInputPacket(packet, gameClient_->playerId_, gameClient_->serverEndpoint_, moveList);
-            // moveList.clear();
             gameClient_->transceiver_.sendTo(packet);
             return true;
         } else {
