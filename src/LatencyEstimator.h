@@ -9,9 +9,9 @@ class LatencyEstimator {
 public:
     explicit LatencyEstimator(unsigned int windowSize);
 
-    void addValue(float value);
+    void addRTT(float value);
 
-    float getMean() const;
+    float getMeanRTT() const;
 
 private:
     boost::accumulators::accumulator_set<float, boost::accumulators::stats<boost::accumulators::tag::rolling_mean>> accu_;

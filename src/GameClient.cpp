@@ -199,7 +199,7 @@ void GameClient::Connected::handleTock(Packet* packet, const Clock& clock) {
     float timeStamp = 0.0f;
     packet->read(timeStamp);
     const float roundTripTime = clock.getTime() - timeStamp;
-    gameClient_->latencyEstimator_.addValue(roundTripTime);
+    gameClient_->latencyEstimator_.addRTT(roundTripTime);
 }
 
 void GameClient::Connected::sendOutgoingPackets(const Clock& clock) {

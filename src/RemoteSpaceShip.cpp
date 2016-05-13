@@ -14,7 +14,7 @@ void RemoteSpaceShip::update(float elapsed) {
 void RemoteSpaceShip::read(Packet* packet) {
     SpaceShip::read(packet);
 
-    auto latency = latencyEstimator_.getMean();
+    auto latency = latencyEstimator_.getMeanRTT();
     while (true) {
         if (latency < frameDuration_) {
             update(latency);
