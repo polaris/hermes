@@ -1,9 +1,8 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "GameServer.h"
+#include "Logging.h"
 
-#include <spdlog/spdlog.h>
-#include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <iostream>
@@ -34,8 +33,7 @@ int main(int argc, char** argv) {
     }
 
     try {
-        auto console = spdlog::stdout_logger_mt("console", true);
-        console->set_level(spdlog::level::debug);
+        INIT_LOGGING(LOG_LEVEL_DEBUG);
 
         if (SDL_Init(SDL_INIT_VIDEO) < 0) {
             throw std::runtime_error(SDL_GetError());
@@ -54,8 +52,7 @@ int main(int argc, char** argv) {
     } catch (const spdlog::spdlog_ex& ex) {
         std::cerr << "spdlog exception: " << ex.what();
     } catch (const std::exception &ex) {
-        const auto errorMessage = boost::str(boost::format("Exception: %1%") % ex.what());
-        spdlog::get("console")->error(errorMessage);
+        ERROR("Exception: {0}", ex.what());
     }
 
     return 1;
