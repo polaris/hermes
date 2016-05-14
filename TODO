@@ -1,4 +1,5 @@
 Software
+- interpolate between old client state and replicated/predicted state
 - implement peer-to-peer RTS demo
 - implement collision detection
 - emulate jitter
