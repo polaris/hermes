@@ -5,6 +5,7 @@ Software
 - emulate jitter
 - add shots - new game object type not controlled by a user
 - find a way to make GameObjectFactory actually work
+- detect disconnect from server on the client side
 
 Paper
 - UML class diagram
