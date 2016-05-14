@@ -12,12 +12,16 @@ void printHelp();
 
 int main(int argc, char** argv) {
     unsigned short serverPort = 12345;
+    unsigned int emulatedLatency = 0;
 
     int c = 0;
-    while ((c = getopt(argc, argv, "p:h")) != -1) {
+    while ((c = getopt(argc, argv, "p:l:h")) != -1) {
         switch (c) {
         case 'p':
             serverPort = boost::lexical_cast<unsigned short>(optarg);
+            break;
+        case 'l':
+            emulatedLatency = boost::lexical_cast<unsigned int>(optarg);
             break;
         case 'h':
             printHelp();
@@ -42,7 +46,7 @@ int main(int argc, char** argv) {
         
         Renderer renderer(window);
         
-        GameServer gameServer(60, 30, 12345, renderer);
+        GameServer gameServer(60, 30, emulatedLatency, 12345, renderer);
 
         gameServer.run();
         
@@ -61,6 +65,7 @@ void printHelp() {
     std::cout << "Usage: peer [options]\n"
               << "Options:\n"
               << "  -p <port>     Pass the UDP <port> of the server. This parameter is optional. Default is port 12345.\n"
+              << "  -l <latency>  Pass the emulated latency in milliseconds. This parameter is optional. Default is 0 ms.\n"
               << "  -h            Display this information.\n"
               ;
 }

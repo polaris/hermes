@@ -17,7 +17,7 @@ class Packet;
 
 class GameClient : public Game {
 public:
-    GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer);
+    GameClient(unsigned int frameRate, unsigned int emulatedLatency, const char *address, uint16_t port, Renderer& renderer);
 
     GameClient(const GameClient&) = delete;
 

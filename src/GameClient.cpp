@@ -8,14 +8,14 @@
 #include "LocalSpaceShip.h"
 #include "RemoteSpaceShip.h"
 
-GameClient::GameClient(unsigned int frameRate, const char *address, uint16_t port, Renderer& renderer)
+GameClient::GameClient(unsigned int frameRate, unsigned int emulatedLatency, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , inputHandler_(30)
 , latencyEstimator_(10)
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
 , bufferedQueue_(1000)
-, latencyEmulator_(bufferedQueue_, 150)
+, latencyEmulator_(bufferedQueue_, emulatedLatency)
 , transceiver_(latencyEmulator_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
 , playerId_(PROTOCOL_INVALID_PLAYER_ID)

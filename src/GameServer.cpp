@@ -7,14 +7,14 @@
 #include "Packet.h"
 #include "Logging.h"
 
-GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, uint16_t port, Renderer& renderer)
+GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, unsigned emulatedLatency, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , nextPlayerId_(1)
 , nextObjectId_(1)
 , playerToObjectMap_()
 , bufferedQueue_(4000)
-, latencyEmulator_(bufferedQueue_, 150)
+, latencyEmulator_(bufferedQueue_, emulatedLatency)
 , transceiver_(port, latencyEmulator_)
 , clientRegistry_()
 , lastStateUpdate_(0) {
