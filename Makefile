@@ -21,24 +21,16 @@ endif
 
 INC := -Isrc -isystem 3rdparty
 
-MAIN := src/client.cpp src/server.cpp
+MAIN := src/client.cpp src/server.cpp src/peer.cpp
 SRC := $(filter-out $(addsuffix %,$(MAIN)),$(wildcard src/*.cpp))
 OBJ := $(addprefix $(OBJDIR)/,$(notdir $(SRC:.cpp=.o)))
 
 TEST_SRC := $(wildcard test/*.cpp)
 TEST_OBJ := $(addprefix obj/,$(notdir $(TEST_SRC:.cpp=.o)))
 
-all: $(BINDIR)/server $(BINDIR)/client $(BINDIR)/test
+all: $(BINDIR)/server $(BINDIR)/client $(BINDIR)/peer $(BINDIR)/test
 
 $(BINDIR)/server: $(OBJ) $(OBJDIR)/server.o
-	@mkdir -p $(BINDIR)
-	$(CXX) $^ $(LDFLAGS) -o $@
-
-$(BINDIR)/client: $(OBJ) $(OBJDIR)/client.o
-	@mkdir -p $(BINDIR)
-	$(CXX) $^ $(LDFLAGS) -o $@
-
-$(BINDIR)/test: $(TEST_OBJ) $(OBJ)
 	@mkdir -p $(BINDIR)
 	$(CXX) $^ $(LDFLAGS) -o $@
 
@@ -46,9 +38,25 @@ $(OBJDIR)/server.o: src/server.cpp
 	@mkdir -p obj
 	$(CXX) $(CXXFLAGS) $(INC) $^ -c -o $@
 
+$(BINDIR)/client: $(OBJ) $(OBJDIR)/client.o
+	@mkdir -p $(BINDIR)
+	$(CXX) $^ $(LDFLAGS) -o $@
+
 $(OBJDIR)/client.o: src/client.cpp
 	@mkdir -p obj
 	$(CXX) $(CXXFLAGS) $(INC) $^ -c -o $@
+
+$(BINDIR)/peer: $(OBJ) $(OBJDIR)/peer.o
+	@mkdir -p $(BINDIR)
+	$(CXX) $^ $(LDFLAGS) -o $@
+
+$(OBJDIR)/peer.o: src/peer.cpp
+	@mkdir -p obj
+	$(CXX) $(CXXFLAGS) $(INC) $^ -c -o $@
+
+$(BINDIR)/test: $(TEST_OBJ) $(OBJ)
+	@mkdir -p $(BINDIR)
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 $(OBJDIR)/%.o: src/%.cpp src/%.h
 	@mkdir -p obj
