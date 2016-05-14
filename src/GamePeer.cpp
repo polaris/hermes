@@ -6,7 +6,7 @@ GamePeer::GamePeer(unsigned int frameRate, Renderer& renderer, unsigned short po
     currentState.reset(new GamePeer::Accepting{this});
 }
 
-GamePeer::GamePeer(unsigned int frameRate, Renderer& renderer, const char* masterAddress, unsigned short port)
+GamePeer::GamePeer(unsigned int frameRate, Renderer& renderer, const char*, unsigned short)
 : Game(frameRate, renderer)
 , inputHandler_(30)
 , latencyEstimator_(10)
@@ -59,11 +59,11 @@ void GamePeer::Accepting::handleWillUpdateWorld(const Clock&) {
 
 }
 
-void GamePeer::Accepting::handleIncomingPacket(Packet* packet, const Clock& clock) {
+void GamePeer::Accepting::handleIncomingPacket(Packet*, const Clock&) {
 
 }
 
-void GamePeer::Accepting::sendOutgoingPackets(const Clock& clock) {
+void GamePeer::Accepting::sendOutgoingPackets(const Clock&) {
 
 }
 
@@ -75,11 +75,11 @@ void GamePeer::Connecting::handleWillUpdateWorld(const Clock&) {
 
 }
 
-void GamePeer::Connecting::handleIncomingPacket(Packet* packet, const Clock& clock) {
+void GamePeer::Connecting::handleIncomingPacket(Packet*, const Clock&) {
 
 }
 
-void GamePeer::Connecting::sendOutgoingPackets(const Clock& clock) {
+void GamePeer::Connecting::sendOutgoingPackets(const Clock&) {
 
 }
 
@@ -91,11 +91,11 @@ void GamePeer::Waiting::handleWillUpdateWorld(const Clock&) {
 
 }
 
-void GamePeer::Waiting::handleIncomingPacket(Packet* packet, const Clock& clock) {
+void GamePeer::Waiting::handleIncomingPacket(Packet*, const Clock&) {
 
 }
 
-void GamePeer::Waiting::sendOutgoingPackets(const Clock& clock) {
+void GamePeer::Waiting::sendOutgoingPackets(const Clock&) {
 
 }
 
@@ -107,10 +107,10 @@ void GamePeer::Playing::handleWillUpdateWorld(const Clock&) {
 
 }
 
-void GamePeer::Playing::handleIncomingPacket(Packet* packet, const Clock& clock) {
+void GamePeer::Playing::handleIncomingPacket(Packet*, const Clock&) {
 
 }
 
-void GamePeer::Playing::sendOutgoingPackets(const Clock& clock) {
+void GamePeer::Playing::sendOutgoingPackets(const Clock&) {
 
 }
