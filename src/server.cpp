@@ -4,10 +4,31 @@
 
 #include <spdlog/spdlog.h>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 
-int main() {
+void printHelp();
+
+int main(int argc, char** argv) {
+    unsigned short serverPort = 12345;
+
+    int c = 0;
+    while ((c = getopt(argc, argv, "p:h")) != -1) {
+        switch (c) {
+        case 'p':
+            serverPort = boost::lexical_cast<unsigned short>(optarg);
+            break;
+        case 'h':
+            printHelp();
+            return 0;
+        case '?':
+            return 1;
+        default:
+            abort ();
+        }
+    }
+
     try {
         auto console = spdlog::stdout_logger_mt("console", true);
         console->set_level(spdlog::level::debug);
@@ -34,4 +55,12 @@ int main() {
     }
 
     return 1;
+}
+
+void printHelp() {
+    std::cout << "Usage: peer [options]\n"
+              << "Options:\n"
+              << "  -p <port>     Pass the UDP <port> of the server. This parameter is optional. Default is port 12345.\n"
+              << "  -h            Display this information.\n"
+              ;
 }

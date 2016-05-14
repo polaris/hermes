@@ -4,9 +4,40 @@
 #include "GameObjectRegistry.h"
 #include "Logging.h"
 
+#include <boost/lexical_cast.hpp>
+
 #include <iostream>
 
-int main() {
+void printHelp();
+
+int main(int argc, char** argv) {
+    char* serverAddress = nullptr;
+    unsigned short serverPort = 12345;
+
+    int c = 0;
+    while ((c = getopt(argc, argv, "s:p:h")) != -1) {
+        switch (c) {
+        case 's':
+            serverAddress = optarg;
+            break;
+        case 'p':
+            serverPort = boost::lexical_cast<unsigned short>(optarg);
+            break;
+        case 'h':
+            printHelp();
+            return 0;
+        case '?':
+            return 1;
+        default:
+            abort ();
+        }
+    }
+
+    if (serverAddress == nullptr) {
+        std::cerr << "Error: no server address provided.\n";
+        return -1;
+    }
+
     try {
         INIT_LOGGING(LOG_LEVEL_DEBUG);
 
@@ -21,7 +52,7 @@ int main() {
         
         registerGameObjects();
 
-        GameClient gameClient(60, "127.0.0.1", 12345, renderer);
+        GameClient gameClient(60, serverAddress, serverPort, renderer);
 
         gameClient.run();
         
@@ -33,4 +64,13 @@ int main() {
     }
 
     return 1;
+}
+
+void printHelp() {
+    std::cout << "Usage: peer [options]\n"
+              << "Options:\n"
+              << "  -s <address>  Pass the IP <address> of the server. This parameter is required.\n"
+              << "  -p <port>     Pass the UDP <port> of the server. This parameter is optional. Default is port 12345.\n"
+              << "  -h            Display this information.\n"
+              ;
 }
