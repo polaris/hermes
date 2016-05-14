@@ -1,0 +1,4 @@
+- implement peer-to-peer RTS demo
+- implement collision detection
+- add shots - new game object type not controlled by a user
+- find a way to make GameObjectFactory actually work
