@@ -7,8 +7,13 @@
 #include "BufferedQueue.h"
 #include "LatencyEmulator.h"
 #include "Transceiver.h"
+#include "PeerRegistry.h"
 
 #include <memory>
+
+class Renderer;
+class Clock;
+class Packet;
 
 class GamePeer : public Game {
 public:
@@ -16,11 +21,18 @@ public:
 
     GamePeer(unsigned int frameRate, Renderer& renderer, const char* masterAddress, unsigned short port);
 
+    GamePeer(const GamePeer&) = delete;
+
+    GamePeer& operator =(const GamePeer&) = delete;
+
 private:
     void handleWillUpdateWorld(const Clock& clock) override;
     void handleDidUpdateWorld(const Clock& clock) override;
     void handleEvent(SDL_Event &event, bool& running) override;
     void finishFrame() override;
+
+    void processIncomingPackets(const Clock& clock);
+    void renderFrame();
 
     class State {
     public:
@@ -43,23 +55,29 @@ private:
     class Accepting : public State {
     public:
         explicit Accepting(GamePeer* gamePeer);
-        void handleWillUpdateWorld(const Clock&) override;
         void handleIncomingPacket(Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
+
+    private:
+        void handleHello(Packet* packet);
     };
 
     class Connecting : public State {
     public:
         explicit Connecting(GamePeer* gamePeer);
-        void handleWillUpdateWorld(const Clock&) override;
         void handleIncomingPacket(Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
+
+    private:
+        void sendHello(const Clock& clock);
+        void handleWelcome(Packet* packet);
+
+        float lastHelloTime_;
     };
 
     class Waiting : public State {
     public:
         explicit Waiting(GamePeer* gamePeer);
-        void handleWillUpdateWorld(const Clock&) override;
         void handleIncomingPacket(Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
     };
@@ -78,9 +96,16 @@ private:
     StatePtr currentState;
     StatePtr nextState;
 
+    PeerRegistry peerRegistry_;
+
+    uint32_t playerId_;
+    uint32_t objectId_;
+
     BufferedQueue bufferedQueue_;
     LatencyEmulator latencyEmulator_;
+
     Transceiver transceiver_;
+    boost::asio::ip::udp::endpoint masterPeerEndpoint_;
 };
 
 #endif	// _GamePeer_H
