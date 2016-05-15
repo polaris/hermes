@@ -26,7 +26,7 @@ float Clock::getGameTime() const {
     return static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count()) / 1000.0f;
 }
 
-float Clock::getFrameDuration() const {
+float Clock::getFrameTime() const {
     const auto now = std::chrono::high_resolution_clock::now();
     return static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(now - currentTime).count()) / 1000.0f;
 }

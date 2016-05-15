@@ -15,7 +15,7 @@ public:
 
     float getGameTime() const;
 
-    float getFrameDuration() const;
+    float getFrameTime() const;
 
 private:
     std::chrono::high_resolution_clock::time_point startTime;

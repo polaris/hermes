@@ -33,9 +33,9 @@ void Game::run() {
 
             finishFrame();
 
-            const auto currentFrameDuration = clock.getFrameDuration();
-            if (currentFrameDuration < frameDuration_) {
-                const auto delay = static_cast<unsigned int>((frameDuration_ - currentFrameDuration) * 1000.0f);
+            const auto currentFrameTime = clock.getFrameTime();
+            if (currentFrameTime < frameDuration_) {
+                const auto delay = static_cast<unsigned int>((frameDuration_ - currentFrameTime) * 1000.0f);
                 std::this_thread::sleep_for(std::chrono::milliseconds(delay));
             }
         }
