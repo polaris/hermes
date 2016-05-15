@@ -60,6 +60,8 @@ private:
 
     private:
         void handleHello(Packet* packet);
+
+        uint32_t nextPlayerId_;
     };
 
     class Connecting : public State {
@@ -70,7 +72,7 @@ private:
 
     private:
         void sendHello(const Clock& clock);
-        void handleWelcome(Packet* packet);
+        void handleIntro(Packet* packet);
 
         float lastHelloTime_;
     };

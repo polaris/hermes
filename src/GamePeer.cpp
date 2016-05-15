@@ -12,7 +12,7 @@ GamePeer::GamePeer(unsigned int frameRate, Renderer& renderer, unsigned short po
 , currentState(nullptr)
 , nextState(nullptr)
 , peerRegistry_()
-, playerId_(PROTOCOL_INVALID_PLAYER_ID)
+, playerId_(1)
 , objectId_(PROTOCOL_INVALID_OBJECT_ID)
 , bufferedQueue_(1000)
 , latencyEmulator_(bufferedQueue_, 150)
@@ -106,7 +106,8 @@ GamePeer::State::State(GamePeer* gamePeer)
 }
 
 GamePeer::Accepting::Accepting(GamePeer* gamePeer)
-: State(gamePeer) {
+: State(gamePeer)
+, nextPlayerId_(gamePeer_->playerId_ + 1) {
 }
 
 void GamePeer::Accepting::handleIncomingPacket(Packet* packet, const Clock&) {
@@ -125,12 +126,17 @@ void GamePeer::Accepting::handleIncomingPacket(Packet* packet, const Clock&) {
 void GamePeer::Accepting::handleHello(Packet* packet) {
     if (!gamePeer_->peerRegistry_.isRegistered(packet->getEndpoint())) {
         INFO("HELLO received from new peer at {0}", packet->getEndpoint());
-        auto welcomePacket = gamePeer_->bufferedQueue_.pop();
-        if (welcomePacket) {
-            INFO("WELCOME peer at {0}.", packet->getEndpoint());
-            gamePeer_->bufferedQueue_.push(welcomePacket);
+        auto introPacket = gamePeer_->bufferedQueue_.pop();
+        if (introPacket) {
+            const auto playerId = nextPlayerId_++;
+
+            createIntroPacket(introPacket, playerId, packet->getEndpoint());
+
+            gamePeer_->transceiver_.sendTo(introPacket);
+
+            INFO("Sending INTRO to peer at {0}.", packet->getEndpoint());
         } else {
-            WARN("Failed to WELCOME to client: empty packet pool.");
+            WARN("Failed to send INTRO to client: empty packet pool.");
         }
     } else {
         WARN("HELLO from a registered peer {0}.", packet->getEndpoint());
@@ -149,8 +155,8 @@ void GamePeer::Connecting::handleIncomingPacket(Packet* packet, const Clock&) {
     unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
     packet->read(packetType);
     switch (packetType) {
-    case PROTOCOL_PACKET_TYPE_WELCOME:
-        handleWelcome(packet);
+    case PROTOCOL_PACKET_TYPE_INTRO:
+        handleIntro(packet);
         break;
     default:
         WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
@@ -158,10 +164,9 @@ void GamePeer::Connecting::handleIncomingPacket(Packet* packet, const Clock&) {
     }
 }
 
-void GamePeer::Connecting::handleWelcome(Packet* packet) {
+void GamePeer::Connecting::handleIntro(Packet* packet) {
     packet->read(gamePeer_->playerId_);
-    packet->read(gamePeer_->objectId_);
-    DEBUG("WELCOME received from master peer at {0}. My player ID is {1}.", packet->getEndpoint(), gamePeer_->playerId_);
+    DEBUG("INTRO received from master peer at {0}. My player ID is {1}.", packet->getEndpoint(), gamePeer_->playerId_);
     auto newState = StatePtr(new Waiting{gamePeer_});
     gamePeer_->setState(newState);
 }
