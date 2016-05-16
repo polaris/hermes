@@ -19,6 +19,8 @@ public:
 
     void reset();
 
+    void forEachPeer(std::function<void (const boost::asio::ip::udp::endpoint&)> fun) const;
+
 private:
     std::unordered_map<std::string, boost::asio::ip::udp::endpoint> peers_;
 };

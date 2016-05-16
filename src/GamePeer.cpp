@@ -126,17 +126,33 @@ void GamePeer::Accepting::handleIncomingPacket(Packet* packet, const Clock&) {
 void GamePeer::Accepting::handleHello(Packet* packet) {
     if (!gamePeer_->peerRegistry_.isRegistered(packet->getEndpoint())) {
         INFO("HELLO received from new peer at {0}", packet->getEndpoint());
-        auto introPacket = gamePeer_->bufferedQueue_.pop();
-        if (introPacket) {
+        auto invitePacket = gamePeer_->bufferedQueue_.pop();
+        if (invitePacket) {
             const auto playerId = nextPlayerId_++;
 
-            createIntroPacket(introPacket, playerId, packet->getEndpoint());
+            createInvitePacket(invitePacket, playerId, packet->getEndpoint(), gamePeer_->peerRegistry_);
+            gamePeer_->transceiver_.sendTo(invitePacket);
+            INFO("Sending INVITE to peer at {0}.", packet->getEndpoint());
 
-            gamePeer_->transceiver_.sendTo(introPacket);
+            gamePeer_->peerRegistry_.forEachPeer([this, packet, playerId] (const boost::asio::ip::udp::endpoint& peerEndpoint) {
+                auto introPacket = gamePeer_->bufferedQueue_.pop();
+                if (introPacket) {
+                    createIntroPacket(introPacket, playerId, packet->getEndpoint(), peerEndpoint);
+                    gamePeer_->transceiver_.sendTo(introPacket);
+                    INFO("Sending INTRO to peer at {0}.", peerEndpoint);
+                } else {
+                    // TODO: handle error.
+                }
+            });
 
-            INFO("Sending INTRO to peer at {0}.", packet->getEndpoint());
+            gamePeer_->peerRegistry_.add(packet->getEndpoint());
+
+            if (gamePeer_->peerRegistry_.getCount() == 3) {
+                auto newState = StatePtr(new Waiting{gamePeer_});
+                gamePeer_->setState(newState);
+            }
         } else {
-            WARN("Failed to send INTRO to client: empty packet pool.");
+            WARN("Failed to send INVITE to client: empty packet pool.");
         }
     } else {
         WARN("HELLO from a registered peer {0}.", packet->getEndpoint());
@@ -155,8 +171,8 @@ void GamePeer::Connecting::handleIncomingPacket(Packet* packet, const Clock&) {
     unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
     packet->read(packetType);
     switch (packetType) {
-    case PROTOCOL_PACKET_TYPE_INTRO:
-        handleIntro(packet);
+    case PROTOCOL_PACKET_TYPE_INVITE:
+        handleInvite(packet);
         break;
     default:
         WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
@@ -164,9 +180,25 @@ void GamePeer::Connecting::handleIncomingPacket(Packet* packet, const Clock&) {
     }
 }
 
-void GamePeer::Connecting::handleIntro(Packet* packet) {
+void GamePeer::Connecting::handleInvite(Packet* packet) {
     packet->read(gamePeer_->playerId_);
-    DEBUG("INTRO received from master peer at {0}. My player ID is {1}.", packet->getEndpoint(), gamePeer_->playerId_);
+
+    DEBUG("INVITE received from master peer at {0}. My player ID is {1}.", packet->getEndpoint(), gamePeer_->playerId_);
+
+    gamePeer_->peerRegistry_.add(packet->getEndpoint());
+
+    int32_t peerCount = 0;
+    packet->read(peerCount);
+    for (int32_t i = 0; i < peerCount; ++i) {
+        std::string address;
+        packet->read(address);
+        unsigned short port = 0;
+        packet->read(port);
+        const boost::asio::ip::udp::endpoint peerEndpoint(boost::asio::ip::address::from_string(address), port);
+        gamePeer_->peerRegistry_.add(peerEndpoint);
+        DEBUG("Adding peer at {0}:{1}", address, port);
+    }
+
     auto newState = StatePtr(new Waiting{gamePeer_});
     gamePeer_->setState(newState);
 }
@@ -194,7 +226,30 @@ GamePeer::Waiting::Waiting(GamePeer* gamePeer)
 : State(gamePeer) {
 }
 
-void GamePeer::Waiting::handleIncomingPacket(Packet*, const Clock&) {
+void GamePeer::Waiting::handleIncomingPacket(Packet* packet, const Clock&) {
+    unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
+    packet->read(packetType);
+    switch (packetType) {
+    case PROTOCOL_PACKET_TYPE_INTRO:
+        handleIntro(packet);
+        break;
+    default:
+        WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
+        break;
+    }
+}
+
+void GamePeer::Waiting::handleIntro(Packet* packet) {
+    int32_t playerId = 0;
+    packet->read(playerId);
+    DEBUG("INTRO received from master peer at {0}. New peers player ID is {1}.", packet->getEndpoint(), playerId);
+    std::string address;
+    packet->read(address);
+    unsigned short port = 0;
+    packet->read(port);
+    const boost::asio::ip::udp::endpoint peerEndpoint(boost::asio::ip::address::from_string(address), port);
+    gamePeer_->peerRegistry_.add(peerEndpoint);
+    DEBUG("Adding peer at {0}:{1}", address, port);
 }
 
 void GamePeer::Waiting::sendOutgoingPackets(const Clock&) {

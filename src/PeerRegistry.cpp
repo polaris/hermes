@@ -33,3 +33,9 @@ void PeerRegistry::remove(const boost::asio::ip::udp::endpoint& endpoint) {
 void PeerRegistry::reset() {
     peers_.erase(peers_.begin(), peers_.end());
 }
+
+void PeerRegistry::forEachPeer(std::function<void (const boost::asio::ip::udp::endpoint&)> fun) const {
+    for (const auto& p : peers_) {
+        fun(p.second);
+    }
+}

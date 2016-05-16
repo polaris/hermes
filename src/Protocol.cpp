@@ -1,6 +1,9 @@
 #include "Protocol.h"
 #include "Packet.h"
 #include "MoveList.h"
+#include "PeerRegistry.h"
+
+#include <boost/lexical_cast.hpp>
 
 static void createBasicPacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint, uint8_t packetType) {
     packet->clear();
@@ -20,9 +23,21 @@ void createWelcomePacket(Packet* packet, uint32_t playerId, uint32_t objectId, c
     packet->write(objectId);
 }
 
-void createIntroPacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint) {
-    createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_INTRO);
+void createInvitePacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, const PeerRegistry& peerRegistry) {
+    createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_INVITE);
     packet->write(playerId);
+    packet->write(peerRegistry.getCount());
+    peerRegistry.forEachPeer([packet] (const boost::asio::ip::udp::endpoint& peerEndpoint) {
+        packet->write(boost::lexical_cast<std::string>(peerEndpoint.address()));
+        packet->write(peerEndpoint.port());
+    });
+}
+
+void createIntroPacket(Packet* packet, uint32_t newPeerPlayerId, const boost::asio::ip::udp::endpoint& newPeerEndpoint, const boost::asio::ip::udp::endpoint& endpoint) {
+    createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_INTRO);
+    packet->write(newPeerPlayerId);
+    packet->write(boost::lexical_cast<std::string>(newPeerEndpoint.address()));
+    packet->write(newPeerEndpoint.port());
 }
 
 void createInputPacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, const MoveList& moveList) {

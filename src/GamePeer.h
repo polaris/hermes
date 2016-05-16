@@ -72,7 +72,7 @@ private:
 
     private:
         void sendHello(const Clock& clock);
-        void handleIntro(Packet* packet);
+        void handleInvite(Packet* packet);
 
         float lastHelloTime_;
     };
@@ -82,6 +82,9 @@ private:
         explicit Waiting(GamePeer* gamePeer);
         void handleIncomingPacket(Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
+
+    private:
+        void handleIntro(Packet* packet);
     };
 
     class Playing : public State {
