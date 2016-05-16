@@ -108,6 +108,11 @@ public:
         }
     }
 
+    void write(const std::string& s) {
+        const std::vector<char> v(s.begin(), s.end());
+        write(v);
+    }
+
     void write(const void *data, uint32_t size) {
         if (size_ + size > capacity_) {
             throw std::out_of_range(boost::str(boost::format("%1%:%2%: size is out of range") % __FILE__ % __LINE__));
@@ -126,7 +131,7 @@ public:
 
     template<typename T>
     void read(std::vector<T> &data) {
-        uint32_t count{0};
+        typename std::vector<T>::size_type count{0};
         read(count);
         data.reserve(count);
         T t{};
@@ -134,6 +139,12 @@ public:
             read(t);
             data.push_back(t);
         }
+    }
+
+    void read(std::string& s) {
+        std::vector<char> v;
+        read(v);
+        s = std::string(v.begin(), v.end());
     }
 
     void read(void *out, uint32_t size) {

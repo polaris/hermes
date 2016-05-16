@@ -168,3 +168,16 @@ TEST_CASE("Packets can copy their data from other packets") {
     REQUIRE(org2 == val2);
     REQUIRE(org3 == val3);
 }
+
+TEST_CASE("Write and read strings to a packet") {
+    Packet packet(256);
+    const std::string expected = "the vengeful one";
+    packet.write(expected);
+
+    packet.reset();
+
+    std::string actual;
+    packet.read(actual);
+
+    REQUIRE(expected == actual);
+}
