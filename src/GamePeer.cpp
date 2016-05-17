@@ -141,7 +141,7 @@ void GamePeer::Accepting::handleHello(Packet* packet) {
                     gamePeer_->transceiver_.sendTo(introPacket);
                     INFO("Sending INTRO to peer at {0}.", peerEndpoint);
                 } else {
-                    // TODO: handle error.
+                    WARN("Failed to send INTRO to peer at {0}: empty packet pool", peerEndpoint);
                 }
             });
 
@@ -152,7 +152,7 @@ void GamePeer::Accepting::handleHello(Packet* packet) {
                 gamePeer_->setState(newState);
             }
         } else {
-            WARN("Failed to send INVITE to client: empty packet pool.");
+            WARN("Failed to send INVITE to new peer: empty packet pool.");
         }
     } else {
         WARN("HELLO from a registered peer {0}.", packet->getEndpoint());
