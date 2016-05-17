@@ -9,13 +9,13 @@ TEST_CASE("Registry is empty after construction") {
 TEST_CASE("Adding peers increases the count") {
     PeerRegistry peerRegistry;
 
-    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 12345));
+    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 12345), 1);
     REQUIRE(peerRegistry.getCount() == 1);
 
-    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.2"), 12345));
+    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.2"), 12345), 2);
     REQUIRE(peerRegistry.getCount() == 2);
 
-    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 12346));
+    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 12346), 3);
     REQUIRE(peerRegistry.getCount() == 3);
 }
 
@@ -25,9 +25,9 @@ TEST_CASE("Removing peers decreases the count") {
     const boost::asio::ip::udp::endpoint ep3(boost::asio::ip::address::from_string("127.0.0.1"), 12346);
 
     PeerRegistry peerRegistry;
-    peerRegistry.add(ep1);
-    peerRegistry.add(ep2);
-    peerRegistry.add(ep3);
+    peerRegistry.add(ep1, 1);
+    peerRegistry.add(ep2, 2);
+    peerRegistry.add(ep3, 3);
     REQUIRE(peerRegistry.getCount() == 3);
 
     peerRegistry.remove(ep1);
@@ -43,8 +43,8 @@ TEST_CASE("Adding the same peer twice throws an exception") {
 
     PeerRegistry peerRegistry;
 
-    peerRegistry.add(ep);
-    REQUIRE_THROWS_AS(peerRegistry.add(ep), std::logic_error);
+    peerRegistry.add(ep, 1);
+    REQUIRE_THROWS_AS(peerRegistry.add(ep, 2), std::logic_error);
 }
 
 TEST_CASE("Check if peer is registered") {
@@ -52,7 +52,7 @@ TEST_CASE("Check if peer is registered") {
 
     PeerRegistry peerRegistry;
 
-    peerRegistry.add(ep);
+    peerRegistry.add(ep, 1);
     REQUIRE(peerRegistry.isRegistered(ep) == true);
 
     peerRegistry.remove(ep);
@@ -62,9 +62,9 @@ TEST_CASE("Check if peer is registered") {
 TEST_CASE("Reseting the registry removes all registered peers") {
     PeerRegistry peerRegistry;
 
-    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 12345));
-    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.2"), 12345));
-    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 12346));
+    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 12345), 1);
+    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.2"), 12345), 2);
+    peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 12346), 3);
 
     REQUIRE(peerRegistry.getCount() == 3);
 

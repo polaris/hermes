@@ -17,12 +17,12 @@ uint32_t PeerRegistry::getCount() const {
     return static_cast<uint32_t>(peers_.size());
 }
 
-void PeerRegistry::add(const boost::asio::ip::udp::endpoint& endpoint) {
+void PeerRegistry::add(const boost::asio::ip::udp::endpoint& endpoint, uint32_t playerId) {
     const auto s = boost::lexical_cast<std::string>(endpoint);
     if (peers_.find(s) != peers_.end()) {
         throw std::logic_error("peer already registered");
     }    
-    peers_.insert(std::make_pair(s, endpoint));
+    peers_.insert(std::make_pair(s, std::make_pair(endpoint, playerId)));
 }
 
 void PeerRegistry::remove(const boost::asio::ip::udp::endpoint& endpoint) {
@@ -34,7 +34,7 @@ void PeerRegistry::reset() {
     peers_.erase(peers_.begin(), peers_.end());
 }
 
-void PeerRegistry::forEachPeer(std::function<void (const boost::asio::ip::udp::endpoint&)> fun) const {
+void PeerRegistry::forEachPeer(std::function<void (const Peer&)> fun) const {
     for (const auto& p : peers_) {
         fun(p.second);
     }

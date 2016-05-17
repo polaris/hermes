@@ -60,8 +60,21 @@ private:
 
     private:
         void handleHello(Packet* packet);
+        void handleTock(Packet* packet, const Clock& clock);
+        void sendTick(const Clock& clock);
 
         uint32_t nextPlayerId_;
+        float lastTickTime_;
+    };
+
+    class Ready : public State {
+    public:
+        explicit Ready(GamePeer* gamePeer);
+        void handleIncomingPacket(Packet* packet, const Clock& clock) override;
+        void sendOutgoingPackets(const Clock& clock) override;
+
+    private:
+        void handleReady(Packet* packet);
     };
 
     class Connecting : public State {
