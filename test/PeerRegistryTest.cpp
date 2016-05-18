@@ -1,6 +1,8 @@
 #include "GamePeer.h"
 #include "catch.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 TEST_CASE("Registry is empty after construction") {
     const PeerRegistry peerRegistry;
     REQUIRE(peerRegistry.getCount() == 0);
@@ -71,4 +73,31 @@ TEST_CASE("Reseting the registry removes all registered peers") {
     peerRegistry.reset();
 
     REQUIRE(peerRegistry.getCount() == 0);
+}
+
+TEST_CASE("Iterate over all peers in the registry") {
+    PeerRegistry peerRegistry;
+
+    std::map<std::string, std::pair<unsigned short, uint32_t>> ipAddresses = {
+        { "127.0.0.1",     { 1001, 1 } },
+        { "10.149.1.123",  { 1002, 2 } },
+        { "10.149.2.123",  { 1003, 3 } },
+        { "192.168.2.105", { 1004, 4 } }
+    };
+
+    unsigned int expectedCount = 0;
+    for (const auto& pair : ipAddresses) {
+        peerRegistry.add(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(pair.first), pair.second.first), pair.second.second);
+        expectedCount += 1;
+    }
+
+    unsigned int actualCount = 0;
+    peerRegistry.forEachPeer([&actualCount, &ipAddresses] (const Peer& peer) {
+        REQUIRE(ipAddresses.size() > actualCount);
+        const auto s = boost::lexical_cast<std::string>(peer.first.address());
+        REQUIRE(ipAddresses[s].first == peer.first.port());
+        REQUIRE(ipAddresses[s].second == peer.second);
+        actualCount += 1;
+    });
+    REQUIRE(expectedCount == actualCount);
 }
