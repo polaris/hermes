@@ -13,6 +13,15 @@ bool PeerRegistry::isRegistered(const boost::asio::ip::udp::endpoint& endpoint) 
     return peers_.find(s) != peers_.end();
 }
 
+bool PeerRegistry::verifyPeer(uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint) const {
+    const auto s = boost::lexical_cast<std::string>(endpoint);
+    const auto itr = peers_.find(s);
+    if (itr != peers_.end()) {
+        return itr->second.second == playerId;
+    }
+    return false;
+}
+
 uint32_t PeerRegistry::getCount() const {
     return static_cast<uint32_t>(peers_.size());
 }

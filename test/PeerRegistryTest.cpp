@@ -101,3 +101,27 @@ TEST_CASE("Iterate over all peers in the registry") {
     });
     REQUIRE(expectedCount == actualCount);
 }
+
+TEST_CASE("Registered peers can be verified by checking player ID and endpoint") {
+    PeerRegistry peerRegistry;
+
+    const auto ep1 = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 12345);
+    const auto ep2 = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.2"), 12346);
+    const auto ep3 = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.3"), 12347);
+
+    peerRegistry.add(ep1, 1);
+    peerRegistry.add(ep2, 2);
+    peerRegistry.add(ep3, 3);
+
+    REQUIRE(peerRegistry.verifyPeer(1, ep1) == true);
+    REQUIRE(peerRegistry.verifyPeer(2, ep2) == true);
+    REQUIRE(peerRegistry.verifyPeer(3, ep3) == true);
+
+    REQUIRE(peerRegistry.verifyPeer(3, ep1) == false);
+    REQUIRE(peerRegistry.verifyPeer(1, ep2) == false);
+    REQUIRE(peerRegistry.verifyPeer(2, ep3) == false);
+
+    REQUIRE(peerRegistry.verifyPeer(2, ep1) == false);
+    REQUIRE(peerRegistry.verifyPeer(3, ep2) == false);
+    REQUIRE(peerRegistry.verifyPeer(1, ep3) == false);
+}

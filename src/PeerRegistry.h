@@ -13,6 +13,8 @@ public:
 
     bool isRegistered(const boost::asio::ip::udp::endpoint& endpoint) const;
 
+    bool verifyPeer(uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint) const;
+
     uint32_t getCount() const;
 
     void add(const boost::asio::ip::udp::endpoint& endpoint, uint32_t playerId);
