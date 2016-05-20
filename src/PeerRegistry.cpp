@@ -17,7 +17,7 @@ bool PeerRegistry::verifyPeer(uint32_t playerId, const boost::asio::ip::udp::end
     const auto s = boost::lexical_cast<std::string>(endpoint);
     const auto itr = peers_.find(s);
     if (itr != peers_.end()) {
-        return itr->second.second == playerId;
+        return itr->second.playerId == playerId;
     }
     return false;
 }
@@ -31,7 +31,7 @@ void PeerRegistry::add(const boost::asio::ip::udp::endpoint& endpoint, uint32_t 
     if (peers_.find(s) != peers_.end()) {
         throw std::logic_error("peer already registered");
     }    
-    peers_.insert(std::make_pair(s, std::make_pair(endpoint, playerId)));
+    peers_.insert(std::make_pair(s, Peer(endpoint, playerId)));
 }
 
 void PeerRegistry::remove(const boost::asio::ip::udp::endpoint& endpoint) {
@@ -46,5 +46,13 @@ void PeerRegistry::reset() {
 void PeerRegistry::forEachPeer(std::function<void (const Peer&)> fun) const {
     for (const auto& p : peers_) {
         fun(p.second);
+    }
+}
+
+void PeerRegistry::addRoundTripTime(const boost::asio::ip::udp::endpoint& endpoint, float roundTripTime) {
+    const auto s = boost::lexical_cast<std::string>(endpoint);
+    const auto itr = peers_.find(s);
+    if (itr != peers_.end()) {
+        (*itr).second.latencyEstimator.addRTT(roundTripTime);
     }
 }

@@ -52,25 +52,41 @@ private:
 
     void setState(StatePtr& newState);
 
-    class Accepting : public State {
+    class Peering : public State {
+    public:
+        explicit Peering(GamePeer* gamePeer);
+        Peering(const GamePeer::Peering&) = delete;
+        GamePeer::Peering& operator =(const GamePeer::Peering&) = delete;
+        void handleIncomingPacket(Packet* packet, const Clock& clock) override;
+
+        virtual void handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) = 0;
+        virtual void sendOutgoingPackets(const Clock& clock) override;
+
+    private:
+
+        void handleTick(Packet* packet, const Clock& clock);
+        void handleTock(Packet* packet, const Clock& clock);
+        void sendTick(const Clock& clock);
+
+        float lastTickTime_;
+    };
+
+    class Accepting : public Peering {
     public:
         explicit Accepting(GamePeer* gamePeer);
-        void handleIncomingPacket(Packet* packet, const Clock& clock) override;
+        void handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
 
     private:
         void handleHello(Packet* packet);
-        void handleTock(Packet* packet, const Clock& clock);
-        void sendTick(const Clock& clock);
 
         uint32_t nextPlayerId_;
-        float lastTickTime_;
     };
 
-    class Ready : public State {
+    class Ready : public Peering {
     public:
         explicit Ready(GamePeer* gamePeer);
-        void handleIncomingPacket(Packet* packet, const Clock& clock) override;
+        void handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
 
     private:
@@ -90,21 +106,21 @@ private:
         float lastHelloTime_;
     };
 
-    class Waiting : public State {
+    class Waiting : public Peering {
     public:
         explicit Waiting(GamePeer* gamePeer);
-        void handleIncomingPacket(Packet* packet, const Clock& clock) override;
+        void handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
 
     private:
         void handleIntro(Packet* packet);
     };
 
-    class Playing : public State {
+    class Playing : public Peering {
     public:
         explicit Playing(GamePeer* gamePeer);
         void handleWillUpdateWorld(const Clock&) override;
-        void handleIncomingPacket(Packet* packet, const Clock& clock) override;
+        void handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
     };
 

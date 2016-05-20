@@ -28,9 +28,9 @@ void createInvitePacket(Packet* packet, uint32_t playerId, const boost::asio::ip
     packet->write(playerId);
     packet->write(peerRegistry.getCount());
     peerRegistry.forEachPeer([packet] (const Peer& peer) {
-        packet->write(boost::lexical_cast<std::string>(peer.first.address()));
-        packet->write(peer.first.port());
-        packet->write(peer.second);
+        packet->write(boost::lexical_cast<std::string>(peer.endpoint.address()));
+        packet->write(peer.endpoint.port());
+        packet->write(peer.playerId);
     });
 }
 

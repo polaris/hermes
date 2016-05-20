@@ -105,21 +105,86 @@ GamePeer::State::State(GamePeer* gamePeer)
 : gamePeer_(gamePeer) {
 }
 
-GamePeer::Accepting::Accepting(GamePeer* gamePeer)
+GamePeer::Peering::Peering(GamePeer* gamePeer)
 : State(gamePeer)
-, nextPlayerId_(gamePeer_->playerId_ + 1)
 , lastTickTime_(0) {
 }
 
-void GamePeer::Accepting::handleIncomingPacket(Packet* packet, const Clock& clock) {
+void GamePeer::Peering::handleIncomingPacket(Packet* packet, const Clock& clock) {
     unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
     packet->read(packetType);
     switch (packetType) {
-    case PROTOCOL_PACKET_TYPE_HELLO:
-        handleHello(packet);
+    case PROTOCOL_PACKET_TYPE_TICK:
+        handleTick(packet, clock);
         break;
     case PROTOCOL_PACKET_TYPE_TOCK:
         handleTock(packet, clock);
+        break;
+    default:
+        handleIncomingPacketType(packetType, packet, clock);
+        break;
+    }
+}
+
+void GamePeer::Peering::handleTick(Packet* packet, const Clock& clock) {
+    uint32_t playerId = PROTOCOL_INVALID_PLAYER_ID;
+    packet->read(playerId);
+    if (gamePeer_->peerRegistry_.verifyPeer(playerId, packet->getEndpoint())) {
+        DEBUG("TICK received from peer {0} at {1}", playerId, packet->getEndpoint());
+        // TODO: Store time
+
+        float timeStamp = 0.0f;
+        packet->read(timeStamp);
+
+        auto replyPacket = gamePeer_->bufferedQueue_.pop();
+        if (replyPacket) {
+            createTockPacket(replyPacket, timeStamp, packet->getEndpoint());
+            gamePeer_->transceiver_.sendTo(replyPacket);
+        } else {
+            WARN("Failed to send TOCK to a client: empty packet pool.");
+        }
+    } else {
+        WARN("Received INPUT from unknown client {0}.", packet->getEndpoint());
+    }
+}
+
+void GamePeer::Peering::handleTock(Packet* packet, const Clock& clock) {
+    DEBUG("TOCK received from a peer at {0}", packet->getEndpoint());
+    float timeStamp = 0.0f;
+    packet->read(timeStamp);
+    const float roundTripTime = clock.getTime() - timeStamp;
+    gamePeer_->peerRegistry_.addRoundTripTime(packet->getEndpoint(), roundTripTime);
+}
+
+void GamePeer::Peering::sendOutgoingPackets(const Clock& clock) {
+    const auto now = clock.getTime();
+    if (now > lastTickTime_ + 1.0f) {
+        sendTick(clock);
+        lastTickTime_ = now;
+    }
+}
+
+void GamePeer::Peering::sendTick(const Clock& clock) {
+    gamePeer_->peerRegistry_.forEachPeer([this, &clock] (const Peer& peer) {
+        auto packet = gamePeer_->bufferedQueue_.pop();
+        if (packet) {
+            createTickPacket(packet, gamePeer_->playerId_, clock.getTime(), peer.endpoint);
+            gamePeer_->transceiver_.sendTo(packet);
+        } else {
+            WARN("Failed to send TICK to server: empty packet pool.");
+        }
+    });
+}
+
+GamePeer::Accepting::Accepting(GamePeer* gamePeer)
+: Peering(gamePeer)
+, nextPlayerId_(gamePeer_->playerId_ + 1) {
+}
+
+void GamePeer::Accepting::handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) {
+    switch (packetType) {
+    case PROTOCOL_PACKET_TYPE_HELLO:
+        handleHello(packet);
         break;
     default:
         WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
@@ -141,11 +206,11 @@ void GamePeer::Accepting::handleHello(Packet* packet) {
             gamePeer_->peerRegistry_.forEachPeer([this, packet, playerId] (const Peer& peer) {
                 auto introPacket = gamePeer_->bufferedQueue_.pop();
                 if (introPacket) {
-                    createIntroPacket(introPacket, playerId, packet->getEndpoint(), peer.first);
+                    createIntroPacket(introPacket, playerId, packet->getEndpoint(), peer.endpoint);
                     gamePeer_->transceiver_.sendTo(introPacket);
-                    INFO("Sending INTRO to peer at {0}.", peer.first);
+                    INFO("Sending INTRO to peer at {0}.", peer.endpoint);
                 } else {
-                    WARN("Failed to send INTRO to peer at {0}: empty packet pool", peer.first);
+                    WARN("Failed to send INTRO to peer at {0}: empty packet pool", peer.endpoint);
                 }
             });
 
@@ -163,41 +228,19 @@ void GamePeer::Accepting::handleHello(Packet* packet) {
     }
 }
 
-void GamePeer::Accepting::handleTock(Packet* packet, const Clock& clock) {
-    // float timeStamp = 0.0f;
-    // packet->read(timeStamp);
-    // const float roundTripTime = clock.getTime() - timeStamp;
-    // gameClient_->latencyEstimator_.addRTT(roundTripTime);
-}
-
 void GamePeer::Accepting::sendOutgoingPackets(const Clock& clock) {
-    const auto now = clock.getTime();
-    if (now > lastTickTime_ + 0.5f) {
-        sendTick(clock);
-        lastTickTime_ = now;
-    }
-}
-
-void GamePeer::Accepting::sendTick(const Clock& clock) {
-    gamePeer_->peerRegistry_.forEachPeer([this, &clock] (const Peer& peer) {
-        auto packet = gamePeer_->bufferedQueue_.pop();
-        if (packet) {
-            createTickPacket(packet, gamePeer_->playerId_, clock.getTime(), peer.first);
-            gamePeer_->transceiver_.sendTo(packet);
-        } else {
-            WARN("Failed to send TICK to server: empty packet pool.");
-        }
-    });
+    Peering::sendOutgoingPackets(clock);
 }
 
 GamePeer::Ready::Ready(GamePeer* gamePeer)
-: State(gamePeer) {
+: Peering(gamePeer) {
 }
 
-void GamePeer::Ready::handleIncomingPacket(Packet*, const Clock&) {
+void GamePeer::Ready::handleIncomingPacketType(unsigned char, Packet*, const Clock&) {
 }
 
-void GamePeer::Ready::sendOutgoingPackets(const Clock&) {
+void GamePeer::Ready::sendOutgoingPackets(const Clock& clock) {
+    Peering::sendOutgoingPackets(clock);
 }
 
 GamePeer::Connecting::Connecting(GamePeer* gamePeer)
@@ -263,12 +306,10 @@ void GamePeer::Connecting::sendHello(const Clock& clock) {
 }
 
 GamePeer::Waiting::Waiting(GamePeer* gamePeer)
-: State(gamePeer) {
+: Peering(gamePeer) {
 }
 
-void GamePeer::Waiting::handleIncomingPacket(Packet* packet, const Clock&) {
-    unsigned char packetType = PROTOCOL_PACKET_TYPE_INVALID;
-    packet->read(packetType);
+void GamePeer::Waiting::handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock&) {
     switch (packetType) {
     case PROTOCOL_PACKET_TYPE_INTRO:
         handleIntro(packet);
@@ -292,18 +333,20 @@ void GamePeer::Waiting::handleIntro(Packet* packet) {
     DEBUG("Adding peer at {0}:{1}", address, port);
 }
 
-void GamePeer::Waiting::sendOutgoingPackets(const Clock&) {
+void GamePeer::Waiting::sendOutgoingPackets(const Clock& clock) {
+    Peering::sendOutgoingPackets(clock);
 }
 
 GamePeer::Playing::Playing(GamePeer* gamePeer)
-: State(gamePeer) {
+: Peering(gamePeer) {
 }
 
 void GamePeer::Playing::handleWillUpdateWorld(const Clock&) {
 }
 
-void GamePeer::Playing::handleIncomingPacket(Packet*, const Clock&) {
+void GamePeer::Playing::handleIncomingPacketType(unsigned char, Packet*, const Clock&) {
 }
 
-void GamePeer::Playing::sendOutgoingPackets(const Clock&) {
+void GamePeer::Playing::sendOutgoingPackets(const Clock& clock) {
+    Peering::sendOutgoingPackets(clock);
 }

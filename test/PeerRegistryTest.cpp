@@ -94,9 +94,9 @@ TEST_CASE("Iterate over all peers in the registry") {
     unsigned int actualCount = 0;
     peerRegistry.forEachPeer([&actualCount, &ipAddresses] (const Peer& peer) {
         REQUIRE(ipAddresses.size() > actualCount);
-        const auto s = boost::lexical_cast<std::string>(peer.first.address());
-        REQUIRE(ipAddresses[s].first == peer.first.port());
-        REQUIRE(ipAddresses[s].second == peer.second);
+        const auto s = boost::lexical_cast<std::string>(peer.endpoint.address());
+        REQUIRE(ipAddresses[s].first == peer.endpoint.port());
+        REQUIRE(ipAddresses[s].second == peer.playerId);
         actualCount += 1;
     });
     REQUIRE(expectedCount == actualCount);

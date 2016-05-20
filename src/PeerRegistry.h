@@ -1,11 +1,23 @@
 #ifndef _PeerRegistry_H
 #define _PeerRegistry_H
 
+#include "LatencyEstimator.h"
+
 #include <boost/asio.hpp>
 
 #include <unordered_map>
 
-using Peer = std::pair<boost::asio::ip::udp::endpoint, uint32_t>;
+struct Peer {
+    Peer(const boost::asio::ip::udp::endpoint& endpoint_, uint32_t playerId_)
+    : endpoint(endpoint_)
+    , playerId(playerId_)
+    , latencyEstimator(10) {
+    }
+
+    const boost::asio::ip::udp::endpoint endpoint;
+    const uint32_t playerId;
+    LatencyEstimator latencyEstimator;
+};
 
 class PeerRegistry {
 public:
@@ -24,6 +36,8 @@ public:
     void reset();
 
     void forEachPeer(std::function<void (const Peer&)> fun) const;
+
+    void addRoundTripTime(const boost::asio::ip::udp::endpoint& endpoint, float roundTripTime);
 
 private:
     std::unordered_map<std::string, Peer> peers_;
