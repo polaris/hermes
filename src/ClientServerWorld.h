@@ -1,5 +1,5 @@
-#ifndef _World_H
-#define _World_H
+#ifndef _ClientServerWorld_H
+#define _ClientServerWorld_H
 
 #include "GameObject.h"
 
@@ -8,9 +8,9 @@
 
 using ObjectIdToGameObjectMap = std::unordered_map<uint32_t, GameObjectPtr>;
 
-class World {
+class ClientServerWorld {
 public:
-    World();
+    ClientServerWorld();
 
     void add(uint32_t objectId, GameObjectPtr& gameObject);
 
@@ -30,4 +30,4 @@ private:
     ObjectIdToGameObjectMap gameObjects_;
 };
 
-#endif  // _World_H
+#endif  // _ClientServerWorld_H

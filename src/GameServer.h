@@ -2,7 +2,7 @@
 #define _GameServer_H
 
 #include "Game.h"
-#include "World.h"
+#include "ClientServerWorld.h"
 #include "BufferedQueue.h"
 #include "ClientRegistry.h"
 #include "Transceiver.h"
@@ -33,7 +33,7 @@ private:
     void sendOutgoingPackets(const Clock& clock);
     void sendStateUpdate(const Clock& clock);
 
-    World world_;
+    ClientServerWorld world_;
 
     const float updateInterval_;
 
