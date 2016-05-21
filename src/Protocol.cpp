@@ -62,3 +62,7 @@ void createTockPacket(Packet* packet, float timeStamp, const boost::asio::ip::ud
     createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_TOCK);
     packet->write(timeStamp);
 }
+
+void createStartPacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint) {
+    createBasicPacket(packet, endpoint, PROTOCOL_PACKET_TYPE_START);
+}

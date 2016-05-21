@@ -4,9 +4,12 @@
 #include "Packet.h"
 #include "Clock.h"
 #include "Logging.h"
+#include "LocalSpaceShip.h"
 
-GamePeer::GamePeer(unsigned int frameRate, Renderer& renderer, unsigned short port)
+GamePeer::GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, unsigned short port)
 : Game(frameRate, renderer)
+, world_()
+, updateInterval_(1.0f/static_cast<float>(updateRate))
 , inputHandler_(30)
 , latencyEstimator_(10)
 , currentState(nullptr)
@@ -21,8 +24,10 @@ GamePeer::GamePeer(unsigned int frameRate, Renderer& renderer, unsigned short po
     currentState.reset(new GamePeer::Accepting{this});
 }
 
-GamePeer::GamePeer(unsigned int frameRate, Renderer& renderer, const char* address, unsigned short port)
+GamePeer::GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, const char* address, unsigned short port)
 : Game(frameRate, renderer)
+, world_()
+, updateInterval_(1.0f/static_cast<float>(updateRate))
 , inputHandler_(30)
 , latencyEstimator_(10)
 , currentState(nullptr)
@@ -37,11 +42,9 @@ GamePeer::GamePeer(unsigned int frameRate, Renderer& renderer, const char* addre
     currentState.reset(new GamePeer::Connecting{this});
 }
 
-void GamePeer::handleWillUpdateWorld(const Clock& clock) {
+void GamePeer::update(const Clock& clock) {
     currentState->handleWillUpdateWorld(clock);
-}
-
-void GamePeer::handleDidUpdateWorld(const Clock& clock) {
+    world_.update(frameDuration_);
     processIncomingPackets(clock);
     renderFrame();
     currentState->sendOutgoingPackets(clock);
@@ -130,7 +133,6 @@ void GamePeer::Peering::handleTick(Packet* packet, const Clock& clock) {
     uint32_t playerId = PROTOCOL_INVALID_PLAYER_ID;
     packet->read(playerId);
     if (gamePeer_->peerRegistry_.verifyPeer(playerId, packet->getEndpoint())) {
-        DEBUG("TICK received from peer {0} at {1}", playerId, packet->getEndpoint());
         // TODO: Store time
 
         float timeStamp = 0.0f;
@@ -141,15 +143,14 @@ void GamePeer::Peering::handleTick(Packet* packet, const Clock& clock) {
             createTockPacket(replyPacket, timeStamp, packet->getEndpoint());
             gamePeer_->transceiver_.sendTo(replyPacket);
         } else {
-            WARN("Failed to send TOCK to a client: empty packet pool.");
+            WARN("Failed to send TOCK to peer {0}: empty packet pool.", packet->getEndpoint());
         }
     } else {
-        WARN("Received INPUT from unknown client {0}.", packet->getEndpoint());
+        WARN("Received INPUT from unknown peer {0}.", packet->getEndpoint());
     }
 }
 
 void GamePeer::Peering::handleTock(Packet* packet, const Clock& clock) {
-    DEBUG("TOCK received from a peer at {0}", packet->getEndpoint());
     float timeStamp = 0.0f;
     packet->read(timeStamp);
     const float roundTripTime = clock.getTime() - timeStamp;
@@ -193,54 +194,58 @@ void GamePeer::Accepting::handleIncomingPacketType(unsigned char packetType, Pac
 }
 
 void GamePeer::Accepting::handleHello(Packet* packet) {
-    if (!gamePeer_->peerRegistry_.isRegistered(packet->getEndpoint())) {
-        INFO("HELLO received from new peer at {0}", packet->getEndpoint());
-        auto invitePacket = gamePeer_->bufferedQueue_.pop();
-        if (invitePacket) {
-            const auto playerId = nextPlayerId_++;
+    if (gamePeer_->peerRegistry_.getCount() < PROTOCOL_NUM_PEERS_FOR_GAME) {
+        if (!gamePeer_->peerRegistry_.isRegistered(packet->getEndpoint())) {
+            INFO("HELLO received from new peer at {0}", packet->getEndpoint());
+            auto invitePacket = gamePeer_->bufferedQueue_.pop();
+            if (invitePacket) {
+                const auto playerId = nextPlayerId_++;
 
-            createInvitePacket(invitePacket, playerId, packet->getEndpoint(), gamePeer_->peerRegistry_);
-            gamePeer_->transceiver_.sendTo(invitePacket);
-            INFO("Sending INVITE to peer at {0}.", packet->getEndpoint());
+                createInvitePacket(invitePacket, playerId, packet->getEndpoint(), gamePeer_->peerRegistry_);
+                gamePeer_->transceiver_.sendTo(invitePacket);
+                INFO("Sending INVITE to peer at {0}.", packet->getEndpoint());
 
-            gamePeer_->peerRegistry_.forEachPeer([this, packet, playerId] (const Peer& peer) {
-                auto introPacket = gamePeer_->bufferedQueue_.pop();
-                if (introPacket) {
-                    createIntroPacket(introPacket, playerId, packet->getEndpoint(), peer.endpoint);
-                    gamePeer_->transceiver_.sendTo(introPacket);
-                    INFO("Sending INTRO to peer at {0}.", peer.endpoint);
-                } else {
-                    WARN("Failed to send INTRO to peer at {0}: empty packet pool", peer.endpoint);
-                }
-            });
+                gamePeer_->peerRegistry_.forEachPeer([this, packet, playerId] (const Peer& peer) {
+                    auto introPacket = gamePeer_->bufferedQueue_.pop();
+                    if (introPacket) {
+                        createIntroPacket(introPacket, playerId, packet->getEndpoint(), peer.endpoint);
+                        gamePeer_->transceiver_.sendTo(introPacket);
+                        INFO("Sending INTRO to peer at {0}.", peer.endpoint);
+                    } else {
+                        WARN("Failed to send INTRO to peer at {0}: empty packet pool", peer.endpoint);
+                    }
+                });
 
-            gamePeer_->peerRegistry_.add(packet->getEndpoint(), playerId);
-
-            if (gamePeer_->peerRegistry_.getCount() == PROTOCOL_NUM_PEERS_FOR_GAME) {
-                auto newState = StatePtr(new Ready{gamePeer_});
-                gamePeer_->setState(newState);
+                gamePeer_->peerRegistry_.add(packet->getEndpoint(), playerId);
+            } else {
+                WARN("Failed to send INVITE to new peer: empty packet pool.");
             }
         } else {
-            WARN("Failed to send INVITE to new peer: empty packet pool.");
+            WARN("HELLO from a registered peer {0}.", packet->getEndpoint());
         }
     } else {
-        WARN("HELLO from a registered peer {0}.", packet->getEndpoint());
+        WARN("HELLO received from {0} but number of necessary players already reached.", packet->getEndpoint());
+        // TODO: Tell peer we are already full.
     }
 }
 
 void GamePeer::Accepting::sendOutgoingPackets(const Clock& clock) {
     Peering::sendOutgoingPackets(clock);
-}
 
-GamePeer::Ready::Ready(GamePeer* gamePeer)
-: Peering(gamePeer) {
-}
-
-void GamePeer::Ready::handleIncomingPacketType(unsigned char, Packet*, const Clock&) {
-}
-
-void GamePeer::Ready::sendOutgoingPackets(const Clock& clock) {
-    Peering::sendOutgoingPackets(clock);
+    if (gamePeer_->peerRegistry_.getCount() == PROTOCOL_NUM_PEERS_FOR_GAME) {
+        gamePeer_->peerRegistry_.forEachPeer([this] (const Peer& peer) {
+            auto startPacket = gamePeer_->bufferedQueue_.pop();
+            if (startPacket) {
+                createStartPacket(startPacket, peer.endpoint);
+                gamePeer_->transceiver_.sendTo(startPacket);
+                INFO("Sending START to peer at {0}.", peer.endpoint);
+            } else {
+                WARN("Failed to send START to peer at {0}: empty packet pool", peer.endpoint);
+            }
+        });
+        auto newState = StatePtr(new Playing{gamePeer_});
+        gamePeer_->setState(newState);
+    }
 }
 
 GamePeer::Connecting::Connecting(GamePeer* gamePeer)
@@ -314,6 +319,9 @@ void GamePeer::Waiting::handleIncomingPacketType(unsigned char packetType, Packe
     case PROTOCOL_PACKET_TYPE_INTRO:
         handleIntro(packet);
         break;
+    case PROTOCOL_PACKET_TYPE_START:
+        handleStart(packet);
+        break;
     default:
         WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
         break;
@@ -333,20 +341,82 @@ void GamePeer::Waiting::handleIntro(Packet* packet) {
     DEBUG("Adding peer at {0}:{1}", address, port);
 }
 
+void GamePeer::Waiting::handleStart(Packet* packet) {
+    auto newState = StatePtr(new Playing{gamePeer_});
+    gamePeer_->setState(newState);
+}
+
 void GamePeer::Waiting::sendOutgoingPackets(const Clock& clock) {
     Peering::sendOutgoingPackets(clock);
 }
 
 GamePeer::Playing::Playing(GamePeer* gamePeer)
-: Peering(gamePeer) {
+: Peering(gamePeer)
+, lastStateUpdate_(0) {
+    INFO("Playing");
+
+    auto gameObjectPtr = std::shared_ptr<GameObject>(new LocalSpaceShip(gamePeer_->renderer_, gamePeer_->inputHandler_));
+    gamePeer_->world_.add(gamePeer_->playerId_ * 1000, gameObjectPtr);
 }
 
-void GamePeer::Playing::handleWillUpdateWorld(const Clock&) {
+void GamePeer::Playing::handleWillUpdateWorld(const Clock& clock) {
+    gamePeer_->inputHandler_.update(clock.getGameTime());
 }
 
-void GamePeer::Playing::handleIncomingPacketType(unsigned char, Packet*, const Clock&) {
+void GamePeer::Playing::handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) {
+    switch (packetType) {
+    case PROTOCOL_PACKET_TYPE_STATE:
+        handleState(packet);
+        break;
+    default:
+        WARN("Received a packet with unexpected packet type {0} from {1}.", static_cast<unsigned int>(packetType), packet->getEndpoint());
+        break;
+    }
+}
+
+void GamePeer::Playing::handleState(Packet* packet) {
+    float latestInputTime = 0.0f;
+    packet->read(latestInputTime);
+    assert(latestInputTime == 0.0f);
+
+    uint32_t gameObjectCount = 0;
+    packet->read(gameObjectCount);
+    for (uint32_t i = 0; i < gameObjectCount; i++) {
+        uint32_t objectId = 0, classId = 0;
+        packet->read(objectId);
+        packet->read(classId);
+        auto gameObject = gamePeer_->world_.getGameObject(objectId);
+        if (gameObject == nullptr) {
+            //gameObject = gamePeer_->createNewGameObject(classId, objectId);
+        }
+        //gameObject->read(packet);
+    }
 }
 
 void GamePeer::Playing::sendOutgoingPackets(const Clock& clock) {
     Peering::sendOutgoingPackets(clock);
+
+    const auto now = clock.getTime();
+    if (now > lastStateUpdate_ + gamePeer_->updateInterval_) {
+        gamePeer_->peerRegistry_.forEachPeer([this] (const Peer& peer) {
+            auto packet = gamePeer_->bufferedQueue_.pop();
+            if (packet) {
+                createStatePacket(packet, peer.endpoint);
+                packet->write(0.0f);
+                packet->write(gamePeer_->world_.getGameObjectCount());
+                gamePeer_->world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
+                    uint32_t playerId = objectId / 1000;
+                    if (playerId == gamePeer_->playerId_) {
+                        packet->write(objectId);
+                        packet->write(gameObject->getClassId());
+                        gameObject->write(packet);
+                    }
+                });
+                gamePeer_->transceiver_.sendTo(packet);
+            } else {
+                WARN("Failed to send STATE to peer at {0}: empty packet pool", peer.endpoint);
+            }
+        });
+        lastStateUpdate_ = now;
+    }
 }

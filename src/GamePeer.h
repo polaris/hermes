@@ -2,6 +2,7 @@
 #define _GamePeer_H
 
 #include "Game.h"
+#include "World.h"
 #include "InputHandler.h"
 #include "LatencyEstimator.h"
 #include "BufferedQueue.h"
@@ -17,17 +18,16 @@ class Packet;
 
 class GamePeer : public Game {
 public:
-    GamePeer(unsigned int frameRate, Renderer& renderer, unsigned short port);
+    GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, unsigned short port);
 
-    GamePeer(unsigned int frameRate, Renderer& renderer, const char* masterAddress, unsigned short port);
+    GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, const char* masterAddress, unsigned short port);
 
     GamePeer(const GamePeer&) = delete;
 
     GamePeer& operator =(const GamePeer&) = delete;
 
 private:
-    void handleWillUpdateWorld(const Clock& clock) override;
-    void handleDidUpdateWorld(const Clock& clock) override;
+    void update(const Clock& clock) override;
     void handleEvent(SDL_Event &event, bool& running) override;
     void finishFrame() override;
 
@@ -83,16 +83,6 @@ private:
         uint32_t nextPlayerId_;
     };
 
-    class Ready : public Peering {
-    public:
-        explicit Ready(GamePeer* gamePeer);
-        void handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) override;
-        void sendOutgoingPackets(const Clock& clock) override;
-
-    private:
-        void handleReady(Packet* packet);
-    };
-
     class Connecting : public State {
     public:
         explicit Connecting(GamePeer* gamePeer);
@@ -114,6 +104,7 @@ private:
 
     private:
         void handleIntro(Packet* packet);
+        void handleStart(Packet* packet);
     };
 
     class Playing : public Peering {
@@ -122,7 +113,16 @@ private:
         void handleWillUpdateWorld(const Clock&) override;
         void handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
+
+    private:
+        void handleState(Packet* packet);
+
+        float lastStateUpdate_;
     };
+
+    World world_;
+
+    float updateInterval_;
 
     InputHandler inputHandler_;
     LatencyEstimator latencyEstimator_;

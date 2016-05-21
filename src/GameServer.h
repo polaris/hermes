@@ -2,6 +2,7 @@
 #define _GameServer_H
 
 #include "Game.h"
+#include "World.h"
 #include "BufferedQueue.h"
 #include "ClientRegistry.h"
 #include "Transceiver.h"
@@ -19,8 +20,7 @@ public:
     GameServer(unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, uint16_t port, Renderer& renderer);
 
 private:
-    void handleWillUpdateWorld(const Clock& clock) override;
-    void handleDidUpdateWorld(const Clock& clock) override;
+    void update(const Clock& clock) override;
     void handleEvent(SDL_Event &event, bool& running) override;
 
     void processIncomingPackets(const Clock& clock);
@@ -32,6 +32,8 @@ private:
     void renderWorld();
     void sendOutgoingPackets(const Clock& clock);
     void sendStateUpdate(const Clock& clock);
+
+    World world_;
 
     const float updateInterval_;
 

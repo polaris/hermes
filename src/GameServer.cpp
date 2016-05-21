@@ -9,6 +9,7 @@
 
 GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, unsigned emulatedLatency, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
+, world_()
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , nextPlayerId_(1)
 , nextObjectId_(1)
@@ -20,7 +21,7 @@ GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, unsigned
 , lastStateUpdate_(0) {
 }
 
-void GameServer::handleWillUpdateWorld(const Clock& clock) {
+void GameServer::update(const Clock& clock) {
     processIncomingPackets(clock);
     clientRegistry_.checkForDisconnects(clock.getTime(), [this] (uint32_t playerId) {
             DEBUG("Remove disconnected client {0}", playerId);
@@ -31,6 +32,11 @@ void GameServer::handleWillUpdateWorld(const Clock& clock) {
                 playerToObjectMap_.erase(itr);
             }
         });
+
+    world_.update(frameDuration_);
+
+    renderWorld();
+    sendOutgoingPackets(clock);
 }
 
 void GameServer::processIncomingPackets(const Clock& clock) {
@@ -143,11 +149,6 @@ void GameServer::handleTick(Packet* packet, const Clock& clock) {
     } else {
         WARN("Received INPUT from unknown client {0}.", packet->getEndpoint());
     }
-}
-
-void GameServer::handleDidUpdateWorld(const Clock& clock) {
-    renderWorld();
-    sendOutgoingPackets(clock);
 }
 
 void GameServer::renderWorld() {

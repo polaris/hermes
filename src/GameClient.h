@@ -2,6 +2,7 @@
 #define _GameClient_H
 
 #include "Game.h"
+#include "World.h"
 #include "BufferedQueue.h"
 #include "InputHandler.h"
 #include "Transceiver.h"
@@ -24,8 +25,7 @@ public:
     GameClient& operator =(const GameClient&) = delete;
 
 private:
-    void handleWillUpdateWorld(const Clock& clock) override;
-    void handleDidUpdateWorld(const Clock& clock) override;
+    void update(const Clock& clock) override;
     void handleEvent(SDL_Event& event, bool& running) override;
     void finishFrame() override;
 
@@ -83,6 +83,8 @@ private:
 
         std::unordered_map<uint32_t, GameObjectPtr> objectIdToGameObjectMap_;
     };
+
+    World world_;
 
     InputHandler inputHandler_;
     LatencyEstimator latencyEstimator_;

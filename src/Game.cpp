@@ -6,7 +6,6 @@
 
 Game::Game(unsigned int frameRate, Renderer& renderer)
 : renderer_(renderer)
-, world_()
 , frameDuration_(1.0f / static_cast<float>(frameRate)) {
 }
 
@@ -25,11 +24,7 @@ void Game::run() {
         } else {
             clock.update();
 
-            handleWillUpdateWorld(clock);
-
-            world_.update(frameDuration_);
-
-            handleDidUpdateWorld(clock);
+            update(clock);
 
             finishFrame();
 

@@ -51,10 +51,10 @@ int main(int argc, char** argv) {
         std::unique_ptr<GamePeer> gamePeer;
         if (masterAddress == nullptr) {
             INFO("I am the master listening for peers on port {0}.", masterPort);
-            gamePeer = std::make_unique<GamePeer>(60, renderer, masterPort);
+            gamePeer = std::make_unique<GamePeer>(60, 30, renderer, masterPort);
         } else {
             INFO("I am a normal peer. Trying to connect to master at {0}:{1}.", masterAddress, masterPort);
-            gamePeer = std::make_unique<GamePeer>(60, renderer, masterAddress, masterPort);
+            gamePeer = std::make_unique<GamePeer>(60, 30, renderer, masterAddress, masterPort);
         }
 
         gamePeer->run();

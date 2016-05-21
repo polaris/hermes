@@ -24,6 +24,7 @@ const uint8_t    PROTOCOL_PACKET_TYPE_TICK      = 0x05;
 const uint8_t    PROTOCOL_PACKET_TYPE_TOCK      = 0x06;
 const uint8_t    PROTOCOL_PACKET_TYPE_INVITE    = 0x07;
 const uint8_t    PROTOCOL_PACKET_TYPE_INTRO     = 0x08;
+const uint8_t    PROTOCOL_PACKET_TYPE_START     = 0x09;
 
 const float      PROTOCOL_HELLO_INTERVAL        = 1.0f;
 const float      PROTOCOL_INPUT_INTERVAL        = 0.033f;
@@ -40,5 +41,6 @@ void createTickPacket(Packet* packet, uint32_t playerId, float timeStamp, const 
 void createTockPacket(Packet* packet, float timeStamp, const boost::asio::ip::udp::endpoint& endpoint);
 void createInvitePacket(Packet* packet, uint32_t playerId, const boost::asio::ip::udp::endpoint& endpoint, const PeerRegistry& peerRegistry);
 void createIntroPacket(Packet* packet, uint32_t newPeerPlayerId, const boost::asio::ip::udp::endpoint& newPeerEndpoint, const boost::asio::ip::udp::endpoint& endpoint);
+void createStartPacket(Packet* packet, const boost::asio::ip::udp::endpoint& endpoint);
 
 #endif  // _Protocol_H

@@ -10,6 +10,7 @@
 
 GameClient::GameClient(unsigned int frameRate, unsigned int emulatedLatency, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
+, world_()
 , inputHandler_(30)
 , latencyEstimator_(10)
 , currentState(new GameClient::Connecting{this})
@@ -22,11 +23,9 @@ GameClient::GameClient(unsigned int frameRate, unsigned int emulatedLatency, con
 , objectId_(PROTOCOL_INVALID_OBJECT_ID) {
 }
 
-void GameClient::handleWillUpdateWorld(const Clock& clock) {
+void GameClient::update(const Clock& clock) {
     currentState->handleWillUpdateWorld(clock);
-}
-
-void GameClient::handleDidUpdateWorld(const Clock& clock) {
+    world_.update(frameDuration_);
     processIncomingPackets(clock);
     renderFrame();
     currentState->sendOutgoingPackets(clock);
