@@ -2,7 +2,7 @@
 #define _GamePeer_H
 
 #include "Game.h"
-#include "ClientServerWorld.h"
+#include "PeerToPeerWorld.h"
 #include "InputHandler.h"
 #include "LatencyEstimator.h"
 #include "BufferedQueue.h"
@@ -119,7 +119,7 @@ private:
         float lastStateUpdate_;
     };
 
-    ClientServerWorld world_;
+    PeerToPeerWorld world_;
 
     float updateInterval_;
 
