@@ -56,3 +56,12 @@ void PeerRegistry::addRoundTripTime(const boost::asio::ip::udp::endpoint& endpoi
         (*itr).second.latencyEstimator.addRTT(roundTripTime);
     }
 }
+
+const LatencyEstimator& PeerRegistry::getLatencyEstimator(const boost::asio::ip::udp::endpoint& endpoint) const {
+    const auto s = boost::lexical_cast<std::string>(endpoint);
+    const auto itr = peers_.find(s);
+    if (itr == peers_.end()) {
+        throw std::logic_error("Peer not registered");
+    }
+    return (*itr).second.latencyEstimator;
+}

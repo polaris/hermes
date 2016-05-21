@@ -5,6 +5,7 @@
 #include "Clock.h"
 #include "Logging.h"
 #include "LocalSpaceShip.h"
+#include "RemoteSpaceShip.h"
 
 GamePeer::GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, unsigned short port)
 : Game(frameRate, renderer)
@@ -353,7 +354,7 @@ GamePeer::Playing::Playing(GamePeer* gamePeer)
     INFO("Playing");
 
     auto gameObjectPtr = std::shared_ptr<GameObject>(new LocalSpaceShip(gamePeer_->renderer_, gamePeer_->inputHandler_));
-    gamePeer_->world_.add(gamePeer_->playerId_ * 1000, gameObjectPtr);
+    gamePeer_->world_.addLocalGameObject(gamePeer_->playerId_ * 1000, gameObjectPtr);
 }
 
 void GamePeer::Playing::handleWillUpdateWorld(const Clock& clock) {
@@ -382,11 +383,14 @@ void GamePeer::Playing::handleState(Packet* packet) {
         uint32_t objectId = 0, classId = 0;
         packet->read(objectId);
         packet->read(classId);
-        auto gameObject = gamePeer_->world_.getGameObject(objectId);
+        auto gameObject = gamePeer_->world_.getRemoteGameObject(objectId);
         if (gameObject == nullptr) {
-            //gameObject = gamePeer_->createNewGameObject(classId, objectId);
+            const auto& latencyEstimator = gamePeer_->peerRegistry_.getLatencyEstimator(packet->getEndpoint());
+            auto gameObjectPtr = std::shared_ptr<GameObject>(new RemoteSpaceShip(gamePeer_->renderer_, latencyEstimator, gamePeer_->frameDuration_));
+            gamePeer_->world_.addRemoteGameObject(objectId, gameObjectPtr);
+            gameObject = gameObjectPtr.get();
         }
-        //gameObject->read(packet);
+        gameObject->read(packet);
     }
 }
 
@@ -400,8 +404,8 @@ void GamePeer::Playing::sendOutgoingPackets(const Clock& clock) {
             if (packet) {
                 createStatePacket(packet, peer.endpoint);
                 packet->write(0.0f);
-                packet->write(gamePeer_->world_.getGameObjectCount());
-                gamePeer_->world_.forEachGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
+                packet->write(gamePeer_->world_.getLocalGameObjectCount());
+                gamePeer_->world_.forEachLocalGameObject([this, packet] (uint32_t objectId, GameObject* gameObject) {
                     uint32_t playerId = objectId / 1000;
                     if (playerId == gamePeer_->playerId_) {
                         packet->write(objectId);

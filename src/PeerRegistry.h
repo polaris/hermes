@@ -39,6 +39,8 @@ public:
 
     void addRoundTripTime(const boost::asio::ip::udp::endpoint& endpoint, float roundTripTime);
 
+    const LatencyEstimator& getLatencyEstimator(const boost::asio::ip::udp::endpoint& endpoint) const;
+
 private:
     std::unordered_map<std::string, Peer> peers_;
 };

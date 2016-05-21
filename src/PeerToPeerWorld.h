@@ -12,22 +12,27 @@ class PeerToPeerWorld {
 public:
     PeerToPeerWorld();
 
-    void add(uint32_t objectId, GameObjectPtr& gameObject);
+    void addLocalGameObject(uint32_t objectId, GameObjectPtr& gameObject);
 
-    void remove(uint32_t objectId);
+    void removeLocalGameObject(uint32_t objectId);
 
-    GameObject* getGameObject(uint32_t objectId);
+    void addRemoteGameObject(uint32_t objectId, GameObjectPtr& gameObject);
 
-    uint32_t getGameObjectCount() const;
+    void removeRemoteGameObject(uint32_t objectId);
+
+    GameObject* getRemoteGameObject(uint32_t objectId);
+
+    uint32_t getLocalGameObjectCount() const;
 
     void update(float elapsed);
 
     void draw(Renderer& renderer);
 
-    void forEachGameObject(std::function<void (uint32_t, GameObject*)> fun);
+    void forEachLocalGameObject(std::function<void (uint32_t, GameObject*)> fun);
 
 private:
-    ObjectIdToGameObjectMap gameObjects_;
+    ObjectIdToGameObjectMap localGameObjects_;
+    ObjectIdToGameObjectMap remoteGameObjects_;
 };
 
 #endif  // _PeerToPeerWorld_H
