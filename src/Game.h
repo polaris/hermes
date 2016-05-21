@@ -19,8 +19,6 @@ protected:
 
     virtual void handleEvent(SDL_Event &event, bool& running) = 0;
 
-    virtual void finishFrame() {}
-
     Renderer& renderer_;
 
 protected:

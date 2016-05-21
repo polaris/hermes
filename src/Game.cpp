@@ -26,8 +26,6 @@ void Game::run() {
 
             update(clock);
 
-            finishFrame();
-
             const auto currentFrameTime = clock.getFrameTime();
             if (currentFrameTime < frameDuration_) {
                 const auto delay = static_cast<unsigned int>((frameDuration_ - currentFrameTime) * 1000.0f);

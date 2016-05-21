@@ -29,7 +29,6 @@ public:
 private:
     void update(const Clock& clock) override;
     void handleEvent(SDL_Event &event, bool& running) override;
-    void finishFrame() override;
 
     void processIncomingPackets(const Clock& clock);
     void renderFrame();

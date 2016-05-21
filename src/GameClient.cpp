@@ -29,6 +29,10 @@ void GameClient::update(const Clock& clock) {
     processIncomingPackets(clock);
     renderFrame();
     currentState->sendOutgoingPackets(clock);
+    if (nextState) {
+        currentState = nextState;
+        nextState.reset();
+    }
 }
 
 void GameClient::handleEvent(SDL_Event& event, bool& running) {
@@ -45,13 +49,6 @@ void GameClient::handleEvent(SDL_Event& event, bool& running) {
         break;
     default:
         break;
-    }
-}
-
-void GameClient::finishFrame() {
-    if (nextState) {
-        currentState = nextState;
-        nextState.reset();
     }
 }
 

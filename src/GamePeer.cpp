@@ -48,6 +48,10 @@ void GamePeer::update(const Clock& clock) {
     processIncomingPackets(clock);
     renderFrame();
     currentState->sendOutgoingPackets(clock);
+    if (nextState) {
+        currentState = nextState;
+        nextState.reset();
+    }
 }
 
 void GamePeer::handleEvent(SDL_Event &event, bool& running) {
@@ -64,13 +68,6 @@ void GamePeer::handleEvent(SDL_Event &event, bool& running) {
         break;
     default:
         break;
-    }
-}
-
-void GamePeer::finishFrame() {
-    if (nextState) {
-        currentState = nextState;
-        nextState.reset();
     }
 }
 
