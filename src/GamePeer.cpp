@@ -127,7 +127,7 @@ void GamePeer::Peering::handleIncomingPacket(Packet* packet, const Clock& clock)
     }
 }
 
-void GamePeer::Peering::handleTick(Packet* packet, const Clock& clock) {
+void GamePeer::Peering::handleTick(Packet* packet, const Clock&) {
     uint32_t playerId = PROTOCOL_INVALID_PLAYER_ID;
     packet->read(playerId);
     if (gamePeer_->peerRegistry_.verifyPeer(playerId, packet->getEndpoint())) {
@@ -180,7 +180,7 @@ GamePeer::Accepting::Accepting(GamePeer* gamePeer)
 , nextPlayerId_(gamePeer_->playerId_ + 1) {
 }
 
-void GamePeer::Accepting::handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) {
+void GamePeer::Accepting::handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock&) {
     switch (packetType) {
     case PROTOCOL_PACKET_TYPE_HELLO:
         handleHello(packet);
@@ -339,7 +339,7 @@ void GamePeer::Waiting::handleIntro(Packet* packet) {
     DEBUG("Adding peer at {0}:{1}", address, port);
 }
 
-void GamePeer::Waiting::handleStart(Packet* packet) {
+void GamePeer::Waiting::handleStart(Packet*) {
     auto newState = StatePtr(new Playing{gamePeer_});
     gamePeer_->setState(newState);
 }
@@ -361,7 +361,7 @@ void GamePeer::Playing::handleWillUpdateWorld(const Clock& clock) {
     gamePeer_->inputHandler_.update(clock.getGameTime());
 }
 
-void GamePeer::Playing::handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) {
+void GamePeer::Playing::handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock&) {
     switch (packetType) {
     case PROTOCOL_PACKET_TYPE_STATE:
         handleState(packet);
