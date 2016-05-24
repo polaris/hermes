@@ -3,6 +3,7 @@
 #include "Clock.h"
 #include "Protocol.h"
 #include "ServerSpaceShip.h"
+#include "LaserBolt.h"
 #include "ClientSession.h"
 #include "Packet.h"
 #include "Logging.h"
@@ -88,7 +89,15 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 
             ClientSession* clientSession = clientRegistry_.addClientSession(playerId, packet->getEndpoint(), clock.getTime());
 
-            SpaceShipPtr newSpaceShip(new ServerSpaceShip(renderer_, clientSession));
+            SpaceShipPtr newSpaceShip(new ServerSpaceShip(renderer_, clientSession, [this, &clock] (ServerSpaceShip* serverSpaceShip, float lastShot) -> float {
+                const auto now = clock.getTime();
+                if (now > lastShot + 0.5f) {
+                    auto laserBolt = std::shared_ptr<GameObject>(new LaserBolt(renderer_, serverSpaceShip->getPosition(), 50.0f * serverSpaceShip->getLookAt()));
+                    world_.add(nextObjectId_++, laserBolt);
+                    return clock.getTime();
+                }
+                return lastShot;
+            }));
             newSpaceShip->setPlayerId(playerId);
 
             auto gameObject = std::dynamic_pointer_cast<GameObject>(newSpaceShip);
@@ -100,7 +109,7 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 
             INFO("WELCOME client {0} from {1}.", playerId, packet->getEndpoint());
         } else {
-            WARN("Failed to WELCOME to client: empty packet pool.");
+            WARN("Failed to WELCOME client: empty packet pool.");
         }
     } else {
         WARN("HELLO from known client {0}.", packet->getEndpoint());

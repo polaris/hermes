@@ -7,6 +7,7 @@
 #include "Logging.h"
 #include "LocalSpaceShip.h"
 #include "RemoteSpaceShip.h"
+#include "RemoteLaserBolt.h"
 
 GameClient::GameClient(unsigned int frameRate, unsigned int emulatedLatency, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
@@ -82,12 +83,16 @@ void GameClient::renderFrame() {
     renderer_.present();
 }
 
-GameObject* GameClient::createNewGameObject(uint32_t, uint32_t objectId) {
+GameObject* GameClient::createNewGameObject(uint32_t classId, uint32_t objectId) {
     GameObjectPtr gameObjectPtr;
     if (objectId == objectId_) {
         gameObjectPtr = std::shared_ptr<GameObject>(new LocalSpaceShip(renderer_, inputHandler_));
     } else {
-        gameObjectPtr = std::shared_ptr<GameObject>(new RemoteSpaceShip(renderer_, latencyEstimator_, frameDuration_));
+        if (classId == SpaceShip::ClassId) {
+            gameObjectPtr = std::shared_ptr<GameObject>(new RemoteSpaceShip(renderer_, latencyEstimator_, frameDuration_));
+        } else if (classId == LaserBolt::ClassId) {
+            gameObjectPtr = std::shared_ptr<GameObject>(new RemoteLaserBolt(renderer_, latencyEstimator_, frameDuration_));
+        }
 //        gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
     }
     world_.add(objectId, gameObjectPtr);

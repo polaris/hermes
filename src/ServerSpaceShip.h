@@ -3,12 +3,17 @@
 
 #include "SpaceShip.h"
 
+#include <functional>
+
 class Renderer;
 class ClientSession;
+class ServerSpaceShip;
+
+using ShootFunc = std::function<float (ServerSpaceShip*, float)>;
 
 class ServerSpaceShip : public SpaceShip {
 public:
-    ServerSpaceShip(const Renderer& renderer, ClientSession* clientSession);
+    ServerSpaceShip(const Renderer& renderer, ClientSession* clientSession, ShootFunc shootFunc);
 
     ServerSpaceShip(const ServerSpaceShip&) = delete;
 
@@ -18,6 +23,10 @@ public:
 
 private:
     ClientSession* clientSession_;
+
+    ShootFunc shootFunc_;
+
+    float lastShot_;
 };
 
 #endif  // _ServerSpaceShip_H

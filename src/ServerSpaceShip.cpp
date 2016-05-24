@@ -4,9 +4,11 @@
 #include "MoveList.h"
 #include "Move.h"
 
-ServerSpaceShip::ServerSpaceShip(const Renderer& renderer, ClientSession* clientSession)
+ServerSpaceShip::ServerSpaceShip(const Renderer& renderer, ClientSession* clientSession, ShootFunc shootFunc)
 : SpaceShip(renderer)
-, clientSession_(clientSession) {
+, clientSession_(clientSession)
+, shootFunc_(shootFunc)
+, lastShot_(0) {
     setDirty();
 }
 
@@ -20,6 +22,9 @@ void ServerSpaceShip::update(float elapsed) {
         rotate(inputState.desiredRightAmount * deltaTime);
         rotate(-inputState.desiredLeftAmount * deltaTime);
         thrust(inputState.desiredForwardAmount > 0);
+        if (inputState.shooting) {
+            lastShot_ = shootFunc_(this, lastShot_);
+        }
     }
     moveList.clear();
 }
