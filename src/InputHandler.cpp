@@ -30,6 +30,12 @@ void InputHandler::handleInput(KeyAction keyAction, int keyCode) {
         } else {
             inputState_.desiredForwardAmount = 0;
         }
+    } else if (SDLK_SPACE == keyCode) {
+        if (keyAction == KeyAction::Down) {
+            inputState_.shooting = true;
+        } else {
+            inputState_.shooting = false;
+        }
     }
 }
 
