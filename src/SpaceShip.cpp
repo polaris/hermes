@@ -88,6 +88,14 @@ void SpaceShip::thrust(bool onOff) {
     thrustOn_ = onOff;
 }
 
+const Vector2d& SpaceShip::getPosition() const {
+    return position_;
+}
+
+const Vector2d& SpaceShip::getLookAt() const {
+    return lookat_;
+}
+
 GameObjectPtr SpaceShip::createInstance(const Renderer& renderer) {
     return GameObjectPtr(new SpaceShip(renderer));
 }

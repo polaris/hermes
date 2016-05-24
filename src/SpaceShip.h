@@ -32,6 +32,10 @@ public:
 
     void thrust(bool onOff);
 
+    const Vector2d& getPosition() const;
+
+    const Vector2d& getLookAt() const;
+
     static GameObjectPtr createInstance(const Renderer& renderer);
 
     enum { ClassId = 1 };
