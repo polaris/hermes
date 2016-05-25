@@ -8,13 +8,7 @@ LaserBolt::LaserBolt(const Renderer& renderer, const Vector2d& position, const V
 }
 
 void LaserBolt::update(float elapsed) {
-    const auto oldPosition = position_;
-
     position_ += (elapsed * velocity_);
-
-    if (oldPosition != position_) {
-        setDirty();
-    }
 }
 
 void LaserBolt::draw(Renderer &renderer) {

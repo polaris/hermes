@@ -16,11 +16,6 @@ SpaceShip::SpaceShip(const Renderer &renderer)
 }
 
 void SpaceShip::update(float elapsed) {
-    const auto oldVelocity = velocity_;
-    const auto oldPosition = position_;
-    const auto oldLookAt = lookat_;
-    const auto oldAcceleration = acceleration_;
-
     angle_ *= 0.99f;
     lookat_.rotate(angle_ * elapsed);
     acceleration_ = thrustOn_ ? 50.0f : 0.0f;
@@ -30,10 +25,6 @@ void SpaceShip::update(float elapsed) {
     }
     velocity_ += (elapsed * (acceleration_ * lookat_));
     position_ += (elapsed * velocity_);
-
-    if (oldVelocity != velocity_ || oldPosition != position_ || oldLookAt != lookat_ || oldAcceleration != acceleration_) {
-        setDirty();
-    }
 }
 
 void SpaceShip::draw(Renderer &renderer) {

@@ -9,7 +9,6 @@ ServerSpaceShip::ServerSpaceShip(const Renderer& renderer, ClientSession* client
 , clientSession_(clientSession)
 , shootFunc_(shootFunc)
 , lastShot_(0) {
-    setDirty();
 }
 
 void ServerSpaceShip::update(float elapsed) {
