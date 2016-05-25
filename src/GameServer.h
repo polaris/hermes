@@ -29,6 +29,8 @@ private:
     void handleInput(Packet* packet, const Clock& clock);
     void handleTick(Packet* packet, const Clock& clock);
 
+    void checkForDisconnects(const Clock& clock);
+
     void renderWorld();
     void sendOutgoingPackets(const Clock& clock);
     void sendStateUpdate(const Clock& clock);

@@ -24,18 +24,8 @@ GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, unsigned
 
 void GameServer::update(const Clock& clock) {
     processIncomingPackets(clock);
-    clientRegistry_.checkForDisconnects(clock.getTime(), [this] (uint32_t playerId) {
-            DEBUG("Remove disconnected client {0}", playerId);
-            auto itr = playerToObjectMap_.find(playerId);
-            if (itr != playerToObjectMap_.end()) {
-                const uint32_t objectId = itr->second;
-                world_.remove(objectId);
-                playerToObjectMap_.erase(itr);
-            }
-        });
-
+    checkForDisconnects(clock);
     world_.update(frameDuration_);
-
     renderWorld();
     sendOutgoingPackets(clock);
 }
@@ -158,6 +148,18 @@ void GameServer::handleTick(Packet* packet, const Clock& clock) {
     } else {
         WARN("Received INPUT from unknown client {0}.", packet->getEndpoint());
     }
+}
+
+void GameServer::checkForDisconnects(const Clock& clock) {
+    clientRegistry_.checkForDisconnects(clock.getTime(), [this] (uint32_t playerId) {
+            DEBUG("Remove disconnected client {0}", playerId);
+            auto itr = playerToObjectMap_.find(playerId);
+            if (itr != playerToObjectMap_.end()) {
+                const uint32_t objectId = itr->second;
+                world_.remove(objectId);
+                playerToObjectMap_.erase(itr);
+            }
+        });
 }
 
 void GameServer::renderWorld() {
