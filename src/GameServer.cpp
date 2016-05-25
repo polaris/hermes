@@ -92,9 +92,9 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
             SpaceShipPtr newSpaceShip(new ServerSpaceShip(renderer_, clientSession, [this, &clock] (ServerSpaceShip* serverSpaceShip, float lastShot) -> float {
                 const auto now = clock.getTime();
                 if (now > lastShot + 0.5f) {
-                    auto laserBolt = std::shared_ptr<GameObject>(new LaserBolt(renderer_, serverSpaceShip->getPosition(), 50.0f * serverSpaceShip->getLookAt()));
+                    auto laserBolt = GameObjectPtr(new LaserBolt(renderer_, serverSpaceShip->getPosition(), 50.0f * serverSpaceShip->getLookAt()));
                     world_.add(nextObjectId_++, laserBolt);
-                    return clock.getTime();
+                    return now;
                 }
                 return lastShot;
             }));
