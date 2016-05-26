@@ -26,3 +26,15 @@ Window::~Window() {
     }
     window_ = nullptr;
 }
+
+unsigned int Window::getWidth() const {
+    int width = 0, height = 0;
+    SDL_GetWindowSize(window_, &width, &height);
+    return static_cast<unsigned int>(width);
+}
+
+unsigned int Window::getHeight() const {
+    int width = 0, height = 0;
+    SDL_GetWindowSize(window_, &width, &height);
+    return static_cast<unsigned int>(height);
+}

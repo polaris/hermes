@@ -15,6 +15,10 @@ public:
 
     Window& operator =(const Window&) = delete;
 
+    unsigned int getWidth() const;
+
+    unsigned int getHeight() const;
+
     SDL_Window* getSDLWindow() const {
         return window_;
     }
