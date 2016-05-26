@@ -32,7 +32,7 @@ public:
 
     void thrust(bool onOff);
 
-    const Vector2d& getPosition() const;
+    const Vector2d& getPosition() const override;
 
     const Vector2d& getLookAt() const;
 

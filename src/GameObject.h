@@ -5,6 +5,7 @@
 
 class Renderer;
 class Packet;
+class Vector2d;
 
 class GameObject {
 public:
@@ -17,6 +18,8 @@ public:
     virtual void write(Packet* packet) = 0;
 
     virtual void read(Packet* packet) = 0;
+
+    virtual const Vector2d& getPosition() const = 0;
 
     virtual uint32_t getClassId() const = 0;
 };

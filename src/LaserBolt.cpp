@@ -31,6 +31,10 @@ void LaserBolt::read(Packet* packet) {
     lookat_.read(packet);
 }
 
+const Vector2d& LaserBolt::getPosition() const {
+    return position_;
+}
+
 uint32_t LaserBolt::getClassId() const {
     return ClassId;
 }

@@ -20,6 +20,8 @@ public:
 
     virtual void read(Packet* packet) override;
 
+    const Vector2d& getPosition() const override;
+
     uint32_t getClassId() const override;
 
     enum { ClassId = 2 };
