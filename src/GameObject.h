@@ -8,14 +8,11 @@ class Packet;
 
 class GameObject {
 public:
-    GameObject() {
-    }
-
     virtual ~GameObject() = default;
 
     virtual void update(float elapsed) = 0;
 
-    virtual void draw(Renderer &renderer) = 0;
+    virtual void draw(Renderer& renderer) = 0;
 
     virtual void write(Packet* packet) = 0;
 
