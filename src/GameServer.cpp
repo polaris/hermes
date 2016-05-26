@@ -8,6 +8,8 @@
 #include "Packet.h"
 #include "Logging.h"
 
+#include <set>
+
 GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, unsigned emulatedLatency, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , world_()
@@ -25,7 +27,7 @@ GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, unsigned
 void GameServer::update(const Clock& clock) {
     processIncomingPackets(clock);
     checkForDisconnects(clock);
-    world_.update(frameDuration_);
+    updateWorld();
     renderWorld();
     sendOutgoingPackets(clock);
 }
@@ -160,6 +162,20 @@ void GameServer::checkForDisconnects(const Clock& clock) {
                 playerToObjectMap_.erase(itr);
             }
         });
+}
+
+void GameServer::updateWorld() {
+    world_.update(frameDuration_);
+    std::set<uint32_t> objectIds;
+    world_.forEachGameObject([&objectIds] (uint32_t objectId, GameObject* gameObject) {
+        const auto& pos = gameObject->getPosition();
+        if ((pos.x() < 0 || pos.y() < 0 || pos.x() > 640 || pos.y() > 480) && gameObject->getClassId() != SpaceShip::ClassId) {
+            objectIds.insert(objectId);
+        }
+    });
+    for (const auto objectId : objectIds) {
+        world_.remove(objectId);
+    }
 }
 
 void GameServer::renderWorld() {

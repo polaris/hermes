@@ -30,8 +30,8 @@ private:
     void handleTick(Packet* packet, const Clock& clock);
 
     void checkForDisconnects(const Clock& clock);
-
     void renderWorld();
+    void updateWorld();
     void sendOutgoingPackets(const Clock& clock);
     void sendStateUpdate(const Clock& clock);
 

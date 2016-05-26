@@ -9,6 +9,8 @@
 #include "RemoteSpaceShip.h"
 #include "RemoteLaserBolt.h"
 
+#include <set>
+
 GameClient::GameClient(unsigned int frameRate, unsigned int emulatedLatency, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , world_()
@@ -182,17 +184,27 @@ void GameClient::Connected::handleState(Packet* packet) {
     auto& moveList = gameClient_->inputHandler_.getMoveList();
     moveList.removeMovesUntil(latestInputTime);
 
+    std::set<uint32_t> gameObjectsToRemove;
+    gameClient_->world_.forEachGameObject([&gameObjectsToRemove] (uint32_t objectId, GameObject*) {
+        gameObjectsToRemove.insert(objectId);
+    });
+
     uint32_t gameObjectCount = 0;
     packet->read(gameObjectCount);
     for (uint32_t i = 0; i < gameObjectCount; i++) {
         uint32_t objectId = 0, classId = 0;
         packet->read(objectId);
+        gameObjectsToRemove.erase(objectId);
         packet->read(classId);
         auto gameObject = gameClient_->world_.getGameObject(objectId);
         if (gameObject == nullptr) {
             gameObject = gameClient_->createNewGameObject(classId, objectId);
         }
         gameObject->read(packet);
+    }
+
+    for (const auto objectId : gameObjectsToRemove) {
+        gameClient_->world_.remove(objectId);
     }
 }
 
