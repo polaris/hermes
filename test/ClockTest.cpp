@@ -1,5 +1,6 @@
 #include "Clock.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 #include <thread>
 

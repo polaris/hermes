@@ -1,6 +1,7 @@
 #include "Vector2d.h"
 #include "Packet.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 TEST_CASE("Vector2d default construction") {
     const Vector2d v;

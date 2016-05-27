@@ -1,5 +1,6 @@
 #include "BufferedQueue.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 TEST_CASE("pop returns a valid packet pointer or nullptr if the pool is empty") {
     BufferedQueue bufferedQueue(4);

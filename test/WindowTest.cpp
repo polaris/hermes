@@ -1,5 +1,6 @@
 #include "Window.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 TEST_CASE("create a window") {
     const unsigned int width = 640;

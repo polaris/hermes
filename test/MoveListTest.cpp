@@ -1,6 +1,7 @@
 #include "MoveList.h"
 #include "Packet.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 TEST_CASE("MoveList::addMove(...) returns the latest move") {
     MoveList moveList;

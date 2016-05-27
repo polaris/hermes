@@ -1,5 +1,6 @@
 #include "Packet.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 TEST_CASE("Packet has correct default values", "[Packet]") {
     Packet packet(8);

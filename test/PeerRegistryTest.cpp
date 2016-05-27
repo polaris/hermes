@@ -1,5 +1,6 @@
 #include "GamePeer.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 #include <boost/lexical_cast.hpp>
 

@@ -1,5 +1,6 @@
 #include "ClientSession.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 TEST_CASE("ClientSession construction") {
     const boost::asio::ip::udp::endpoint endpoint;

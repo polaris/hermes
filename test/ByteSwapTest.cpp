@@ -1,5 +1,6 @@
 #include "ByteSwap.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 TEST_CASE("swap integral types", "[ByteSwap]") {
     REQUIRE(ByteSwap(uint8_t(0x12)) == 0x12);

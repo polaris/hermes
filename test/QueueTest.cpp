@@ -1,6 +1,7 @@
 #include "Queue.h"
 #include "Packet.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 TEST_CASE("An empty queue can be constructed", "[Queue]") {
     const uint32_t capacity = 8;

@@ -1,6 +1,7 @@
 #include "ClientRegistry.h"
 #include "Protocol.h"
-#include "catch.hpp"
+
+#include <catch.hpp>
 
 using namespace boost::asio::ip;
 
