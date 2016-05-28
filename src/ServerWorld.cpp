@@ -16,7 +16,7 @@ void ServerWorld::update(float elapsed) {
     std::set<uint32_t> objectIds;
     forEachGameObject([&objectIds, this] (uint32_t objectId, GameObject* gameObject) {
         const auto& pos = gameObject->getPosition();
-        if ((pos.x() < 40 || pos.y() < 40 || pos.x() > (width_-40) || pos.y() > (height_-40)) && gameObject->getClassId() != SpaceShip::ClassId) {
+        if ((pos.x() < 0 || pos.y() < 0 || pos.x() > width_ || pos.y() > height_) && gameObject->getClassId() != SpaceShip::ClassId) {
             objectIds.insert(objectId);
         }
     });
