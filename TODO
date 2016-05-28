@@ -1,9 +1,10 @@
-Software
-- interpolate between old client state and replicated/predicted state
-- implement peer-to-peer RTS demo
+Must have
 - implement collision detection
+- interpolate between old client state and replicated/predicted state
 - emulate jitter
-- add shots - new game object type not controlled by a user
+- implement peer-to-peer RTS demo
+
+Nice to have
 - find a way to make GameObjectFactory actually work
 - detect disconnect from server on the client side
 
