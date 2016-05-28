@@ -10,7 +10,7 @@
 
 #include <set>
 
-GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, Renderer& renderer, unsigned short port)
+GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, Renderer& renderer, unsigned short port)
 : Game(frameRate, renderer)
 , world_(width, height)
 , updateInterval_(1.0f/static_cast<float>(updateRate))
@@ -22,13 +22,13 @@ GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRa
 , playerId_(1)
 , objectId_(PROTOCOL_INVALID_OBJECT_ID)
 , bufferedQueue_(1000)
-, latencyEmulator_(bufferedQueue_, 150)
+, latencyEmulator_(bufferedQueue_, emulatedLatency)
 , transceiver_(port, latencyEmulator_)
 , masterPeerEndpoint_() {
     currentState.reset(new GamePeer::Accepting{this});
 }
 
-GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, Renderer& renderer, const char* address, unsigned short port)
+GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, Renderer& renderer, const char* address, unsigned short port)
 : Game(frameRate, renderer)
 , world_(width, height)
 , updateInterval_(1.0f/static_cast<float>(updateRate))
@@ -40,7 +40,7 @@ GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRa
 , playerId_(PROTOCOL_INVALID_PLAYER_ID)
 , objectId_(PROTOCOL_INVALID_OBJECT_ID)
 , bufferedQueue_(1000)
-, latencyEmulator_(bufferedQueue_, 150)
+, latencyEmulator_(bufferedQueue_, emulatedLatency)
 , transceiver_(latencyEmulator_)
 , masterPeerEndpoint_(boost::asio::ip::address::from_string(address), port) {
     currentState.reset(new GamePeer::Connecting{this});
