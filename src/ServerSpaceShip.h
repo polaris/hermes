@@ -9,7 +9,7 @@ class Renderer;
 class ClientSession;
 class ServerSpaceShip;
 
-using ShootFunc = std::function<float (ServerSpaceShip*, float)>;
+using ShootFunc = std::function<float (SpaceShip*, float)>;
 
 class ServerSpaceShip : public SpaceShip {
 public:

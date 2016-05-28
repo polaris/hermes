@@ -3,10 +3,16 @@
 
 #include "SpaceShip.h"
 
+#include <functional>
+
 class InputHandler;
+
+using ShootFunc = std::function<float (SpaceShip*, float)>;
 
 class LocalSpaceShip : public SpaceShip {
 public:
+    LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc);
+
     LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler);
 
     void update(float elapsed) override;
@@ -15,6 +21,10 @@ public:
 
 private:
     InputHandler& inputHandler_;
+
+    ShootFunc shootFunc_;
+
+    float lastShot_;
 };
 
 #endif  // _LocalSpaceShip_H

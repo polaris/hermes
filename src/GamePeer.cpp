@@ -6,6 +6,7 @@
 #include "Logging.h"
 #include "LocalSpaceShip.h"
 #include "RemoteSpaceShip.h"
+#include "RemoteLaserBolt.h"
 
 GamePeer::GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, unsigned short port)
 : Game(frameRate, renderer)
@@ -350,15 +351,30 @@ void GamePeer::Waiting::sendOutgoingPackets(const Clock& clock) {
 
 GamePeer::Playing::Playing(GamePeer* gamePeer)
 : Peering(gamePeer)
+, nextObjectId_(gamePeer_->playerId_ * 1000)
 , lastStateUpdate_(0) {
     INFO("Playing");
-
-    auto gameObjectPtr = std::shared_ptr<GameObject>(new LocalSpaceShip(gamePeer_->renderer_, gamePeer_->inputHandler_));
-    gamePeer_->world_.addLocalGameObject(gamePeer_->playerId_ * 1000, gameObjectPtr);
 }
 
 void GamePeer::Playing::handleWillUpdateWorld(const Clock& clock) {
+    static bool initialized_ = false;
+
     gamePeer_->inputHandler_.update(clock.getGameTime());
+
+    if (!initialized_) {
+        auto gameObjectPtr = GameObjectPtr(new LocalSpaceShip(gamePeer_->renderer_, gamePeer_->inputHandler_,
+            [this, &clock] (SpaceShip* spaceShip, float lastShot) -> float {
+                const auto now = clock.getTime();
+                if (now > lastShot + 0.5f) {
+                    auto laserBolt = GameObjectPtr(new LaserBolt(gamePeer_->renderer_, spaceShip->getPosition(), 50.0f * spaceShip->getLookAt()));
+                    gamePeer_->world_.addLocalGameObject(nextObjectId_++, laserBolt);
+                    return now;
+                }
+                return lastShot;
+            }));
+        gamePeer_->world_.addLocalGameObject(nextObjectId_++, gameObjectPtr);
+        initialized_ = true;
+    }
 }
 
 void GamePeer::Playing::handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock&) {
@@ -386,7 +402,12 @@ void GamePeer::Playing::handleState(Packet* packet) {
         auto gameObject = gamePeer_->world_.getRemoteGameObject(objectId);
         if (gameObject == nullptr) {
             const auto& latencyEstimator = gamePeer_->peerRegistry_.getLatencyEstimator(packet->getEndpoint());
-            auto gameObjectPtr = std::shared_ptr<GameObject>(new RemoteSpaceShip(gamePeer_->renderer_, latencyEstimator, gamePeer_->frameDuration_));
+            GameObjectPtr gameObjectPtr;
+            if (classId == SpaceShip::ClassId) {
+                gameObjectPtr = GameObjectPtr(new RemoteSpaceShip(gamePeer_->renderer_, latencyEstimator, gamePeer_->frameDuration_));
+            } else if (classId == LaserBolt::ClassId) {
+                gameObjectPtr = GameObjectPtr(new RemoteLaserBolt(gamePeer_->renderer_, latencyEstimator, gamePeer_->frameDuration_));
+            }
             gamePeer_->world_.addRemoteGameObject(objectId, gameObjectPtr);
             gameObject = gameObjectPtr.get();
         }

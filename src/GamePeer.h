@@ -116,6 +116,8 @@ private:
     private:
         void handleState(Packet* packet);
 
+        uint32_t nextObjectId_;
+
         float lastStateUpdate_;
     };
 

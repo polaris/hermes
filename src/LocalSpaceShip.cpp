@@ -1,9 +1,15 @@
 #include "LocalSpaceShip.h"
 #include "InputHandler.h"
 
-LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler)
+LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc)
 : SpaceShip(renderer)
-, inputHandler_(inputHandler) {
+, inputHandler_(inputHandler)
+, shootFunc_(shootFunc)
+, lastShot_(0) {
+}
+
+LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler)
+: LocalSpaceShip(renderer, inputHandler, nullptr) {
 }
 
 void LocalSpaceShip::update(float elapsed) {
@@ -13,6 +19,9 @@ void LocalSpaceShip::update(float elapsed) {
         rotate(inputState.desiredRightAmount * elapsed);
         rotate(-inputState.desiredLeftAmount * elapsed);
         thrust(inputState.desiredForwardAmount > 0);
+        if (inputState.shooting && shootFunc_) {
+            lastShot_ = shootFunc_(this, lastShot_);
+        }
     }
 
     SpaceShip::update(elapsed);
