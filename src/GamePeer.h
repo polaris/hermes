@@ -18,9 +18,9 @@ class Packet;
 
 class GamePeer : public Game {
 public:
-    GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, unsigned short port);
+    GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, Renderer& renderer, unsigned short port);
 
-    GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, const char* masterAddress, unsigned short port);
+    GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, Renderer& renderer, const char* masterAddress, unsigned short port);
 
     GamePeer(const GamePeer&) = delete;
 

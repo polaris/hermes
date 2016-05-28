@@ -8,9 +8,11 @@
 #include "RemoteSpaceShip.h"
 #include "RemoteLaserBolt.h"
 
-GamePeer::GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, unsigned short port)
+#include <set>
+
+GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, Renderer& renderer, unsigned short port)
 : Game(frameRate, renderer)
-, world_()
+, world_(width, height)
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , inputHandler_(30)
 , latencyEstimator_(10)
@@ -26,9 +28,9 @@ GamePeer::GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& re
     currentState.reset(new GamePeer::Accepting{this});
 }
 
-GamePeer::GamePeer(unsigned int frameRate, unsigned int updateRate, Renderer& renderer, const char* address, unsigned short port)
+GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, Renderer& renderer, const char* address, unsigned short port)
 : Game(frameRate, renderer)
-, world_()
+, world_(width, height)
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , inputHandler_(30)
 , latencyEstimator_(10)
@@ -393,11 +395,17 @@ void GamePeer::Playing::handleState(Packet* packet) {
     packet->read(latestInputTime);
     assert(latestInputTime == 0.0f);
 
+    std::set<uint32_t> gameObjectsToRemove;
+    gamePeer_->world_.forEachRemoteGameObject(packet->getEndpoint(), [&gameObjectsToRemove] (uint32_t objectId, GameObject*) {
+        gameObjectsToRemove.insert(objectId);
+    });
+
     uint32_t gameObjectCount = 0;
     packet->read(gameObjectCount);
     for (uint32_t i = 0; i < gameObjectCount; i++) {
         uint32_t objectId = 0, classId = 0;
         packet->read(objectId);
+        gameObjectsToRemove.erase(objectId);
         packet->read(classId);
         auto gameObject = gamePeer_->world_.getRemoteGameObject(objectId);
         if (gameObject == nullptr) {
@@ -408,10 +416,14 @@ void GamePeer::Playing::handleState(Packet* packet) {
             } else if (classId == LaserBolt::ClassId) {
                 gameObjectPtr = GameObjectPtr(new RemoteLaserBolt(gamePeer_->renderer_, latencyEstimator, gamePeer_->frameDuration_));
             }
-            gamePeer_->world_.addRemoteGameObject(objectId, gameObjectPtr);
+            gamePeer_->world_.addRemoteGameObject(objectId, gameObjectPtr, packet->getEndpoint());
             gameObject = gameObjectPtr.get();
         }
         gameObject->read(packet);
+    }
+
+    for (const auto objectId : gameObjectsToRemove) {
+        gamePeer_->world_.removeRemoteGameObject(objectId);
     }
 }
 
