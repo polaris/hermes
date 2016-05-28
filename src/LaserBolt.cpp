@@ -35,6 +35,14 @@ const Vector2d& LaserBolt::getPosition() const {
     return position_;
 }
 
+unsigned int LaserBolt::getWidth() const {
+    return sprite_.getWidth();
+}
+
+unsigned int LaserBolt::getHeight() const {
+    return sprite_.getHeight();
+}
+
 uint32_t LaserBolt::getClassId() const {
     return ClassId;
 }

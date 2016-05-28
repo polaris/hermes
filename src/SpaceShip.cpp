@@ -83,6 +83,14 @@ const Vector2d& SpaceShip::getPosition() const {
     return position_;
 }
 
+unsigned int SpaceShip::getWidth() const {
+    return sprite_.getWidth();
+}
+
+unsigned int SpaceShip::getHeight() const {
+    return sprite_.getHeight();
+}
+
 const Vector2d& SpaceShip::getLookAt() const {
     return lookat_;
 }

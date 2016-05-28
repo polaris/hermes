@@ -22,6 +22,10 @@ public:
 
     const Vector2d& getPosition() const override;
 
+    unsigned int getWidth() const override;
+
+    unsigned int getHeight() const override;
+
     uint32_t getClassId() const override;
 
     enum { ClassId = 2 };

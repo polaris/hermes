@@ -11,6 +11,8 @@ class GameObject {
 public:
     virtual ~GameObject() = default;
 
+    bool checkCollision(GameObject* gameObject) const;
+
     virtual void update(float elapsed) = 0;
 
     virtual void draw(Renderer& renderer) = 0;
@@ -20,6 +22,10 @@ public:
     virtual void read(Packet* packet) = 0;
 
     virtual const Vector2d& getPosition() const = 0;
+
+    virtual unsigned int getWidth() const = 0;
+
+    virtual unsigned int getHeight() const = 0;
 
     virtual uint32_t getClassId() const = 0;
 };

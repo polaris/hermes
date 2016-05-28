@@ -34,6 +34,10 @@ public:
 
     const Vector2d& getPosition() const override;
 
+    unsigned int getWidth() const override;
+
+    unsigned int getHeight() const override;
+
     const Vector2d& getLookAt() const;
 
     static GameObjectPtr createInstance(const Renderer& renderer);
