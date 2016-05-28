@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
         
         Renderer renderer(window);
         
-        GameServer gameServer(60, 30, emulatedLatency, serverPort, renderer);
+        GameServer gameServer(window.getWidth(), window.getHeight(), 60, 30, emulatedLatency, serverPort, renderer);
 
         gameServer.run();
         

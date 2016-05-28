@@ -8,11 +8,9 @@
 #include "Packet.h"
 #include "Logging.h"
 
-#include <set>
-
-GameServer::GameServer(unsigned int frameRate, unsigned int updateRate, unsigned emulatedLatency, uint16_t port, Renderer& renderer)
+GameServer::GameServer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned emulatedLatency, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
-, world_()
+, world_(width, height)
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , nextPlayerId_(1)
 , nextObjectId_(1)
@@ -166,16 +164,6 @@ void GameServer::checkForDisconnects(const Clock& clock) {
 
 void GameServer::updateWorld() {
     world_.update(frameDuration_);
-    std::set<uint32_t> objectIds;
-    world_.forEachGameObject([&objectIds] (uint32_t objectId, GameObject* gameObject) {
-        const auto& pos = gameObject->getPosition();
-        if ((pos.x() < 0 || pos.y() < 0 || pos.x() > 640 || pos.y() > 480) && gameObject->getClassId() != SpaceShip::ClassId) {
-            objectIds.insert(objectId);
-        }
-    });
-    for (const auto objectId : objectIds) {
-        world_.remove(objectId);
-    }
 }
 
 void GameServer::renderWorld() {

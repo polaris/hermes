@@ -2,7 +2,7 @@
 #define _GameClient_H
 
 #include "Game.h"
-#include "ClientServerWorld.h"
+#include "World.h"
 #include "BufferedQueue.h"
 #include "InputHandler.h"
 #include "Transceiver.h"
@@ -83,7 +83,7 @@ private:
         std::unordered_map<uint32_t, GameObjectPtr> objectIdToGameObjectMap_;
     };
 
-    ClientServerWorld world_;
+    World world_;
 
     InputHandler inputHandler_;
     LatencyEstimator latencyEstimator_;

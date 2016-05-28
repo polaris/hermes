@@ -2,7 +2,7 @@
 #define _GameServer_H
 
 #include "Game.h"
-#include "ClientServerWorld.h"
+#include "ServerWorld.h"
 #include "BufferedQueue.h"
 #include "ClientRegistry.h"
 #include "Transceiver.h"
@@ -17,7 +17,7 @@ class Packet;
 
 class GameServer : public Game {
 public:
-    GameServer(unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, uint16_t port, Renderer& renderer);
+    GameServer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, uint16_t port, Renderer& renderer);
 
 private:
     void update(const Clock& clock) override;
@@ -35,7 +35,7 @@ private:
     void sendOutgoingPackets(const Clock& clock);
     void sendStateUpdate(const Clock& clock);
 
-    ClientServerWorld world_;
+    ServerWorld world_;
 
     const float updateInterval_;
 

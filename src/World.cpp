@@ -1,21 +1,21 @@
-#include "ClientServerWorld.h"
+#include "World.h"
 
 #include <cassert>
 
-ClientServerWorld::ClientServerWorld()
+World::World()
 : gameObjects_() {
 }
 
-void ClientServerWorld::add(uint32_t objectId, GameObjectPtr& gameObject) {
+void World::add(uint32_t objectId, GameObjectPtr& gameObject) {
     assert(gameObjects_.find(objectId) == gameObjects_.end());
     gameObjects_.insert(ObjectIdToGameObjectMap::value_type(objectId, gameObject));
 }
 
-void ClientServerWorld::remove(uint32_t objectId) {
+void World::remove(uint32_t objectId) {
     gameObjects_.erase(gameObjects_.find(objectId));
 }
 
-GameObject* ClientServerWorld::getGameObject(uint32_t objectId) {
+GameObject* World::getGameObject(uint32_t objectId) {
     auto itr = gameObjects_.find(objectId);
     if (itr != gameObjects_.end()) {
         return itr->second.get();
@@ -23,23 +23,23 @@ GameObject* ClientServerWorld::getGameObject(uint32_t objectId) {
     return nullptr;
 }
 
-uint32_t ClientServerWorld::getGameObjectCount() const {
+uint32_t World::getGameObjectCount() const {
     return static_cast<uint32_t>(gameObjects_.size());
 }
 
-void ClientServerWorld::update(float elapsed) {
+void World::update(float elapsed) {
     for (auto& gameObject : gameObjects_) {
         gameObject.second->update(elapsed);
     }
 }
 
-void ClientServerWorld::draw(Renderer& renderer) {
+void World::draw(Renderer& renderer) {
     for (auto& gameObject : gameObjects_) {
         gameObject.second->draw(renderer);
     }
 }
 
-void ClientServerWorld::forEachGameObject(std::function<void (uint32_t, GameObject*)> fun) {
+void World::forEachGameObject(std::function<void (uint32_t, GameObject*)> fun) {
     for (auto& gameObject : gameObjects_) {
         fun(gameObject.first, gameObject.second.get());
     }

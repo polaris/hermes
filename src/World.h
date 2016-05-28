@@ -1,5 +1,5 @@
-#ifndef _ClientServerWorld_H
-#define _ClientServerWorld_H
+#ifndef _World_H
+#define _World_H
 
 #include "GameObject.h"
 
@@ -8,9 +8,11 @@
 
 using ObjectIdToGameObjectMap = std::unordered_map<uint32_t, GameObjectPtr>;
 
-class ClientServerWorld {
+class World {
 public:
-    ClientServerWorld();
+    World();
+
+    virtual ~World() = default;
 
     void add(uint32_t objectId, GameObjectPtr& gameObject);
 
@@ -20,7 +22,7 @@ public:
 
     uint32_t getGameObjectCount() const;
 
-    void update(float elapsed);
+    virtual void update(float elapsed);
 
     void draw(Renderer& renderer);
 
@@ -30,4 +32,4 @@ private:
     ObjectIdToGameObjectMap gameObjects_;
 };
 
-#endif  // _ClientServerWorld_H
+#endif  // _World_H
