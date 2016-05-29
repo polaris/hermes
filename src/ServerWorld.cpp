@@ -18,9 +18,10 @@ void ServerWorld::update(float elapsed) {
     World::update(elapsed);
 
     std::unordered_set<std::string> checked;
+    std::unordered_set<uint32_t> objectIds;
 
-    forEachGameObject([this, &checked] (uint32_t objectId1, GameObject* gameObject1) {
-        forEachGameObject([this, objectId1, gameObject1, &checked] (uint32_t objectId2, GameObject* gameObject2) {
+    forEachGameObject([this, &checked, &objectIds] (uint32_t objectId1, GameObject* gameObject1) {
+        forEachGameObject([this, objectId1, gameObject1, &checked, &objectIds] (uint32_t objectId2, GameObject* gameObject2) {
             auto oid1 = objectId1;
             auto oid2 = objectId2;
             if (oid1 != oid2) {
@@ -30,7 +31,8 @@ void ServerWorld::update(float elapsed) {
                 const auto id = boost::str(boost::format("%1%,%2%") % oid1 % oid2);
                 if (checked.find(id) == checked.end()) {
                     if (gameObject1->checkCollision(gameObject2)) {
-                        ERROR("{0} collides with {1}", oid1, oid2);
+                        objectIds.insert(objectId1);
+                        objectIds.insert(objectId2);
                     }
                     checked.insert(id);
                 }
@@ -38,7 +40,6 @@ void ServerWorld::update(float elapsed) {
         });
     });
 
-    std::unordered_set<uint32_t> objectIds;
     forEachGameObject([&objectIds, this] (uint32_t objectId, GameObject* gameObject) {
         const auto& pos = gameObject->getPosition();
         if ((pos.x() < 0 || pos.y() < 0 || pos.x() > width_ || pos.y() > height_) && gameObject->getClassId() != SpaceShip::ClassId) {
