@@ -4,15 +4,19 @@
 #include "Packet.h"
 #include "Protocol.h"
 
-SpaceShip::SpaceShip(const Renderer &renderer)
+SpaceShip::SpaceShip(const Renderer &renderer, const Vector2d& position)
 : playerId_(PROTOCOL_INVALID_PLAYER_ID)
 , sprite_("data/ship.png", renderer)
 , thrustOn_(false)
 , angle_(0)
-, position_(320, 240)
+, position_(position)
 , velocity_(0, 0)
 , lookat_(0, -1)
 , acceleration_(0) {
+}
+
+SpaceShip::SpaceShip(const Renderer &renderer)
+: SpaceShip(renderer, Vector2d(0, 0)) {
 }
 
 void SpaceShip::update(float elapsed) {

@@ -13,7 +13,7 @@ using ShootFunc = std::function<float (SpaceShip*, float)>;
 
 class ServerSpaceShip : public SpaceShip {
 public:
-    ServerSpaceShip(const Renderer& renderer, ClientSession* clientSession, ShootFunc shootFunc);
+    ServerSpaceShip(const Renderer& renderer, const Vector2d& position, ClientSession* clientSession, ShootFunc shootFunc);
 
     ServerSpaceShip(const ServerSpaceShip&) = delete;
 

@@ -31,6 +31,7 @@ void ServerWorld::update(float elapsed) {
                 const auto id = boost::str(boost::format("%1%,%2%") % oid1 % oid2);
                 if (checked.find(id) == checked.end()) {
                     if (gameObject1->checkCollision(gameObject2)) {
+                        INFO("Remove objects {0} and {1}.", oid1, oid2);
                         objectIds.insert(objectId1);
                         objectIds.insert(objectId2);
                     }

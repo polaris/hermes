@@ -10,6 +10,8 @@ class Packet;
 
 class SpaceShip : public GameObject {
 public:
+    SpaceShip(const Renderer& renderer, const Vector2d& position);
+
     explicit SpaceShip(const Renderer& renderer);
 
     virtual ~SpaceShip() = default;

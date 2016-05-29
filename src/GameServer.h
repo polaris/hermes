@@ -35,6 +35,9 @@ private:
     void sendOutgoingPackets(const Clock& clock);
     void sendStateUpdate(const Clock& clock);
 
+    const unsigned int width_;
+    const unsigned int height_;
+
     ServerWorld world_;
 
     const float updateInterval_;

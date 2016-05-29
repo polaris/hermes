@@ -6,10 +6,13 @@
 #include "LaserBolt.h"
 #include "ClientSession.h"
 #include "Packet.h"
+#include "Utilities.h"
 #include "Logging.h"
 
 GameServer::GameServer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned emulatedLatency, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
+, width_(width)
+, height_(height)
 , world_(width, height)
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , nextPlayerId_(1)
@@ -79,7 +82,7 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 
             ClientSession* clientSession = clientRegistry_.addClientSession(playerId, packet->getEndpoint(), clock.getTime());
 
-            SpaceShipPtr newSpaceShip(new ServerSpaceShip(renderer_, clientSession, [this, &clock] (SpaceShip* spaceShip, float lastShot) -> float {
+            SpaceShipPtr newSpaceShip(new ServerSpaceShip(renderer_, Vector2d(randomValue(width_), randomValue(height_)), clientSession, [this, &clock] (SpaceShip* spaceShip, float lastShot) -> float {
                 const auto now = clock.getTime();
                 if (now > lastShot + 0.5f) {
                     auto laserBolt = GameObjectPtr(new LaserBolt(renderer_, spaceShip->getPosition() + 20.0f * spaceShip->getLookAt(), 50.0f * spaceShip->getLookAt()));

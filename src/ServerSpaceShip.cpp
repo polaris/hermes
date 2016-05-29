@@ -4,8 +4,8 @@
 #include "MoveList.h"
 #include "Move.h"
 
-ServerSpaceShip::ServerSpaceShip(const Renderer& renderer, ClientSession* clientSession, ShootFunc shootFunc)
-: SpaceShip(renderer)
+ServerSpaceShip::ServerSpaceShip(const Renderer& renderer, const Vector2d& position, ClientSession* clientSession, ShootFunc shootFunc)
+: SpaceShip(renderer, position)
 , clientSession_(clientSession)
 , shootFunc_(shootFunc)
 , lastShot_(0) {
