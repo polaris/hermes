@@ -12,7 +12,10 @@ void World::add(uint32_t objectId, GameObjectPtr& gameObject) {
 }
 
 void World::remove(uint32_t objectId) {
-    gameObjects_.erase(gameObjects_.find(objectId));
+    const auto itr = gameObjects_.find(objectId);
+    if (itr != gameObjects_.end()) {
+        gameObjects_.erase(itr);
+    }
 }
 
 GameObject* World::getGameObject(uint32_t objectId) {
