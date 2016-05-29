@@ -18,7 +18,7 @@ public:
 
     virtual void update(float elapsed) override;
 
-    void draw(Renderer& renderer) override;
+    virtual void draw(Renderer& renderer) override;
 
     void write(Packet* packet) override;
 

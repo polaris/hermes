@@ -1,11 +1,13 @@
 #include "LocalSpaceShip.h"
 #include "InputHandler.h"
+#include "Renderer.h"
 
 LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc)
 : SpaceShip(renderer)
 , inputHandler_(inputHandler)
 , shootFunc_(shootFunc)
-, lastShot_(0) {
+, lastShot_(0)
+, length(std::max(getWidth(), getHeight())) {
 }
 
 LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler)
@@ -25,6 +27,11 @@ void LocalSpaceShip::update(float elapsed) {
     }
 
     SpaceShip::update(elapsed);
+}
+
+void LocalSpaceShip::draw(Renderer& renderer) {
+    SpaceShip::draw(renderer);
+    renderer.drawRect(getPosition(), length, length);
 }
 
 void LocalSpaceShip::read(Packet* packet) {

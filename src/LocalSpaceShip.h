@@ -17,6 +17,8 @@ public:
 
     void update(float elapsed) override;
 
+    void draw(Renderer& renderer) override;
+
     void read(Packet* packet) override;
 
 private:
@@ -25,6 +27,8 @@ private:
     ShootFunc shootFunc_;
 
     float lastShot_;
+
+    const unsigned int length;
 };
 
 #endif  // _LocalSpaceShip_H

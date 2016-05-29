@@ -22,6 +22,8 @@ public:
 
     void drawLine(const Vector2d& a, const Vector2d& b);
 
+    void drawRect(const Vector2d& pos, unsigned int width, unsigned int height);
+
     void present();
 
     SDL_Renderer* getSDLRenderer() const {

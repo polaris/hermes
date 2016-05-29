@@ -34,6 +34,16 @@ void Renderer::drawLine(const Vector2d& a, const Vector2d& b) {
                                   static_cast<int>(b.x()), static_cast<int>(b.y()));
 }
 
+void Renderer::drawRect(const Vector2d& pos, unsigned int width, unsigned int height) {
+    const SDL_Rect rect = {
+        static_cast<int>(pos.x() - static_cast<float>(width) / 2.0f),
+        static_cast<int>(pos.y() - static_cast<float>(height) / 2.0f),
+        static_cast<int>(width),
+        static_cast<int>(height)
+    };
+    SDL_RenderDrawRect(renderer_, &rect);
+}
+
 void Renderer::present() {
     SDL_RenderPresent(renderer_);
 }
