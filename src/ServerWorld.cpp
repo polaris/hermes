@@ -8,10 +8,12 @@
 #include <unordered_set>
 #include <string>
 
-ServerWorld::ServerWorld(unsigned int width, unsigned int height) 
+ServerWorld::ServerWorld(unsigned int width, unsigned int height, ConfirmCollisionFunc confirmCollisionFunc, RemovedObjectFunc removedObjectFunc)
 : World()
 , width_(width)
-, height_(height) {
+, height_(height)
+, confirmCollisionFunc_(confirmCollisionFunc)
+, removedObjectFunc_(removedObjectFunc) {
 }
 
 void ServerWorld::update(float elapsed) {
@@ -30,7 +32,7 @@ void ServerWorld::update(float elapsed) {
                 }
                 const auto id = boost::str(boost::format("%1%,%2%") % oid1 % oid2);
                 if (checked.find(id) == checked.end()) {
-                    if (gameObject1->checkCollision(gameObject2)) {
+                    if (confirmCollisionFunc_(oid1, oid2) && gameObject1->checkCollision(gameObject2)) {
                         INFO("Remove objects {0} and {1}.", oid1, oid2);
                         objectIds.insert(objectId1);
                         objectIds.insert(objectId2);
@@ -49,5 +51,6 @@ void ServerWorld::update(float elapsed) {
     });
     for (const auto objectId : objectIds) {
         remove(objectId);
+        removedObjectFunc_(objectId);
     }
 }

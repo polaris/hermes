@@ -13,11 +13,12 @@ GameServer::GameServer(unsigned int width, unsigned int height, unsigned int fra
 : Game(frameRate, renderer)
 , width_(width)
 , height_(height)
-, world_(width, height)
+, world_(width, height, [this] (uint32_t objectId1, uint32_t objectId2) { return confirmCollision(objectId1, objectId2); }, [this] (uint32_t objectId) { removedObject(objectId); })
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , nextPlayerId_(1)
 , nextObjectId_(1)
 , playerToObjectMap_()
+, objectToPlayerMap_()
 , bufferedQueue_(4000)
 , latencyEmulator_(bufferedQueue_, emulatedLatency)
 , transceiver_(port, latencyEmulator_)
@@ -82,11 +83,13 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 
             ClientSession* clientSession = clientRegistry_.addClientSession(playerId, packet->getEndpoint(), clock.getTime());
 
-            SpaceShipPtr newSpaceShip(new ServerSpaceShip(renderer_, Vector2d(randomValue(width_), randomValue(height_)), clientSession, [this, &clock] (SpaceShip* spaceShip, float lastShot) -> float {
+            SpaceShipPtr newSpaceShip(new ServerSpaceShip(renderer_, Vector2d(randomValue(width_), randomValue(height_)), clientSession, [this, &clock, playerId] (SpaceShip* spaceShip, float lastShot) -> float {
                 const auto now = clock.getTime();
-                if (now > lastShot + 0.5f) {
-                    auto laserBolt = GameObjectPtr(new LaserBolt(renderer_, spaceShip->getPosition() + 20.0f * spaceShip->getLookAt(), 50.0f * spaceShip->getLookAt()));
-                    world_.add(nextObjectId_++, laserBolt);
+                if (now > lastShot + 0.25f) {
+                    auto laserBolt = GameObjectPtr(new LaserBolt(renderer_, spaceShip->getPosition() + 5.0f * spaceShip->getLookAt(), 100.0f * spaceShip->getLookAt()));
+                    const auto boldObjectId = nextObjectId_++;
+                    world_.add(boldObjectId, laserBolt);
+                    objectToPlayerMap_[boldObjectId] = playerId;
                     return now;
                 }
                 return lastShot;
@@ -95,7 +98,9 @@ void GameServer::handleHello(Packet* packet, const Clock& clock) {
 
             auto gameObject = std::dynamic_pointer_cast<GameObject>(newSpaceShip);
             world_.add(objectId, gameObject);
+
             playerToObjectMap_[playerId] = objectId;
+            objectToPlayerMap_[objectId] = playerId;
 
             createWelcomePacket(welcomePacket, playerId, objectId, packet->getEndpoint());
             transceiver_.sendTo(welcomePacket);
@@ -160,6 +165,7 @@ void GameServer::checkForDisconnects(const Clock& clock) {
             if (itr != playerToObjectMap_.end()) {
                 const uint32_t objectId = itr->second;
                 world_.remove(objectId);
+                removedObject(objectId);
                 playerToObjectMap_.erase(itr);
             }
         });
@@ -215,4 +221,16 @@ void GameServer::handleEvent(SDL_Event& event, bool& running) {
     default:
         break;
     }
+}
+
+bool GameServer::confirmCollision(uint32_t objectId1, uint32_t objectId2) {
+    return objectToPlayerMap_[objectId1] != objectToPlayerMap_[objectId2];
+}
+
+void GameServer::removedObject(uint32_t objectId) {
+    const auto itr = objectToPlayerMap_.find(objectId);
+    if (itr != objectToPlayerMap_.end()) {
+        objectToPlayerMap_.erase(objectId);
+    }
+
 }

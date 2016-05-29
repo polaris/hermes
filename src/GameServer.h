@@ -35,6 +35,9 @@ private:
     void sendOutgoingPackets(const Clock& clock);
     void sendStateUpdate(const Clock& clock);
 
+    bool confirmCollision(uint32_t objectId1, uint32_t objectId2);
+    void removedObject(uint32_t objectId);
+
     const unsigned int width_;
     const unsigned int height_;
 
@@ -45,6 +48,7 @@ private:
     uint32_t nextPlayerId_;
     uint32_t nextObjectId_;
     std::unordered_map<uint32_t, uint32_t> playerToObjectMap_;
+    std::unordered_map<uint32_t, uint32_t> objectToPlayerMap_;
 
     BufferedQueue bufferedQueue_;
     LatencyEmulator latencyEmulator_;
