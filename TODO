@@ -1,5 +1,4 @@
 Must have
-- implement collision detection
 - interpolate between old client state and replicated/predicted state
 - emulate jitter
 - implement peer-to-peer RTS demo
