@@ -2,6 +2,8 @@ Must have
 - interpolate between old client state and replicated/predicted state
 - emulate jitter
 - implement peer-to-peer RTS demo
+- mark local space ship
+- add explosions as a new game object with animation and limited lifetime
 
 Nice to have
 - find a way to make GameObjectFactory actually work
