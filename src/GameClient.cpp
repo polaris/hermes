@@ -11,7 +11,7 @@
 
 #include <set>
 
-GameClient::GameClient(unsigned int frameRate, unsigned int emulatedLatency, const char *address, uint16_t port, Renderer& renderer)
+GameClient::GameClient(unsigned int frameRate, unsigned int emulatedLatency, unsigned int stdDevLatencyMean, const char *address, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , world_()
 , inputHandler_(30)
@@ -19,7 +19,7 @@ GameClient::GameClient(unsigned int frameRate, unsigned int emulatedLatency, con
 , currentState(new GameClient::Connecting{this})
 , nextState(nullptr)
 , bufferedQueue_(1000)
-, latencyEmulator_(bufferedQueue_, emulatedLatency)
+, latencyEmulator_(bufferedQueue_, emulatedLatency, stdDevLatencyMean)
 , transceiver_(latencyEmulator_)
 , serverEndpoint_(boost::asio::ip::address::from_string(address), port)
 , playerId_(PROTOCOL_INVALID_PLAYER_ID)

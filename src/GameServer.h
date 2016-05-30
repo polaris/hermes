@@ -17,7 +17,7 @@ class Packet;
 
 class GameServer : public Game {
 public:
-    GameServer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, uint16_t port, Renderer& renderer);
+    GameServer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, unsigned int stdDevLatencyMean, uint16_t port, Renderer& renderer);
 
 private:
     void update(const Clock& clock) override;

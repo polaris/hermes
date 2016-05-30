@@ -9,7 +9,7 @@
 #include "Utilities.h"
 #include "Logging.h"
 
-GameServer::GameServer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned emulatedLatency, uint16_t port, Renderer& renderer)
+GameServer::GameServer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, unsigned int stdDevLatencyMean, uint16_t port, Renderer& renderer)
 : Game(frameRate, renderer)
 , width_(width)
 , height_(height)
@@ -20,7 +20,7 @@ GameServer::GameServer(unsigned int width, unsigned int height, unsigned int fra
 , playerToObjectMap_()
 , objectToPlayerMap_()
 , bufferedQueue_(4000)
-, latencyEmulator_(bufferedQueue_, emulatedLatency)
+, latencyEmulator_(bufferedQueue_, emulatedLatency, stdDevLatencyMean)
 , transceiver_(port, latencyEmulator_)
 , clientRegistry_()
 , lastStateUpdate_(0) {

@@ -14,9 +14,10 @@ int main(int argc, char** argv) {
     char* serverAddress = nullptr;
     unsigned short serverPort = 12345;
     unsigned int emulatedLatency = 0;
+    unsigned int stdDevLatencyMean = 0;
 
     int c = 0;
-    while ((c = getopt(argc, argv, "s:p:l:h")) != -1) {
+    while ((c = getopt(argc, argv, "s:p:l:d:h")) != -1) {
         switch (c) {
         case 's':
             serverAddress = optarg;
@@ -26,6 +27,9 @@ int main(int argc, char** argv) {
             break;
         case 'l':
             emulatedLatency = boost::lexical_cast<unsigned int>(optarg);
+            break;
+        case 'd':
+            stdDevLatencyMean = boost::lexical_cast<unsigned int>(optarg);
             break;
         case 'h':
             printHelp();
@@ -56,7 +60,7 @@ int main(int argc, char** argv) {
         
         registerGameObjects();
 
-        GameClient gameClient(60, emulatedLatency, serverAddress, serverPort, renderer);
+        GameClient gameClient(60, emulatedLatency, stdDevLatencyMean, serverAddress, serverPort, renderer);
 
         gameClient.run();
         
@@ -76,6 +80,7 @@ void printHelp() {
               << "  -s <address>  Pass the IP <address> of the server. This parameter is required.\n"
               << "  -p <port>     Pass the UDP <port> of the server. This parameter is optional. Default is port 12345.\n"
               << "  -l <latency>  Pass the emulated latency in milliseconds. This parameter is optional. Default is 0 ms.\n"
+              << "  -d <stddev>   Pass the standard deviation of the latency in milliseconds. This parameter is optional. Default is 0 ms.\n"
               << "  -h            Display this information.\n"
               ;
 }
