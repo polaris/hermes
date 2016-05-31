@@ -3,4 +3,6 @@
 
 float randomValue(unsigned int max);
 
+float lerp(float a, float b, float t);
+
 #endif  // _Utilities_H
