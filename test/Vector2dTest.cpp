@@ -127,3 +127,11 @@ TEST_CASE("Vector2d serialization") {
 
     REQUIRE(a == b);
 }
+
+TEST_CASE("Vector2d linear interpolation") {
+    const Vector2d a{ 5.0f, 15.0f};
+    const Vector2d b{10.0f, 45.0f};
+    REQUIRE(lerp(a, b, 0.0f) == a);
+    REQUIRE(lerp(a, b, 0.5f) == Vector2d(7.5f, 30.0f));
+    REQUIRE(lerp(a, b, 1.0f) == b);
+}

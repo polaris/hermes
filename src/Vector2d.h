@@ -168,4 +168,8 @@ static Vector2d getIntersect(const Vector2d& aa, const Vector2d& ab, const Vecto
     return Vector2d(pX / denominator, pY / denominator);    
 }
 
+static Vector2d lerp(const Vector2d& a, const Vector2d& b, float t) {
+    return Vector2d(a + t * (b - a));
+}
+
 #endif  // _Vector2d_H
