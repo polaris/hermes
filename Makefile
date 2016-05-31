@@ -5,9 +5,9 @@ CXXFLAGS := -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
             -Wdisabled-optimization -Wformat=2 -Winit-self \
             -Wmissing-declarations -Wmissing-include-dirs \
             -Wold-style-cast -Woverloaded-virtual -Wredundant-decls \
-            -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 \
+            -Wshadow -Wsign-conversion -Wsign-promo \
             -Wswitch-default -Wundef -Werror -Wno-unused -Wconversion \
-            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O0 -g
+            -Wsign-conversion -Weffc++ -pedantic -std=c++14 -O3
 LDFLAGS := -lstdc++ -lm -lboost_system
 
 OS_NAME := $(shell uname -s | tr A-Z a-z)
