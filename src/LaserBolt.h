@@ -30,7 +30,7 @@ public:
 
     enum { ClassId = 2 };
 
-private:
+protected:
     Sprite sprite_;
 
     Vector2d position_;

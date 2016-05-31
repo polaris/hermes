@@ -29,6 +29,8 @@ private:
     float lastShot_;
 
     const unsigned int length;
+
+    bool created_;
 };
 
 #endif  // _LocalSpaceShip_H

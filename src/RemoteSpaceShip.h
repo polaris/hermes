@@ -17,6 +17,8 @@ private:
     const LatencyEstimator& latencyEstimator_;
 
     const float frameDuration_;
+
+    bool created_;
 };
 
 #endif  // _RemoteSpaceShip_H

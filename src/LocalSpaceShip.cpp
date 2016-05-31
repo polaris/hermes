@@ -1,13 +1,15 @@
 #include "LocalSpaceShip.h"
 #include "InputHandler.h"
 #include "Renderer.h"
+#include "Utilities.h"
 
 LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc)
 : SpaceShip(renderer)
 , inputHandler_(inputHandler)
 , shootFunc_(shootFunc)
 , lastShot_(0)
-, length(std::max(getWidth(), getHeight())) {
+, length(std::max(getWidth(), getHeight()))
+, created_(true) {
 }
 
 LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler)
@@ -35,6 +37,11 @@ void LocalSpaceShip::draw(Renderer& renderer) {
 }
 
 void LocalSpaceShip::read(Packet* packet) {
+    const auto oldPosition = position_;
+    const auto oldVelocity = velocity_;
+    const auto oldLookat = lookat_;
+    const auto oldAcceleration = acceleration_;
+
     SpaceShip::read(packet);
 
     MoveList& moveList = inputHandler_.getMoveList();
@@ -45,5 +52,14 @@ void LocalSpaceShip::read(Packet* packet) {
         rotate(-inputState.desiredLeftAmount * deltaTime);
         thrust(inputState.desiredForwardAmount > 0);
         SpaceShip::update(deltaTime);
+    }
+
+    if (created_) {
+        created_ = false;
+    } else {
+        position_ = lerp(position_, oldPosition, 0.5f);
+        velocity_ = lerp(velocity_, oldVelocity, 0.5f);
+        lookat_ = lerp(lookat_, oldLookat, 0.5f);
+        acceleration_ = lerp(acceleration_, oldAcceleration, 0.5f);
     }
 }

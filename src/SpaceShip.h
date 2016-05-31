@@ -46,7 +46,7 @@ public:
 
     enum { ClassId = 1 };
 
-private:
+protected:
     uint32_t playerId_;
 
     Sprite sprite_;
