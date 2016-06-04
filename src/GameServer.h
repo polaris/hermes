@@ -35,7 +35,7 @@ private:
     void sendOutgoingPackets(const Clock& clock);
     void sendStateUpdate(const Clock& clock);
 
-    bool confirmCollision(uint32_t objectId1, uint32_t objectId2);
+    bool confirmCollision(uint32_t objectId1, const GameObject* gameObject1, uint32_t objectId2, const GameObject* gameObject2);
     void removedObject(uint32_t objectId);
 
     const unsigned int width_;

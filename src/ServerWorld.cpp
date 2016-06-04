@@ -20,10 +20,19 @@ void ServerWorld::update(float elapsed) {
     World::update(elapsed);
 
     std::unordered_set<std::string> checked;
-    std::unordered_set<uint32_t> objectIds;
 
-    forEachGameObject([this, &checked, &objectIds] (uint32_t objectId1, GameObject* gameObject1) {
-        forEachGameObject([this, objectId1, gameObject1, &checked, &objectIds] (uint32_t objectId2, GameObject* gameObject2) {
+    forEachGameObject([this, &checked] (uint32_t objectId1, GameObject* gameObject1) {
+        const auto& pos = gameObject1->getPosition();
+        if ((pos.x() < 0 || pos.y() < 0 || pos.x() > width_ || pos.y() > height_) && gameObject1->getClassId() != SpaceShip::ClassId) {
+            gameObject1->kill();
+        }
+        if (!gameObject1->doesCollide()) {
+            return;
+        }
+        forEachGameObject([this, objectId1, gameObject1, &checked] (uint32_t objectId2, GameObject* gameObject2) {
+            if (!gameObject2->doesCollide()) {
+                return;
+            }
             auto oid1 = objectId1;
             auto oid2 = objectId2;
             if (oid1 != oid2) {
@@ -32,10 +41,9 @@ void ServerWorld::update(float elapsed) {
                 }
                 const auto id = boost::str(boost::format("%1%,%2%") % oid1 % oid2);
                 if (checked.find(id) == checked.end()) {
-                    if (confirmCollisionFunc_(oid1, oid2) && gameObject1->checkCollision(gameObject2)) {
-                        INFO("Remove objects {0} and {1}.", oid1, oid2);
-                        objectIds.insert(objectId1);
-                        objectIds.insert(objectId2);
+                    if (gameObject1->checkCollision(gameObject2) && confirmCollisionFunc_(oid1, gameObject1, oid2, gameObject2)) {
+                        gameObject1->kill();
+                        gameObject2->kill();
                     }
                     checked.insert(id);
                 }
@@ -43,14 +51,11 @@ void ServerWorld::update(float elapsed) {
         });
     });
 
-    forEachGameObject([&objectIds, this] (uint32_t objectId, GameObject* gameObject) {
-        const auto& pos = gameObject->getPosition();
-        if ((pos.x() < 0 || pos.y() < 0 || pos.x() > width_ || pos.y() > height_) && gameObject->getClassId() != SpaceShip::ClassId) {
-            objectIds.insert(objectId);
+    removeIf([this] (uint32_t objectId, GameObject* gameObject) {
+        if (gameObject->dead()) {
+            removedObjectFunc_(objectId);
+            return true;
         }
+        return false;
     });
-    for (const auto objectId : objectIds) {
-        remove(objectId);
-        removedObjectFunc_(objectId);
-    }
 }

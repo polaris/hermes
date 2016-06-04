@@ -28,7 +28,9 @@ public:
 
     void forEachGameObject(std::function<void (uint32_t, GameObject*)> fun);
 
-private:
+    void removeIf(std::function<bool (uint32_t, GameObject*)> predicate);
+
+protected:
     ObjectIdToGameObjectMap gameObjects_;
 };
 

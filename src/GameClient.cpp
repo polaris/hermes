@@ -8,6 +8,7 @@
 #include "LocalSpaceShip.h"
 #include "RemoteSpaceShip.h"
 #include "RemoteLaserBolt.h"
+#include "Explosion.h"
 
 #include <set>
 
@@ -88,14 +89,16 @@ void GameClient::renderFrame() {
 GameObject* GameClient::createNewGameObject(uint32_t classId, uint32_t objectId) {
     GameObjectPtr gameObjectPtr;
     if (objectId == objectId_) {
-        gameObjectPtr = std::shared_ptr<GameObject>(new LocalSpaceShip(renderer_, inputHandler_));
+        gameObjectPtr = GameObjectPtr(new LocalSpaceShip(renderer_, inputHandler_));
     } else {
         if (classId == SpaceShip::ClassId) {
-            gameObjectPtr = std::shared_ptr<GameObject>(new RemoteSpaceShip(renderer_, latencyEstimator_, frameDuration_));
+            gameObjectPtr = GameObjectPtr(new RemoteSpaceShip(renderer_, latencyEstimator_, frameDuration_));
         } else if (classId == LaserBolt::ClassId) {
-            gameObjectPtr = std::shared_ptr<GameObject>(new RemoteLaserBolt(renderer_, latencyEstimator_, frameDuration_));
+            gameObjectPtr = GameObjectPtr(new RemoteLaserBolt(renderer_, latencyEstimator_, frameDuration_));
+        } else if (classId == Explosion::ClassId) {
+            gameObjectPtr = GameObjectPtr(new Explosion(renderer_, Vector2d(0, 0)));
         }
-//        gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
+        // gameObjectPtr = GameObjectRegistry::get().createGameObject(classId, renderer_);
     }
     world_.add(objectId, gameObjectPtr);
     return gameObjectPtr.get();

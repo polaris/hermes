@@ -5,7 +5,7 @@
 
 #include <functional>
 
-using ConfirmCollisionFunc = std::function<bool(uint32_t, uint32_t)>;
+using ConfirmCollisionFunc = std::function<bool(uint32_t, const GameObject*, uint32_t, const GameObject*)>;
 using RemovedObjectFunc = std::function<void(uint32_t)>;
 
 class ServerWorld : public World {

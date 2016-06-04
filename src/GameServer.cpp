@@ -4,6 +4,7 @@
 #include "Protocol.h"
 #include "ServerSpaceShip.h"
 #include "LaserBolt.h"
+#include "Explosion.h"
 #include "ClientSession.h"
 #include "Packet.h"
 #include "Utilities.h"
@@ -13,7 +14,7 @@ GameServer::GameServer(unsigned int width, unsigned int height, unsigned int fra
 : Game(frameRate, renderer)
 , width_(width)
 , height_(height)
-, world_(width, height, [this] (uint32_t objectId1, uint32_t objectId2) { return confirmCollision(objectId1, objectId2); }, [this] (uint32_t objectId) { removedObject(objectId); })
+, world_(width, height, [this] (uint32_t objectId1, const GameObject* gameObject1, uint32_t objectId2, const GameObject* gameObject2) { return confirmCollision(objectId1, gameObject1, objectId2, gameObject2); }, [this] (uint32_t objectId) { removedObject(objectId); })
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , nextPlayerId_(1)
 , nextObjectId_(1)
@@ -223,8 +224,21 @@ void GameServer::handleEvent(SDL_Event& event, bool& running) {
     }
 }
 
-bool GameServer::confirmCollision(uint32_t objectId1, uint32_t objectId2) {
-    return objectToPlayerMap_[objectId1] != objectToPlayerMap_[objectId2];
+bool GameServer::confirmCollision(uint32_t objectId1, const GameObject* gameObject1, uint32_t objectId2, const GameObject* gameObject2) {
+    const auto result = objectToPlayerMap_[objectId1] != objectToPlayerMap_[objectId2];
+    if (result) {
+        if (gameObject1->getClassId() == SpaceShip::ClassId) {
+            INFO("explosion 1 {0}, {1}", objectId1, objectId2);
+            auto explosion = GameObjectPtr(new Explosion(renderer_, gameObject1->getPosition()));
+            world_.add(nextObjectId_++, explosion);
+        }
+        if (gameObject2->getClassId() == SpaceShip::ClassId) {
+            INFO("explosion 2 {0}, {1}", objectId1, objectId2);
+            auto explosion = GameObjectPtr(new Explosion(renderer_, gameObject2->getPosition()));
+            world_.add(nextObjectId_++, explosion);
+        }
+    }
+    return result;
 }
 
 void GameServer::removedObject(uint32_t objectId) {
@@ -232,5 +246,4 @@ void GameServer::removedObject(uint32_t objectId) {
     if (itr != objectToPlayerMap_.end()) {
         objectToPlayerMap_.erase(objectId);
     }
-
 }

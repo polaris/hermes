@@ -9,9 +9,13 @@ class Vector2d;
 
 class GameObject {
 public:
+    GameObject();
+
     virtual ~GameObject() = default;
 
     bool checkCollision(GameObject* gameObject) const;
+
+    void kill();
 
     virtual void update(float elapsed) = 0;
 
@@ -27,7 +31,14 @@ public:
 
     virtual unsigned int getHeight() const = 0;
 
+    virtual bool doesCollide() const;
+
+    virtual bool dead() const;
+
     virtual uint32_t getClassId() const = 0;
+
+private:
+    bool dead_;
 };
 
 using GameObjectPtr = std::shared_ptr<GameObject>;

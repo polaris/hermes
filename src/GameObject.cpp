@@ -3,6 +3,10 @@
 
 #include <SDL2/SDL.h>
 
+GameObject::GameObject()
+: dead_(false) {
+}
+
 bool GameObject::checkCollision(GameObject* gameObject) const {
     const auto& pos1 = getPosition();
     const SDL_Rect rect1 = {
@@ -21,4 +25,16 @@ bool GameObject::checkCollision(GameObject* gameObject) const {
     };
 
     return SDL_HasIntersection(&rect1, &rect2) == SDL_TRUE;
+}
+
+void GameObject::kill() {
+    dead_ = true;
+}
+
+bool GameObject::dead() const {
+    return dead_;
+}
+
+bool GameObject::doesCollide() const {
+    return true;
 }
