@@ -13,10 +13,10 @@ LDFLAGS := -lstdc++ -lm -lboost_system
 OS_NAME := $(shell uname -s | tr A-Z a-z)
 
 ifeq ($(OS_NAME),linux)
-    LDFLAGS += -lSDL2 -lSDL2_image -lboost_thread -pthread
+    LDFLAGS += -lSDL2 -lSDL2_image -lSDL2_mixer -lboost_thread -pthread
 endif
 ifeq ($(OS_NAME),darwin)
-    LDFLAGS += -lsdl2 -lsdl2_image -lboost_thread-mt
+    LDFLAGS += -lsdl2 -lsdl2_image -lsdl2_mixer -lboost_thread-mt
 endif
 
 INC := -Isrc -isystem 3rdparty

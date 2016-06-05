@@ -1,9 +1,11 @@
 #include "Explosion.h"
 #include "Logging.h"
+#include "Sound.h"
 
 Explosion::Explosion(const Renderer& renderer, const Vector2d& position)
 : animation_("data/explosion1.png", 12, 12, renderer)
 , position_(position) {
+    Sound::getInstance()->playSound(1);
 }
 
 void Explosion::update(float elapsed) {

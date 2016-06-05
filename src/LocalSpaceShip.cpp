@@ -2,6 +2,7 @@
 #include "InputHandler.h"
 #include "Renderer.h"
 #include "Utilities.h"
+#include "Sound.h"
 
 LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc, const Vector2d& position)
 : SpaceShip(renderer, position)
@@ -21,14 +22,25 @@ LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHand
 }
 
 void LocalSpaceShip::update(float elapsed) {
+    static float currentTime = 0.0f;
+    static float lastTime = 0.0f;
+
+    currentTime += elapsed;
+
     auto move = inputHandler_.getAndClearPendingMove();
     if (move) {
         const auto& inputState = move->getInputState();
         rotate(inputState.desiredRightAmount * elapsed);
         rotate(-inputState.desiredLeftAmount * elapsed);
         thrust(inputState.desiredForwardAmount > 0);
-        if (inputState.shooting && shootFunc_) {
-            lastShot_ = shootFunc_(this, lastShot_);
+        if (inputState.shooting) {
+            if (currentTime > lastTime + 0.5f) {
+                Sound::getInstance()->playSound(0);
+                lastTime = currentTime;
+                if (shootFunc_) {
+                    lastShot_ = shootFunc_(this, lastShot_);
+                }
+            }
         }
     }
 

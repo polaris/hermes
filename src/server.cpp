@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "GameServer.h"
 #include "Logging.h"
+#include "Sound.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -39,12 +40,15 @@ int main(int argc, char** argv) {
     try {
         INIT_LOGGING(LOG_LEVEL_DEBUG);
 
-        if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
             throw std::runtime_error(SDL_GetError());
         }
         atexit(SDL_Quit);
 
         std::srand(static_cast<unsigned int>(std::time(0)));
+
+        Sound::getInstance()->loadSound(0, "data/silence.wav");
+        Sound::getInstance()->loadSound(1, "data/silence.wav");
 
         Window window("Handle Latency - Server", 5, 5, 640, 480);
         

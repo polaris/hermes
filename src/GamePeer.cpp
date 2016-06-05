@@ -375,12 +375,8 @@ void GamePeer::Playing::handleWillUpdateWorld(const Clock& clock) {
     if (!initialized_) {
         auto gameObjectPtr = GameObjectPtr(new LocalSpaceShip(gamePeer_->renderer_, gamePeer_->inputHandler_,
             [this, &clock] (SpaceShip* spaceShip, float lastShot) -> float {
-                const auto now = clock.getTime();
-                if (now > lastShot + 0.5f) {
-                    auto laserBolt = GameObjectPtr(new LaserBolt(gamePeer_->renderer_, spaceShip->getPosition(), 50.0f * spaceShip->getLookAt()));
-                    gamePeer_->world_.addLocalGameObject(nextObjectId_++, laserBolt);
-                    return now;
-                }
+                auto laserBolt = GameObjectPtr(new LaserBolt(gamePeer_->renderer_, spaceShip->getPosition(), 50.0f * spaceShip->getLookAt()));
+                gamePeer_->world_.addLocalGameObject(nextObjectId_++, laserBolt);
                 return lastShot;
             }, Vector2d(randomValue(gamePeer_->width_), randomValue(gamePeer_->height_))));
         gamePeer_->world_.addLocalGameObject(nextObjectId_++, gameObjectPtr);
