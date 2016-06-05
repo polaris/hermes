@@ -2,12 +2,13 @@
 #include "Vector2d.h"
 #include "SpaceShip.h"
 
-#include <set>
+#include <unordered_set>
 #include <cassert>
 
-PeerToPeerWorld::PeerToPeerWorld(unsigned int width, unsigned int height)
+PeerToPeerWorld::PeerToPeerWorld(unsigned int width, unsigned int height, ConfirmCollisionFunc confirmCollisionFunc)
 : width_(width)
 , height_(height)
+, confirmCollisionFunc_(confirmCollisionFunc)
 , localGameObjects_()
 , remoteGameObjects_()
 , remoteEndpoints_() {
@@ -49,20 +50,27 @@ void PeerToPeerWorld::update(float elapsed) {
     for (auto& gameObject : localGameObjects_) {
         gameObject.second->update(elapsed);
     }
+
     for (auto& gameObject : remoteGameObjects_) {
         gameObject.second->update(elapsed);
     }
 
-    std::set<uint32_t> objectIds;
-    forEachLocalGameObject([&objectIds, this] (uint32_t objectId, GameObject* gameObject) {
-        const auto& pos = gameObject->getPosition();
-        if ((pos.x() < 0 || pos.y() < 0 || pos.x() > width_ || pos.y() > height_) && gameObject->getClassId() != SpaceShip::ClassId) {
-            objectIds.insert(objectId);
+    forEachLocalGameObject([this] (uint32_t objectId1, GameObject* gameObject1) {
+        const auto& pos = gameObject1->getPosition();
+        if ((pos.x() < 0 || pos.y() < 0 || pos.x() > width_ || pos.y() > height_) && gameObject1->getClassId() != SpaceShip::ClassId) {
+            gameObject1->kill();
+        }
+        if (gameObject1->doesCollide()) {
+            forEachRemoteGameObject([this, objectId1, gameObject1] (uint32_t objectId2, GameObject* gameObject2) {
+                if (gameObject2->doesCollide() && gameObject1->checkCollision(gameObject2) && confirmCollisionFunc_(objectId1, gameObject1, objectId2, gameObject2)) {
+                    gameObject1->kill();
+                }
+            });
         }
     });
-    for (const auto objectId : objectIds) {
-        removeLocalGameObject(objectId);
-    }
+    removeLocalGameObjectIf([this] (uint32_t objectId, GameObject* gameObject) {
+        return gameObject->dead();
+    });
 }
 
 void PeerToPeerWorld::draw(Renderer& renderer) {
@@ -80,10 +88,26 @@ void PeerToPeerWorld::forEachLocalGameObject(std::function<void (uint32_t, GameO
     }
 }
 
+void PeerToPeerWorld::forEachRemoteGameObject(std::function<void (uint32_t, GameObject*)> fun) {
+    for (auto& gameObject : remoteGameObjects_) {
+        fun(gameObject.first, gameObject.second.get());
+    }
+}
+
 void PeerToPeerWorld::forEachRemoteGameObject(const boost::asio::ip::udp::endpoint& endpoint, std::function<void (uint32_t, GameObject*)> fun) {
     for (auto& gameObject : remoteGameObjects_) {
         if (remoteEndpoints_[gameObject.first] == endpoint) {
             fun(gameObject.first, gameObject.second.get());
+        }
+    }
+}
+
+void PeerToPeerWorld::removeLocalGameObjectIf(std::function<bool (uint32_t, GameObject*)> predicate) {
+    for(auto itr = begin(localGameObjects_); itr != end(localGameObjects_);) {
+        if (predicate(itr->first, itr->second.get())) {
+            itr = localGameObjects_.erase(itr);
+        } else {
+            ++itr;
         }
     }
 }

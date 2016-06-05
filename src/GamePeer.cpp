@@ -4,15 +4,19 @@
 #include "Packet.h"
 #include "Clock.h"
 #include "Logging.h"
+#include "Utilities.h"
 #include "LocalSpaceShip.h"
 #include "RemoteSpaceShip.h"
 #include "RemoteLaserBolt.h"
+#include "Explosion.h"
 
-#include <set>
+#include <unordered_set>
 
 GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, unsigned int stdDevMeanLatency, Renderer& renderer, unsigned short port)
 : Game(frameRate, renderer)
-, world_(width, height)
+, width_(width)
+, height_(height)
+, world_(width, height, [this] (uint32_t objectId1, const GameObject* gameObject1, uint32_t objectId2, const GameObject* gameObject2) { return confirmCollision(objectId1, gameObject1, objectId2, gameObject2); })
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , inputHandler_(30)
 , latencyEstimator_(10)
@@ -30,7 +34,9 @@ GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRa
 
 GamePeer::GamePeer(unsigned int width, unsigned int height, unsigned int frameRate, unsigned int updateRate, unsigned int emulatedLatency, unsigned int stdDevMeanLatency, Renderer& renderer, const char* address, unsigned short port)
 : Game(frameRate, renderer)
-, world_(width, height)
+, width_(width)
+, height_(height)
+, world_(width, height, [this] (uint32_t objectId1, const GameObject* gameObject1, uint32_t objectId2, const GameObject* gameObject2) { return confirmCollision(objectId1, gameObject1, objectId2, gameObject2); })
 , updateInterval_(1.0f/static_cast<float>(updateRate))
 , inputHandler_(30)
 , latencyEstimator_(10)
@@ -103,6 +109,10 @@ void GamePeer::renderFrame() {
     renderer_.clear(0.25f, 0.25f, 0.25f);
     world_.draw(renderer_);
     renderer_.present();
+}
+
+bool GamePeer::confirmCollision(uint32_t objectId1, const GameObject* gameObject1, uint32_t objectId2, const GameObject* gameObject2) {
+    return currentState->confirmCollision(objectId1, gameObject1, objectId2, gameObject2);
 }
 
 GamePeer::State::State(GamePeer* gamePeer)
@@ -372,7 +382,7 @@ void GamePeer::Playing::handleWillUpdateWorld(const Clock& clock) {
                     return now;
                 }
                 return lastShot;
-            }));
+            }, Vector2d(randomValue(gamePeer_->width_), randomValue(gamePeer_->height_))));
         gamePeer_->world_.addLocalGameObject(nextObjectId_++, gameObjectPtr);
         initialized_ = true;
     }
@@ -394,7 +404,7 @@ void GamePeer::Playing::handleState(Packet* packet) {
     packet->read(latestInputTime);
     assert(latestInputTime == 0.0f);
 
-    std::set<uint32_t> gameObjectsToRemove;
+    std::unordered_set<uint32_t> gameObjectsToRemove;
     gamePeer_->world_.forEachRemoteGameObject(packet->getEndpoint(), [&gameObjectsToRemove] (uint32_t objectId, GameObject*) {
         gameObjectsToRemove.insert(objectId);
     });
@@ -414,6 +424,8 @@ void GamePeer::Playing::handleState(Packet* packet) {
                 gameObjectPtr = GameObjectPtr(new RemoteSpaceShip(gamePeer_->renderer_, latencyEstimator, gamePeer_->frameDuration_));
             } else if (classId == LaserBolt::ClassId) {
                 gameObjectPtr = GameObjectPtr(new RemoteLaserBolt(gamePeer_->renderer_, latencyEstimator, gamePeer_->frameDuration_));
+            }else if (classId == Explosion::ClassId) {
+                gameObjectPtr = GameObjectPtr(new Explosion(gamePeer_->renderer_, Vector2d(0, 0)));
             }
             gamePeer_->world_.addRemoteGameObject(objectId, gameObjectPtr, packet->getEndpoint());
             gameObject = gameObjectPtr.get();
@@ -452,4 +464,16 @@ void GamePeer::Playing::sendOutgoingPackets(const Clock& clock) {
         });
         lastStateUpdate_ = now;
     }
+}
+
+bool GamePeer::Playing::confirmCollision(uint32_t objectId1, const GameObject* gameObject1, uint32_t objectId2, const GameObject* gameObject2) {
+    if (gameObject1->getClassId() == SpaceShip::ClassId) {
+        auto explosion = GameObjectPtr(new Explosion(gamePeer_->renderer_, gameObject1->getPosition()));
+        gamePeer_->world_.addLocalGameObject(nextObjectId_++, explosion);
+    }
+    if (gameObject2->getClassId() == SpaceShip::ClassId) {
+        auto explosion = GameObjectPtr(new Explosion(gamePeer_->renderer_, gameObject2->getPosition()));
+        gamePeer_->world_.addLocalGameObject(nextObjectId_++, explosion);
+    }
+    return true;
 }

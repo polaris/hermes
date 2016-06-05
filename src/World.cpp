@@ -48,7 +48,7 @@ void World::forEachGameObject(std::function<void (uint32_t, GameObject*)> fun) {
     }
 }
 
-void World::removeIf(std::function<bool (uint32_t, GameObject*)> predicate) {
+void World::removeGameObjectIf(std::function<bool (uint32_t, GameObject*)> predicate) {
     for(auto itr = begin(gameObjects_); itr != end(gameObjects_);) {
         if (predicate(itr->first, itr->second.get())) {
             itr = gameObjects_.erase(itr);

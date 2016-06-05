@@ -33,12 +33,15 @@ private:
     void processIncomingPackets(const Clock& clock);
     void renderFrame();
 
+    bool confirmCollision(uint32_t objectId1, const GameObject* gameObject1, uint32_t objectId2, const GameObject* gameObject2);
+
     class State {
     public:
         explicit State(GamePeer* gamePeer);
         virtual ~State() = default;
         State(const GamePeer::State&) = delete;
         GamePeer::State& operator =(const GamePeer::State&) = delete;
+        virtual bool confirmCollision(uint32_t, const GameObject*, uint32_t, const GameObject*) { return true; }
         virtual void handleWillUpdateWorld(const Clock&) {}
         virtual void handleIncomingPacket(Packet* packet, const Clock& clock) = 0;
         virtual void sendOutgoingPackets(const Clock& clock) = 0;
@@ -112,6 +115,7 @@ private:
         void handleWillUpdateWorld(const Clock&) override;
         void handleIncomingPacketType(unsigned char packetType, Packet* packet, const Clock& clock) override;
         void sendOutgoingPackets(const Clock& clock) override;
+        bool confirmCollision(uint32_t objectId1, const GameObject* gameObject1, uint32_t objectId2, const GameObject* gameObject2) override;
 
     private:
         void handleState(Packet* packet);
@@ -120,6 +124,9 @@ private:
 
         float lastStateUpdate_;
     };
+
+    const unsigned int width_;
+    const unsigned int height_;
 
     PeerToPeerWorld world_;
 

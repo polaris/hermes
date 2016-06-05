@@ -3,13 +3,17 @@
 #include "Renderer.h"
 #include "Utilities.h"
 
-LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc)
-: SpaceShip(renderer)
+LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc, const Vector2d& position)
+: SpaceShip(renderer, position)
 , inputHandler_(inputHandler)
 , shootFunc_(shootFunc)
 , lastShot_(0)
 , length(std::max(getWidth(), getHeight()))
 , created_(true) {
+}
+
+LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc)
+: LocalSpaceShip(renderer, inputHandler, shootFunc, Vector2d(0, 0)) {
 }
 
 LocalSpaceShip::LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler)

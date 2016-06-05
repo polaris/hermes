@@ -11,6 +11,8 @@ using ShootFunc = std::function<float (SpaceShip*, float)>;
 
 class LocalSpaceShip : public SpaceShip {
 public:
+    LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc, const Vector2d& position);
+
     LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler, ShootFunc shootFunc);
 
     LocalSpaceShip(const Renderer& renderer, InputHandler& inputHandler);

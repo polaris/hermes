@@ -51,7 +51,7 @@ void ServerWorld::update(float elapsed) {
         });
     });
 
-    removeIf([this] (uint32_t objectId, GameObject* gameObject) {
+    removeGameObjectIf([this] (uint32_t objectId, GameObject* gameObject) {
         if (gameObject->dead()) {
             removedObjectFunc_(objectId);
             return true;
