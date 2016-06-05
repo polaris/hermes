@@ -471,9 +471,5 @@ bool GamePeer::Playing::confirmCollision(uint32_t objectId1, const GameObject* g
         auto explosion = GameObjectPtr(new Explosion(gamePeer_->renderer_, gameObject1->getPosition()));
         gamePeer_->world_.addLocalGameObject(nextObjectId_++, explosion);
     }
-    if (gameObject2->getClassId() == SpaceShip::ClassId) {
-        auto explosion = GameObjectPtr(new Explosion(gamePeer_->renderer_, gameObject2->getPosition()));
-        gamePeer_->world_.addLocalGameObject(nextObjectId_++, explosion);
-    }
     return true;
 }
