@@ -228,12 +228,10 @@ bool GameServer::confirmCollision(uint32_t objectId1, const GameObject* gameObje
     const auto result = objectToPlayerMap_[objectId1] != objectToPlayerMap_[objectId2];
     if (result) {
         if (gameObject1->getClassId() == SpaceShip::ClassId) {
-            INFO("explosion 1 {0}, {1}", objectId1, objectId2);
             auto explosion = GameObjectPtr(new Explosion(renderer_, gameObject1->getPosition()));
             world_.add(nextObjectId_++, explosion);
         }
         if (gameObject2->getClassId() == SpaceShip::ClassId) {
-            INFO("explosion 2 {0}, {1}", objectId1, objectId2);
             auto explosion = GameObjectPtr(new Explosion(renderer_, gameObject2->getPosition()));
             world_.add(nextObjectId_++, explosion);
         }
