@@ -226,7 +226,6 @@ void GamePeer::Accepting::handleHello(Packet* packet) {
         }
     } else {
         WARN("HELLO received from {0} but number of necessary players already reached.", packet->getEndpoint());
-        // TODO: Tell peer we are already full.
     }
 }
 
