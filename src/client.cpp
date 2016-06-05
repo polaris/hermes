@@ -54,6 +54,8 @@ int main(int argc, char** argv) {
         }
         atexit(SDL_Quit);
 
+        std::srand(static_cast<unsigned int>(std::time(0)));
+
         Window window("Handle Latency - Client", 700, 5, 640, 480);
         
         Renderer renderer(window);
