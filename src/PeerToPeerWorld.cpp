@@ -68,7 +68,7 @@ void PeerToPeerWorld::update(float elapsed) {
             });
         }
     });
-    removeLocalGameObjectIf([this] (uint32_t objectId, GameObject* gameObject) {
+    removeLocalGameObjectIf([this] (uint32_t, GameObject* gameObject) {
         return gameObject->dead();
     });
 }
