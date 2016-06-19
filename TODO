@@ -1,7 +1,8 @@
 Must have
-- implement peer-to-peer RTS demo
+- make sure moves are not sent more than once
 
 Nice to have
+- implement peer-to-peer RTS demo
 - find a way to make GameObjectFactory actually work
 - detect disconnect from server on the client side
 
