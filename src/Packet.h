@@ -71,7 +71,7 @@ public:
         return data_;
     }
 
-    const char* data() const {
+    const char* getData() const {
         return data_;
     }
 
