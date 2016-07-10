@@ -15,7 +15,7 @@ void Explosion::update(float elapsed) {
 }
 
 void Explosion::draw(Renderer& renderer) {
-    animation_.draw(static_cast<int>(position_.x()), static_cast<int>(position_.y()), renderer);
+    animation_.draw(static_cast<int>(position_.getX()), static_cast<int>(position_.getY()), renderer);
 }
 
 void Explosion::write(Packet* packet) {

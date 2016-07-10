@@ -30,14 +30,14 @@ void Renderer::setDrawColor(float r, float g, float b, float a) {
 }
 
 void Renderer::drawLine(const Vector2d& a, const Vector2d& b) {
-    SDL_RenderDrawLine(renderer_, static_cast<int>(a.x()), static_cast<int>(a.y()),
-                                  static_cast<int>(b.x()), static_cast<int>(b.y()));
+    SDL_RenderDrawLine(renderer_, static_cast<int>(a.getX()), static_cast<int>(a.getY()),
+                                  static_cast<int>(b.getX()), static_cast<int>(b.getY()));
 }
 
 void Renderer::drawRect(const Vector2d& pos, unsigned int width, unsigned int height) {
     const SDL_Rect rect = {
-        static_cast<int>(pos.x() - static_cast<float>(width) / 2.0f),
-        static_cast<int>(pos.y() - static_cast<float>(height) / 2.0f),
+        static_cast<int>(pos.getX() - static_cast<float>(width) / 2.0f),
+        static_cast<int>(pos.getY() - static_cast<float>(height) / 2.0f),
         static_cast<int>(width),
         static_cast<int>(height)
     };

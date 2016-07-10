@@ -23,7 +23,7 @@ void ServerWorld::update(float elapsed) {
 
     forEachGameObject([this, &checked] (uint32_t objectId1, GameObject* gameObject1) {
         const auto& pos = gameObject1->getPosition();
-        if ((pos.x() < 0 || pos.y() < 0 || pos.x() > width_ || pos.y() > height_) && gameObject1->getClassId() != SpaceShip::ClassId) {
+        if ((pos.getX() < 0 || pos.getY() < 0 || pos.getX() > width_ || pos.getY() > height_) && gameObject1->getClassId() != SpaceShip::ClassId) {
             gameObject1->kill();
         }
         if (!gameObject1->doesCollide()) {

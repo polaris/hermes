@@ -23,11 +23,11 @@ public:
     , y_(rhs.y_) {
     }
 
-    inline float x() const {
+    inline float getX() const {
         return x_;
     }
 
-    inline float y() const {
+    inline float getY() const {
         return y_;
     }
 
@@ -131,15 +131,15 @@ static Vector2d operator /(float s, const Vector2d& v) {
 }
 
 static float dot(const Vector2d& a, const Vector2d& b) {
-    return (a.x() * b.x()) + (a.y() * b.y());
+    return (a.getX() * b.getX()) + (a.getY() * b.getY());
 }
 
 static float determinant(const Vector2d& a, const Vector2d& b) {
-    return (a.x() * b.y()) + (a.y() * b.x());
+    return (a.getX() * b.getY()) + (a.getY() * b.getX());
 }
 
 static float cross(const Vector2d& a, const Vector2d& b) {
-    return (a.x() * b.y()) - (a.y() * b.x());
+    return (a.getX() * b.getY()) - (a.getY() * b.getX());
 }
 
 static float angle(const Vector2d& a, const Vector2d& b) {
@@ -160,10 +160,10 @@ static bool intersect(const Vector2d& aa, const Vector2d& ab, const Vector2d& ba
 }
 
 static Vector2d getIntersect(const Vector2d& aa, const Vector2d& ab, const Vector2d& ba, const Vector2d& bb) {
-    const auto pX = (aa.x()*ab.y() - aa.y()*ab.x())*(ba.x() - bb.x()) - (ba.x()*bb.y() - ba.y()*bb.x())*(aa.x() - ab.x());
-    const auto pY = (aa.x()*ab.y() - aa.y()*ab.x())*(ba.y() - bb.y()) - (ba.x()*bb.y() - ba.y()*bb.x())*(aa.y() - ab.y());
+    const auto pX = (aa.getX()*ab.getY() - aa.getY()*ab.getX())*(ba.getX() - bb.getX()) - (ba.getX()*bb.getY() - ba.getY()*bb.getX())*(aa.getX() - ab.getX());
+    const auto pY = (aa.getX()*ab.getY() - aa.getY()*ab.getX())*(ba.getY() - bb.getY()) - (ba.getX()*bb.getY() - ba.getY()*bb.getX())*(aa.getY() - ab.getY());
     
-    const auto denominator = (aa.x() - ab.x())*(ba.y() - bb.y()) - (aa.y() - ab.y())*(ba.x() - bb.x());
+    const auto denominator = (aa.getX() - ab.getX())*(ba.getY() - bb.getY()) - (aa.getY() - ab.getY())*(ba.getX() - bb.getX());
     
     return Vector2d(pX / denominator, pY / denominator);    
 }

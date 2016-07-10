@@ -39,8 +39,8 @@ void SpaceShip::draw(Renderer &renderer) {
     renderer.drawLine(position_, position_ + velocity_);
 
     sprite_.draw(
-        static_cast<int>(position_.x() - static_cast<float>(sprite_.getWidth()) / 2.0f),
-        static_cast<int>(position_.y() - static_cast<float>(sprite_.getHeight()) / 2.0f),
+        static_cast<int>(position_.getX() - static_cast<float>(sprite_.getWidth()) / 2.0f),
+        static_cast<int>(position_.getY() - static_cast<float>(sprite_.getHeight()) / 2.0f),
         -angle(Vector2d{0, -1}, lookat_),
         renderer);
 }
